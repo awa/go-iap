@@ -1,0 +1,12 @@
+language: go
+go:
+- 1.3
+before_install:
+  sudo pip install codecov
+install:
+- make setup
+script:
+- make cover
+after_success:
+  codecov
+
