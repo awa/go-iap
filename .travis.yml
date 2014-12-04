@@ -4,8 +4,7 @@ go:
 before_install:
   sudo pip install codecov
 install:
-- go get code.google.com/p/go.tools/cmd/cover
-- go get ./...
+- make setup
 script:
 - make cover
 after_success:

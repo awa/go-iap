@@ -68,8 +68,8 @@ func HandleError(status int) error {
 }
 
 // New creates a client object
-func New() *Client {
-	client := &Client{
+func New() Client {
+	client := Client{
 		URL:     sandboxURL,
 		TimeOut: time.Second * 5,
 	}
@@ -80,12 +80,12 @@ func New() *Client {
 }
 
 // NewWithConfig creates a client with configuration
-func NewWithConfig(config Config) *Client {
+func NewWithConfig(config Config) Client {
 	if config.TimeOut == 0 {
 		config.TimeOut = time.Second * 5
 	}
 
-	client := &Client{
+	client := Client{
 		URL:     sandboxURL,
 		TimeOut: config.TimeOut,
 	}

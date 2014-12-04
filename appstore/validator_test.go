@@ -68,7 +68,7 @@ func TestHandleError(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
-	expected := &Client{
+	expected := Client{
 		URL:     "https://sandbox.itunes.apple.com/verifyReceipt",
 		TimeOut: time.Second * 5,
 	}
@@ -85,7 +85,7 @@ func TestNewWithConfig(t *testing.T) {
 		TimeOut:      time.Second * 2,
 	}
 
-	expected := &Client{
+	expected := Client{
 		URL:     "https://buy.itunes.apple.com/verifyReceipt",
 		TimeOut: time.Second * 2,
 	}
