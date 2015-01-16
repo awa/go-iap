@@ -105,3 +105,24 @@ func TestVerifySubscription(t *testing.T) {
 
 	// TODO Nomal scenario
 }
+
+func TestVerifyProduct(t *testing.T) {
+	Init()
+
+	// Exception scenario
+	token := &oauth.Token{
+		AccessToken:  "accessToken",
+		RefreshToken: "refreshToken",
+		Expiry:       time.Unix(1234567890, 0).UTC(),
+	}
+
+	client := New(token)
+	expected := "Get https://www.googleapis.com/androidpublisher/v2/applications/package/purchases/products/productID/tokens/purchaseToken?alt=json: OAuthError: updateToken: Unexpected HTTP status 400 Bad Request"
+	_, err := client.VerifyProduct("package", "productID", "purchaseToken")
+
+	if err.Error() != expected {
+		t.Errorf("got %v", err)
+	}
+
+	// TODO Nomal scenario
+}

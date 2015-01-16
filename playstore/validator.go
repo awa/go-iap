@@ -122,6 +122,23 @@ func (c *Client) VerifySubscription(
 	return result, err
 }
 
+// VerifyProduct Verifies product status
+func (c *Client) VerifyProduct(
+	packageName string,
+	productID string,
+	token string,
+) (*androidpublisher.ProductPurchase, error) {
+	service, err := androidpublisher.New(c.httpClient)
+	if err != nil {
+		return nil, err
+	}
+
+	ps := androidpublisher.NewPurchasesProductsService(service)
+	result, err := ps.Get(packageName, productID, token).Do()
+
+	return result, err
+}
+
 func dialTimeout(network, addr string) (net.Conn, error) {
 	return net.DialTimeout(network, addr, defaultTimeout)
 }
