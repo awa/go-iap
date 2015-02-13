@@ -62,7 +62,7 @@ func main() {
 # ToDo
 - [x] Validator for In App Purchase Receipt (AppStore)
 - [x] Validator for Subscription token (GooglePlay)
-- [ ] Validator for Purchase Product token (GooglePlay)
+- [x] Validator for Purchase Product token (GooglePlay)
 - [ ] More Tests
 
 
