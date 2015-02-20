@@ -99,9 +99,15 @@ func NewWithConfig(config Config) Client {
 // Verify sends receipts and gets validation result
 func (c *Client) Verify(req *IAPRequest) (IAPResponse, error) {
 	result := IAPResponse{}
+	obj, err_json := json.Marshal(req)
+	if err_json != nil {
+		return result, fmt.Errorf("%v", err_json)
+	}
+
 	res, body, errs := gorequest.New().
 		Post(c.URL).
-		Send(req).
+		Type("json").
+		SendString(string(obj)).
 		Timeout(c.TimeOut).
 		End()
 
