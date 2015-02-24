@@ -97,7 +97,7 @@ func NewWithConfig(config Config) Client {
 }
 
 // Verify sends receipts and gets validation result
-func (c *Client) Verify(req *IAPRequest) (IAPResponse, error) {
+func (c *Client) Verify(req IAPRequest) (IAPResponse, error) {
 	result := IAPResponse{}
 	res, body, errs := gorequest.New().
 		Post(c.URL).
