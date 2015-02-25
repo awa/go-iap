@@ -2,6 +2,10 @@ package appstore
 
 import (
 	"errors"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -79,6 +83,21 @@ func TestNew(t *testing.T) {
 	}
 }
 
+func TestNewWithEnvironment(t *testing.T) {
+	expected := Client{
+		URL:     "https://buy.itunes.apple.com/verifyReceipt",
+		TimeOut: time.Second * 5,
+	}
+
+	os.Setenv("IAP_ENVIRONMENT", "production")
+	actual := New()
+	os.Clearenv()
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+}
+
 func TestNewWithConfig(t *testing.T) {
 	config := Config{
 		IsProduction: true,
@@ -88,6 +107,22 @@ func TestNewWithConfig(t *testing.T) {
 	expected := Client{
 		URL:     "https://buy.itunes.apple.com/verifyReceipt",
 		TimeOut: time.Second * 2,
+	}
+
+	actual := NewWithConfig(config)
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+}
+
+func TestNewWithConfigTimeout(t *testing.T) {
+	config := Config{
+		IsProduction: true,
+	}
+
+	expected := Client{
+		URL:     "https://buy.itunes.apple.com/verifyReceipt",
+		TimeOut: time.Second * 5,
 	}
 
 	actual := NewWithConfig(config)
@@ -109,4 +144,47 @@ func TestVerify(t *testing.T) {
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)
 	}
+}
+
+func TestVerifyErrors(t *testing.T) {
+	server, client := testTools(199, "dummy response")
+	defer server.Close()
+
+	req := IAPRequest{
+		ReceiptData: "dummy data",
+	}
+
+	expected := errors.New("An error occurred in IAP - code:199")
+	_, actual := client.Verify(req)
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+}
+
+func TestVerifyTimeout(t *testing.T) {
+	// HTTP 100 is "continue" so it will time out
+	server, client := testTools(100, "dummy response")
+	defer server.Close()
+
+	req := IAPRequest{
+		ReceiptData: "dummy data",
+	}
+
+	expected := errors.New("")
+	_, actual := client.Verify(req)
+	if !reflect.DeepEqual(reflect.TypeOf(actual), reflect.TypeOf(expected)) {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+}
+
+func testTools(code int, body string) (*httptest.Server, *Client) {
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(code)
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintln(w, body)
+	}))
+
+	client := &Client{URL: server.URL, TimeOut: time.Second * 2}
+	return server, client
 }

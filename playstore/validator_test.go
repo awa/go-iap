@@ -1,6 +1,7 @@
 package playstore
 
 import (
+	"errors"
 	"os"
 	"reflect"
 	"testing"
@@ -27,6 +28,18 @@ func TestInit(t *testing.T) {
 	}
 }
 
+func TestInitWithoutClientSecret(t *testing.T) {
+	expected := errors.New("Client Secret Key is required")
+
+	os.Setenv("IAB_CLIENT_ID", "dummyId")
+	actual := Init()
+	os.Clearenv()
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+}
+
 func TestInitWithConfig(t *testing.T) {
 	expected := &oauth.Config{
 		ClientId:     "dummyId",
@@ -45,6 +58,34 @@ func TestInitWithConfig(t *testing.T) {
 	}
 	InitWithConfig(config)
 	actual := defaultConfig
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+}
+
+func TestInitWithConfigErrors(t *testing.T) {
+	expected := errors.New("Client ID is required")
+
+	config := &oauth.Config{
+		Scope:    "https://www.googleapis.com/auth/androidpublisher",
+		AuthURL:  "https://accounts.google.com/o/oauth2/auth",
+		TokenURL: "https://accounts.google.com/o/oauth2/token",
+	}
+	actual := InitWithConfig(config)
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+
+	expected = errors.New("Client Secret Key is required")
+	config = &oauth.Config{
+		ClientId: "dummyId",
+		Scope:    "https://www.googleapis.com/auth/androidpublisher",
+		AuthURL:  "https://accounts.google.com/o/oauth2/auth",
+		TokenURL: "https://accounts.google.com/o/oauth2/token",
+	}
+	actual = InitWithConfig(config)
+
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)
 	}
@@ -106,6 +147,16 @@ func TestVerifySubscription(t *testing.T) {
 	// TODO Nomal scenario
 }
 
+func TestVerifySubscriptionAndroidPublisherError(t *testing.T) {
+	client := Client{nil}
+	expected := errors.New("client is nil")
+	_, actual := client.VerifySubscription("package", "subscriptionID", "purchaseToken")
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+}
+
 func TestVerifyProduct(t *testing.T) {
 	Init()
 
@@ -125,4 +176,14 @@ func TestVerifyProduct(t *testing.T) {
 	}
 
 	// TODO Nomal scenario
+}
+
+func TestVerifyProductAndroidPublisherError(t *testing.T) {
+	client := Client{nil}
+	expected := errors.New("client is nil")
+	_, actual := client.VerifyProduct("package", "productID", "purchaseToken")
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
 }
