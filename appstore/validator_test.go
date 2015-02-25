@@ -105,7 +105,7 @@ func TestVerify(t *testing.T) {
 	req := IAPRequest{
 		ReceiptData: "dummy data",
 	}
-	actual, _ := client.Verify(&req)
+	actual, _ := client.Verify(req)
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)
 	}
