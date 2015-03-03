@@ -4,6 +4,7 @@ type (
 	// The IAPRequest type has the request parameter
 	IAPRequest struct {
 		ReceiptData string `json:"receipt-data"`
+		Password    string `json:"password,omitempty"`
 	}
 
 	// The RequestDate type indicates the date and time that the request was sent
