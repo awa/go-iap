@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	sandboxURL    string = "https://sandbox.itunes.apple.com/verifyReceipt"
-	productionURL string = "https://buy.itunes.apple.com/verifyReceipt"
+	SandboxURL    string = "https://sandbox.itunes.apple.com/verifyReceipt"
+	ProductionURL string = "https://buy.itunes.apple.com/verifyReceipt"
 )
 
 // Config is a configuration to initialize client
@@ -70,11 +70,11 @@ func HandleError(status int) error {
 // New creates a client object
 func New() Client {
 	client := Client{
-		URL:     sandboxURL,
+		URL:     SandboxURL,
 		TimeOut: time.Second * 5,
 	}
 	if os.Getenv("IAP_ENVIRONMENT") == "production" {
-		client.URL = productionURL
+		client.URL = ProductionURL
 	}
 	return client
 }
@@ -86,11 +86,11 @@ func NewWithConfig(config Config) Client {
 	}
 
 	client := Client{
-		URL:     sandboxURL,
+		URL:     SandboxURL,
 		TimeOut: config.TimeOut,
 	}
 	if config.IsProduction {
-		client.URL = productionURL
+		client.URL = ProductionURL
 	}
 
 	return client
