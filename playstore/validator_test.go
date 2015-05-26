@@ -1,8 +1,8 @@
 package playstore
 
 import (
+	"encoding/json"
 	"errors"
-	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -10,146 +10,60 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func TestInit(t *testing.T) {
-	expected := &oauth2.Config{
-		ClientID:     "dummyId",
-		ClientSecret: "dummySecret",
-		Scopes:       []string{"https://www.googleapis.com/auth/androidpublisher"},
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
-			TokenURL: "https://accounts.google.com/o/oauth2/token",
-		},
-	}
-	os.Setenv("IAB_CLIENT_ID", "dummyId")
-	os.Setenv("IAB_CLIENT_SECRET", "dummySecret")
-	Init()
-	os.Clearenv()
-	actual := defaultConfig
-	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("got %v\nwant %v", actual, expected)
-	}
+type testSignature struct {
+	PrivateKeyID string `json:"private_key_id"`
+	PrivateKey   string `json:"private_key"`
+	ClientEmail  string `json:"client_email"`
+	ClientID     string `json:"client_id"`
+	Type         string `json:"type"`
 }
 
-func TestInitWithoutClientSecret(t *testing.T) {
-	expected := errors.New("Client Secret Key is required")
-
-	os.Setenv("IAB_CLIENT_ID", "dummyId")
-	actual := Init()
-	os.Clearenv()
-
-	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("got %v\nwant %v", actual, expected)
-	}
-}
-
-func TestInitWithConfig(t *testing.T) {
-	expected := &oauth2.Config{
-		ClientID:     "dummyId",
-		ClientSecret: "dummySecret",
-		Scopes:       []string{"https://www.googleapis.com/auth/androidpublisher"},
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
-			TokenURL: "https://accounts.google.com/o/oauth2/token",
-		},
-	}
-
-	config := &oauth2.Config{
-		ClientID:     "dummyId",
-		ClientSecret: "dummySecret",
-	}
-
-	InitWithConfig(config)
-	actual := defaultConfig
-	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("got %v\nwant %v", actual, expected)
-	}
-}
-
-func TestInitWithConfigErrors(t *testing.T) {
-	expected := errors.New("Client ID is required")
-
-	config := &oauth2.Config{
-		Scopes: []string{"https://www.googleapis.com/auth/androidpublisher"},
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
-			TokenURL: "https://accounts.google.com/o/oauth2/token",
-		},
-	}
-	actual := InitWithConfig(config)
-
-	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("got %v\nwant %v", actual, expected)
-	}
-
-	expected = errors.New("Client Secret Key is required")
-	config = &oauth2.Config{
-		ClientID: "dummyId",
-		Scopes:   []string{"https://www.googleapis.com/auth/androidpublisher"},
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
-			TokenURL: "https://accounts.google.com/o/oauth2/token",
-		},
-	}
-	actual = InitWithConfig(config)
-
-	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("got %v\nwant %v", actual, expected)
-	}
+var testJSON = testSignature{
+	PrivateKeyID: "dummyKeyID",
+	PrivateKey:   "-----BEGIN PRIVATE KEY-----\nMIIBOQIBAAJBANXOa7wgs5KHMEVJmVo2eoRxEgeqiYF2oABPGYrebU+cQiE7Mwdy\nxv153DHME+9L9QzAj+fR4y5Rwva/fAsGAssCAwEAAQJATQwrFMtwCtC+22kvYywY\nsJuSlMKm9MmL1TCsErgfCj2rksRK1U+/ZY709tE3XJVYlZalWCeVhHTjs5p0pnk6\nYQIhAOw0FksytfIfpdfcREbful+LhFp1um5WjcVf7kQ73JDxAiEA57nJkG9pwnUd\nBCyIcElTVIAKU0+iFpd1208OnGxyT3sCIGaEBNkGXWmEytnxQ8DvAVjOmNcaGZwh\n/M4ZYLREtupBAiAsrpFkTWdqPKTcsi2Y4Tq1N39GMzvA+XGbWTIrDWo5UwIgHhp9\nEOnHuUuPCjpLfYM2vSFiYzaj8UJCImjkMtDwzbA=\n-----END PRIVATE KEY-----\n",
+	ClientEmail:  "dummyEmail",
+	ClientID:     "dummyClientID",
+	Type:         "service_account",
 }
 
 func TestNew(t *testing.T) {
-	// Initialize config
-	_config := &oauth2.Config{
-		ClientID:     "dummyId",
-		ClientSecret: "dummySecret",
-		RedirectURL:  "REDIRECT_URL",
-		Scopes:       []string{"scope1", "scope2"},
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  "http://example.com/auth",
-			TokenURL: "http://example.com/token",
-		},
-	}
-	InitWithConfig(_config)
+	// Exception scenario
+	jsonKey, _ := json.Marshal(testJSON)
+	expected := "oauth2: cannot fetch token: 400 Bad Request\nResponse: {\n  \"error\" : \"invalid_grant\"\n}"
 
-	_token := &oauth2.Token{
-		AccessToken:  "accessToken",
-		RefreshToken: "refreshToken",
-		Expiry:       time.Unix(2234567890, 0).UTC(),
-	}
-
-	actual := New(_token)
+	actual, _ := New(jsonKey)
 	val := actual.httpClient.Transport.(*oauth2.Transport)
-	token, _ := val.Source.Token()
-	if !reflect.DeepEqual(token, _token) {
-		t.Errorf("got %v\nwant %v", token, _token)
+	token, err := val.Source.Token()
+	if token != nil {
+		t.Errorf("got %#v", token)
 	}
+	if err.Error() != expected {
+		t.Errorf("got %v\nwant %v", err, expected)
+	}
+
+	// TODO Normal scenario
 }
 
 func TestSetTimeout(t *testing.T) {
-	timeout := time.Second * 3
-	SetTimeout(timeout)
+	_timeout := time.Second * 3
+	SetTimeout(_timeout)
 
-	if defaultTimeout != timeout {
-		t.Errorf("got %#v\nwant %#v", defaultTimeout, timeout)
+	if timeout != _timeout {
+		t.Errorf("got %#v\nwant %#v", timeout, _timeout)
 	}
 }
 
 func TestVerifySubscription(t *testing.T) {
-	Init()
-
 	// Exception scenario
-	token := &oauth2.Token{
-		AccessToken:  "accessToken",
-		RefreshToken: "refreshToken",
-		Expiry:       time.Unix(2234567890, 0).UTC(),
-	}
+	jsonKey, _ := json.Marshal(testJSON)
 
-	client := New(token)
-	expected := "googleapi: Error 401: Invalid Credentials, authError"
+	expected := "Get https://www.googleapis.com/androidpublisher/v2/applications/package/purchases/subscriptions/subscriptionID/tokens/purchaseToken?alt=json: oauth2: cannot fetch token: 400 Bad Request\nResponse: {\n  \"error\" : \"invalid_grant\"\n}"
+
+	client, _ := New(jsonKey)
 	_, err := client.VerifySubscription("package", "subscriptionID", "purchaseToken")
 
 	if err.Error() != expected {
-		t.Errorf("got %v", err)
+		t.Errorf("got %v\nwant %v", err, expected)
 	}
 
 	// TODO Normal scenario
@@ -166,17 +80,12 @@ func TestVerifySubscriptionAndroidPublisherError(t *testing.T) {
 }
 
 func TestVerifyProduct(t *testing.T) {
-	Init()
-
 	// Exception scenario
-	token := &oauth2.Token{
-		AccessToken:  "accessToken",
-		RefreshToken: "refreshToken",
-		Expiry:       time.Unix(2234567890, 0).UTC(),
-	}
+	jsonKey, _ := json.Marshal(testJSON)
 
-	client := New(token)
-	expected := "googleapi: Error 401: Invalid Credentials, authError"
+	expected := "Get https://www.googleapis.com/androidpublisher/v2/applications/package/purchases/products/productID/tokens/purchaseToken?alt=json: oauth2: cannot fetch token: 400 Bad Request\nResponse: {\n  \"error\" : \"invalid_grant\"\n}"
+
+	client, _ := New(jsonKey)
 	_, err := client.VerifyProduct("package", "productID", "purchaseToken")
 
 	if err.Error() != expected {
