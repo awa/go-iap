@@ -2,13 +2,13 @@ package playstore
 
 import (
 	"errors"
-	"net"
 	"net/http"
 	"os"
 	"time"
 
-	"code.google.com/p/goauth2/oauth"
-	"code.google.com/p/google-api-go-client/androidpublisher/v2"
+	"golang.org/x/net/context"
+	"golang.org/x/oauth2"
+	androidpublisher "google.golang.org/api/androidpublisher/v2"
 )
 
 const (
@@ -19,22 +19,24 @@ const (
 	timeout = time.Second * 5
 )
 
-var defaultConfig *oauth.Config
+var defaultConfig *oauth2.Config
 var defaultTimeout = timeout
 
 // Init initializes the global configuration
 func Init() error {
-	defaultConfig = &oauth.Config{
-		Scope:    scope,
-		AuthURL:  authURL,
-		TokenURL: tokenURL,
+	defaultConfig = &oauth2.Config{
+		Scopes: []string{scope},
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  authURL,
+			TokenURL: tokenURL,
+		},
 	}
 
 	clientID := os.Getenv("IAB_CLIENT_ID")
 	if clientID != "" {
-		defaultConfig.ClientId = clientID
+		defaultConfig.ClientID = clientID
 	}
-	if defaultConfig.ClientId == "" {
+	if defaultConfig.ClientID == "" {
 		return errors.New("Client ID is required")
 	}
 
@@ -50,8 +52,8 @@ func Init() error {
 }
 
 // InitWithConfig initializes the global configuration with parameters
-func InitWithConfig(config *oauth.Config) error {
-	if config.ClientId == "" {
+func InitWithConfig(config *oauth2.Config) error {
+	if config.ClientID == "" {
 		return errors.New("Client ID is required")
 	}
 
@@ -59,16 +61,16 @@ func InitWithConfig(config *oauth.Config) error {
 		return errors.New("Client Secret Key is required")
 	}
 
-	if config.Scope == "" {
-		config.Scope = scope
+	if len(config.Scopes) == 0 {
+		config.Scopes = []string{scope}
 	}
 
-	if config.AuthURL == "" {
-		config.AuthURL = authURL
+	if config.Endpoint.AuthURL == "" {
+		config.Endpoint.AuthURL = authURL
 	}
 
-	if config.TokenURL == "" {
-		config.TokenURL = tokenURL
+	if config.Endpoint.TokenURL == "" {
+		config.Endpoint.TokenURL = tokenURL
 	}
 
 	defaultConfig = config
@@ -84,6 +86,7 @@ func SetTimeout(t time.Duration) {
 // The IABClient type is an interface to verify purchase token
 type IABClient interface {
 	VerifySubscription(string, string, string) (*androidpublisher.SubscriptionPurchase, error)
+	VerifyProduct(string, string, string) (*androidpublisher.ProductPurchase, error)
 }
 
 // The Client type implements VerifySubscription method
@@ -92,16 +95,13 @@ type Client struct {
 }
 
 // New returns http client which has oauth token
-func New(token *oauth.Token) Client {
-	t := &oauth.Transport{
-		Token:  token,
-		Config: defaultConfig,
-		Transport: &http.Transport{
-			Dial: dialTimeout,
-		},
-	}
+func New(token *oauth2.Token) Client {
+	ctx := context.WithValue(oauth2.NoContext, oauth2.HTTPClient, &http.Client{
+		Timeout: defaultTimeout,
+	})
 
-	httpClient := t.Client()
+	httpClient := defaultConfig.Client(ctx, token)
+
 	return Client{httpClient}
 }
 
@@ -137,8 +137,4 @@ func (c *Client) VerifyProduct(
 	result, err := ps.Get(packageName, productID, token).Do()
 
 	return result, err
-}
-
-func dialTimeout(network, addr string) (net.Conn, error) {
-	return net.DialTimeout(network, addr, defaultTimeout)
 }
