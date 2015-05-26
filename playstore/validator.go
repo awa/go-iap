@@ -1,86 +1,26 @@
 package playstore
 
 import (
-	"errors"
 	"net/http"
-	"os"
 	"time"
 
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 	androidpublisher "google.golang.org/api/androidpublisher/v2"
 )
 
 const (
-	scope    = "https://www.googleapis.com/auth/androidpublisher"
-	authURL  = "https://accounts.google.com/o/oauth2/auth"
-	tokenURL = "https://accounts.google.com/o/oauth2/token"
+	scope = "https://www.googleapis.com/auth/androidpublisher"
 
-	timeout = time.Second * 5
+	defaultTimeout = time.Second * 5
 )
 
-var defaultConfig *oauth2.Config
-var defaultTimeout = timeout
-
-// Init initializes the global configuration
-func Init() error {
-	defaultConfig = &oauth2.Config{
-		Scopes: []string{scope},
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  authURL,
-			TokenURL: tokenURL,
-		},
-	}
-
-	clientID := os.Getenv("IAB_CLIENT_ID")
-	if clientID != "" {
-		defaultConfig.ClientID = clientID
-	}
-	if defaultConfig.ClientID == "" {
-		return errors.New("Client ID is required")
-	}
-
-	clientSecret := os.Getenv("IAB_CLIENT_SECRET")
-	if clientSecret != "" {
-		defaultConfig.ClientSecret = clientSecret
-	}
-	if defaultConfig.ClientSecret == "" {
-		return errors.New("Client Secret Key is required")
-	}
-
-	return nil
-}
-
-// InitWithConfig initializes the global configuration with parameters
-func InitWithConfig(config *oauth2.Config) error {
-	if config.ClientID == "" {
-		return errors.New("Client ID is required")
-	}
-
-	if config.ClientSecret == "" {
-		return errors.New("Client Secret Key is required")
-	}
-
-	if len(config.Scopes) == 0 {
-		config.Scopes = []string{scope}
-	}
-
-	if config.Endpoint.AuthURL == "" {
-		config.Endpoint.AuthURL = authURL
-	}
-
-	if config.Endpoint.TokenURL == "" {
-		config.Endpoint.TokenURL = tokenURL
-	}
-
-	defaultConfig = config
-
-	return nil
-}
+var timeout = defaultTimeout
 
 // SetTimeout sets dial timeout duration
 func SetTimeout(t time.Duration) {
-	defaultTimeout = t
+	timeout = t
 }
 
 // The IABClient type is an interface to verify purchase token
@@ -94,15 +34,17 @@ type Client struct {
 	httpClient *http.Client
 }
 
-// New returns http client which has oauth token
-func New(token *oauth2.Token) Client {
+// New returns http client which includes the credentials to access androidpublisher API.
+// You should create a service account for your project at
+// https://console.developers.google.com and download a JSON key file to set this argument.
+func New(jsonKey []byte) (Client, error) {
 	ctx := context.WithValue(oauth2.NoContext, oauth2.HTTPClient, &http.Client{
-		Timeout: defaultTimeout,
+		Timeout: timeout,
 	})
 
-	httpClient := defaultConfig.Client(ctx, token)
+	conf, err := google.JWTConfigFromJSON(jsonKey, scope)
 
-	return Client{httpClient}
+	return Client{conf.Client(ctx)}, err
 }
 
 // VerifySubscription Verifies subscription status

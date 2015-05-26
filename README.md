@@ -54,13 +54,14 @@ import(
 )
 
 func main() {
-    // You need to prepare an authorization code or a refresh token.
-    // If you have a refresh token, you can generate an oauth token like this.
-    token := &oauth2.Token{
-		RefreshToken: "your refresh token",
+	// You need to prepare a public key for your Android app's in app billing
+	// at https://console.developers.google.com.
+	jsonKey, err := ioutil.ReadFile("jsonKey.json")
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	client := playstore.New(token)
+	client := playstore.New(jsonKey)
 	resp, err := client.VerifySubscription("package", "subscriptionID", "purchaseToken")
 }
 ```
