@@ -11,6 +11,13 @@ Current API Documents:
 * AppStore: [![GoDoc](https://godoc.org/github.com/dogenzaka/go-iap/appstore?status.svg)](https://godoc.org/github.com/dogenzaka/go-iap/appstore)
 * GooglePlay: [![GoDoc](https://godoc.org/github.com/dogenzaka/go-iap/playstore?status.svg)](https://godoc.org/github.com/dogenzaka/go-iap/playstore)
 
+# Dependencies
+```
+go get github.com/parnurzeal/gorequest
+go get golang.org/x/net/context
+go get golang.org/x/oauth2
+go get google.golang.org/api/androidpublisher/v2
+```
 
 # Installation
 ```
@@ -41,19 +48,19 @@ func main() {
 
 ```
 import(
-    "code.google.com/p/goauth2/oauth"
+    "golang.org/x/oauth2"
 
     "github.com/dogenzaka/go-iap/playstore"
 )
 
 func main() {
-    // You need to prepare an authorization code or a refresh token
-    // If you have a refresh token, you can generate an oauth token like this
-    oauth := &oauth.Token{
+    // You need to prepare an authorization code or a refresh token.
+    // If you have a refresh token, you can generate an oauth token like this.
+    token := &oauth2.Token{
 		RefreshToken: "your refresh token",
 	}
 
-	client := playstore.New(oauth)
+	client := playstore.New(token)
 	resp, err := client.VerifySubscription("package", "subscriptionID", "purchaseToken")
 }
 ```

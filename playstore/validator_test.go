@@ -7,16 +7,18 @@ import (
 	"testing"
 	"time"
 
-	"code.google.com/p/goauth2/oauth"
+	"golang.org/x/oauth2"
 )
 
 func TestInit(t *testing.T) {
-	expected := &oauth.Config{
-		ClientId:     "dummyId",
+	expected := &oauth2.Config{
+		ClientID:     "dummyId",
 		ClientSecret: "dummySecret",
-		Scope:        "https://www.googleapis.com/auth/androidpublisher",
-		AuthURL:      "https://accounts.google.com/o/oauth2/auth",
-		TokenURL:     "https://accounts.google.com/o/oauth2/token",
+		Scopes:       []string{"https://www.googleapis.com/auth/androidpublisher"},
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
+			TokenURL: "https://accounts.google.com/o/oauth2/token",
+		},
 	}
 	os.Setenv("IAB_CLIENT_ID", "dummyId")
 	os.Setenv("IAB_CLIENT_SECRET", "dummySecret")
@@ -41,21 +43,21 @@ func TestInitWithoutClientSecret(t *testing.T) {
 }
 
 func TestInitWithConfig(t *testing.T) {
-	expected := &oauth.Config{
-		ClientId:     "dummyId",
+	expected := &oauth2.Config{
+		ClientID:     "dummyId",
 		ClientSecret: "dummySecret",
-		Scope:        "https://www.googleapis.com/auth/androidpublisher",
-		AuthURL:      "https://accounts.google.com/o/oauth2/auth",
-		TokenURL:     "https://accounts.google.com/o/oauth2/token",
+		Scopes:       []string{"https://www.googleapis.com/auth/androidpublisher"},
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
+			TokenURL: "https://accounts.google.com/o/oauth2/token",
+		},
 	}
 
-	config := &oauth.Config{
-		ClientId:     "dummyId",
+	config := &oauth2.Config{
+		ClientID:     "dummyId",
 		ClientSecret: "dummySecret",
-		Scope:        "https://www.googleapis.com/auth/androidpublisher",
-		AuthURL:      "https://accounts.google.com/o/oauth2/auth",
-		TokenURL:     "https://accounts.google.com/o/oauth2/token",
 	}
+
 	InitWithConfig(config)
 	actual := defaultConfig
 	if !reflect.DeepEqual(actual, expected) {
@@ -66,10 +68,12 @@ func TestInitWithConfig(t *testing.T) {
 func TestInitWithConfigErrors(t *testing.T) {
 	expected := errors.New("Client ID is required")
 
-	config := &oauth.Config{
-		Scope:    "https://www.googleapis.com/auth/androidpublisher",
-		AuthURL:  "https://accounts.google.com/o/oauth2/auth",
-		TokenURL: "https://accounts.google.com/o/oauth2/token",
+	config := &oauth2.Config{
+		Scopes: []string{"https://www.googleapis.com/auth/androidpublisher"},
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
+			TokenURL: "https://accounts.google.com/o/oauth2/token",
+		},
 	}
 	actual := InitWithConfig(config)
 
@@ -78,11 +82,13 @@ func TestInitWithConfigErrors(t *testing.T) {
 	}
 
 	expected = errors.New("Client Secret Key is required")
-	config = &oauth.Config{
-		ClientId: "dummyId",
-		Scope:    "https://www.googleapis.com/auth/androidpublisher",
-		AuthURL:  "https://accounts.google.com/o/oauth2/auth",
-		TokenURL: "https://accounts.google.com/o/oauth2/token",
+	config = &oauth2.Config{
+		ClientID: "dummyId",
+		Scopes:   []string{"https://www.googleapis.com/auth/androidpublisher"},
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "https://accounts.google.com/o/oauth2/auth",
+			TokenURL: "https://accounts.google.com/o/oauth2/token",
+		},
 	}
 	actual = InitWithConfig(config)
 
@@ -93,27 +99,29 @@ func TestInitWithConfigErrors(t *testing.T) {
 
 func TestNew(t *testing.T) {
 	// Initialize config
-	_config := &oauth.Config{
-		ClientId:     "dummyId",
+	_config := &oauth2.Config{
+		ClientID:     "dummyId",
 		ClientSecret: "dummySecret",
+		RedirectURL:  "REDIRECT_URL",
+		Scopes:       []string{"scope1", "scope2"},
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  "http://example.com/auth",
+			TokenURL: "http://example.com/token",
+		},
 	}
 	InitWithConfig(_config)
 
-	token := &oauth.Token{
+	_token := &oauth2.Token{
 		AccessToken:  "accessToken",
 		RefreshToken: "refreshToken",
-		Expiry:       time.Unix(1234567890, 0).UTC(),
+		Expiry:       time.Unix(2234567890, 0).UTC(),
 	}
 
-	actual := New(token)
-	val, _ := actual.httpClient.Transport.(*oauth.Transport)
-
-	if !reflect.DeepEqual(val.Config, _config) {
-		t.Errorf("got %v\nwant %v", val.Config, _config)
-	}
-
-	if !reflect.DeepEqual(val.Token, token) {
-		t.Errorf("got %v\nwant %v", val.Token, token)
+	actual := New(_token)
+	val := actual.httpClient.Transport.(*oauth2.Transport)
+	token, _ := val.Source.Token()
+	if !reflect.DeepEqual(token, _token) {
+		t.Errorf("got %v\nwant %v", token, _token)
 	}
 }
 
@@ -130,21 +138,21 @@ func TestVerifySubscription(t *testing.T) {
 	Init()
 
 	// Exception scenario
-	token := &oauth.Token{
+	token := &oauth2.Token{
 		AccessToken:  "accessToken",
 		RefreshToken: "refreshToken",
-		Expiry:       time.Unix(1234567890, 0).UTC(),
+		Expiry:       time.Unix(2234567890, 0).UTC(),
 	}
 
 	client := New(token)
-	expected := "Get https://www.googleapis.com/androidpublisher/v2/applications/package/purchases/subscriptions/subscriptionID/tokens/purchaseToken?alt=json: OAuthError: updateToken: Unexpected HTTP status 400 Bad Request"
+	expected := "googleapi: Error 401: Invalid Credentials, authError"
 	_, err := client.VerifySubscription("package", "subscriptionID", "purchaseToken")
 
 	if err.Error() != expected {
 		t.Errorf("got %v", err)
 	}
 
-	// TODO Nomal scenario
+	// TODO Normal scenario
 }
 
 func TestVerifySubscriptionAndroidPublisherError(t *testing.T) {
@@ -161,21 +169,21 @@ func TestVerifyProduct(t *testing.T) {
 	Init()
 
 	// Exception scenario
-	token := &oauth.Token{
+	token := &oauth2.Token{
 		AccessToken:  "accessToken",
 		RefreshToken: "refreshToken",
-		Expiry:       time.Unix(1234567890, 0).UTC(),
+		Expiry:       time.Unix(2234567890, 0).UTC(),
 	}
 
 	client := New(token)
-	expected := "Get https://www.googleapis.com/androidpublisher/v2/applications/package/purchases/products/productID/tokens/purchaseToken?alt=json: OAuthError: updateToken: Unexpected HTTP status 400 Bad Request"
+	expected := "googleapi: Error 401: Invalid Credentials, authError"
 	_, err := client.VerifyProduct("package", "productID", "purchaseToken")
 
 	if err.Error() != expected {
 		t.Errorf("got %v", err)
 	}
 
-	// TODO Nomal scenario
+	// TODO Normal scenario
 }
 
 func TestVerifyProductAndroidPublisherError(t *testing.T) {
