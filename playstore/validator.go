@@ -11,8 +11,6 @@ import (
 )
 
 const (
-	scope = "https://www.googleapis.com/auth/androidpublisher"
-
 	defaultTimeout = time.Second * 5
 )
 
@@ -42,12 +40,12 @@ func New(jsonKey []byte) (Client, error) {
 		Timeout: timeout,
 	})
 
-	conf, err := google.JWTConfigFromJSON(jsonKey, scope)
+	conf, err := google.JWTConfigFromJSON(jsonKey, androidpublisher.AndroidpublisherScope)
 
 	return Client{conf.Client(ctx)}, err
 }
 
-// VerifySubscription Verifies subscription status
+// VerifySubscription verifies subscription status
 func (c *Client) VerifySubscription(
 	packageName string,
 	subscriptionID string,
@@ -64,7 +62,7 @@ func (c *Client) VerifySubscription(
 	return result, err
 }
 
-// VerifyProduct Verifies product status
+// VerifyProduct verifies product status
 func (c *Client) VerifyProduct(
 	packageName string,
 	productID string,
@@ -79,4 +77,30 @@ func (c *Client) VerifyProduct(
 	result, err := ps.Get(packageName, productID, token).Do()
 
 	return result, err
+}
+
+// CancelSubscription cancels a user's subscription purchase.
+func (c *Client) CancelSubscription(packageName string, subscriptionID string, token string) error {
+	service, err := androidpublisher.New(c.httpClient)
+	if err != nil {
+		return err
+	}
+
+	ps := androidpublisher.NewPurchasesSubscriptionsService(service)
+	err = ps.Cancel(packageName, subscriptionID, token).Do()
+
+	return err
+}
+
+// RefundSubscription refunds a user's subscription purchase.
+func (c *Client) RefundSubscription(packageName string, subscriptionID string, token string) error {
+	service, err := androidpublisher.New(c.httpClient)
+	if err != nil {
+		return err
+	}
+
+	ps := androidpublisher.NewPurchasesSubscriptionsService(service)
+	err = ps.Refund(packageName, subscriptionID, token).Do()
+
+	return err
 }

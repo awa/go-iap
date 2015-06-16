@@ -104,3 +104,47 @@ func TestVerifyProductAndroidPublisherError(t *testing.T) {
 		t.Errorf("got %v\nwant %v", actual, expected)
 	}
 }
+
+func TestCancelSubscription(t *testing.T) {
+	// Exception scenario
+	client := Client{nil}
+	expected := errors.New("client is nil")
+	actual := client.CancelSubscription("package", "productID", "purchaseToken")
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+
+	jsonKey, _ := json.Marshal(testJSON)
+	client, _ = New(jsonKey)
+	expectedStr := "Post https://www.googleapis.com/androidpublisher/v2/applications/package/purchases/subscriptions/productID/tokens/purchaseToken:cancel?alt=json: oauth2: cannot fetch token: 400 Bad Request\nResponse: {\n  \"error\" : \"invalid_grant\"\n}"
+	actual = client.CancelSubscription("package", "productID", "purchaseToken")
+
+	if actual.Error() != expectedStr {
+		t.Errorf("got %v\nwant %v", actual, expectedStr)
+	}
+
+	// TODO Normal scenario
+}
+
+func TestRefundSubscription(t *testing.T) {
+	// Exception scenario
+	client := Client{nil}
+	expected := errors.New("client is nil")
+	actual := client.RefundSubscription("package", "productID", "purchaseToken")
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+
+	jsonKey, _ := json.Marshal(testJSON)
+	client, _ = New(jsonKey)
+	expectedStr := "Post https://www.googleapis.com/androidpublisher/v2/applications/package/purchases/subscriptions/productID/tokens/purchaseToken:refund?alt=json: oauth2: cannot fetch token: 400 Bad Request\nResponse: {\n  \"error\" : \"invalid_grant\"\n}"
+	actual = client.RefundSubscription("package", "productID", "purchaseToken")
+
+	if actual.Error() != expectedStr {
+		t.Errorf("got %v\nwant %v", actual, expectedStr)
+	}
+
+	// TODO Normal scenario
+}
