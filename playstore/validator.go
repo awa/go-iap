@@ -92,7 +92,8 @@ func (c *Client) CancelSubscription(packageName string, subscriptionID string, t
 	return err
 }
 
-// RefundSubscription refunds a user's subscription purchase.
+// RefundSubscription refunds a user's subscription purchase, but the subscription remains valid
+// until its expiration time and it will continue to recur.
 func (c *Client) RefundSubscription(packageName string, subscriptionID string, token string) error {
 	service, err := androidpublisher.New(c.httpClient)
 	if err != nil {
@@ -101,6 +102,20 @@ func (c *Client) RefundSubscription(packageName string, subscriptionID string, t
 
 	ps := androidpublisher.NewPurchasesSubscriptionsService(service)
 	err = ps.Refund(packageName, subscriptionID, token).Do()
+
+	return err
+}
+
+// RevokeSubscription refunds and immediately revokes a user's subscription purchase.
+// Access to the subscription will be terminated immediately and it will stop recurring.
+func (c *Client) RevokeSubscription(packageName string, subscriptionID string, token string) error {
+	service, err := androidpublisher.New(c.httpClient)
+	if err != nil {
+		return err
+	}
+
+	ps := androidpublisher.NewPurchasesSubscriptionsService(service)
+	err = ps.Revoke(packageName, subscriptionID, token).Do()
 
 	return err
 }

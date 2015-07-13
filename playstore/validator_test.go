@@ -148,3 +148,25 @@ func TestRefundSubscription(t *testing.T) {
 
 	// TODO Normal scenario
 }
+
+func TestRevokeSubscription(t *testing.T) {
+	// Exception scenario
+	client := Client{nil}
+	expected := errors.New("client is nil")
+	actual := client.RevokeSubscription("package", "productID", "purchaseToken")
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+
+	jsonKey, _ := json.Marshal(testJSON)
+	client, _ = New(jsonKey)
+	expectedStr := "Post https://www.googleapis.com/androidpublisher/v2/applications/package/purchases/subscriptions/productID/tokens/purchaseToken:revoke?alt=json: oauth2: cannot fetch token: 400 Bad Request\nResponse: {\n  \"error\" : \"invalid_grant\"\n}"
+	actual = client.RevokeSubscription("package", "productID", "purchaseToken")
+
+	if actual.Error() != expectedStr {
+		t.Errorf("got %v\nwant %v", actual, expectedStr)
+	}
+
+	// TODO Normal scenario
+}
