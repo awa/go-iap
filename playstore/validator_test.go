@@ -170,3 +170,56 @@ func TestRevokeSubscription(t *testing.T) {
 
 	// TODO Normal scenario
 }
+
+func TestVerifySignature(t *testing.T) {
+	receipt := `{"orderId":"GPA.xxxx-xxxx-xxxx-xxxxx","packageName":"my.package","productId":"myproduct","purchaseTime":1437564796303,"purchaseState":0,"developerPayload":"user001","purchaseToken":"some-token"}`
+
+	// when public key format is invalid base64
+	pubkey := "dummy_public_key"
+	sig := "gj0N8LANKXOw4OhWkS1UZmDVUxM1UIP28F6bDzEp7BCqcVAe0DuDxmAY5wXdEgMRx/VM1Nl2crjogeV60OqCsbIaWqS/ZJwdP127aKR0jk8sbX36ssyYZ0DdZdBdCr1tBZ/eSW1GlGuD/CgVaxns0JaWecXakgoV7j+RF2AFbS4="
+	expectedStr := "failed to decode public key"
+	_, err := VerifySignature(pubkey, []byte(receipt), sig)
+	if err.Error() != expectedStr {
+		t.Errorf("got %v\nwant %v", err, expectedStr)
+	}
+
+	// when pub key is not rsa public key
+	pubkey = "JTbngOdvBE0rfdOs3GeuBnPB+YEP1w/peM4VJbnVz+hN9Td25vPjAznX9YKTGQN4iDohZ07wtl+zYygIcpSCc2ozNZUs9pV0s5itayQo22aT5myJrQmkp94ZSGI2npDP4+FE6ZiF+7khl3qoE0rVZq4G2mfk5LIIyTPTSA4UvyQ="
+	sig = "gj0N8LANKXOw4OhWkS1UZmDVUxM1UIP28F6bDzEp7BCqcVAe0DuDxmAY5wXdEgMRx/VM1Nl2crjogeV60OqCsbIaWqS/ZJwdP127aKR0jk8sbX36ssyYZ0DdZdBdCr1tBZ/eSW1GlGuD/CgVaxns0JaWecXakgoV7j+RF2AFbS4="
+	expectedStr = "failed to parse public key"
+	_, err = VerifySignature(pubkey, []byte(receipt), sig)
+	if err.Error() != expectedStr {
+		t.Errorf("got %v\nwant %v", err, expectedStr)
+	}
+
+	// when signature is invalid base64 format
+	pubkey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGvModvVUrqJ9C5fy8J77ZQ7JDC6+tf5iK8C74/3mjmcvwo4nmprCgzR/BQIEuZWJi8KX+jiJUXKXF90JPsXHkKAPq6A1SCga7kWvs/M8srMpjNS9zJdwZF+eDOR0+lJEihO04zlpAV9ybPJ3Q621y1HUeVpwdxDNLQpJTuIflnwIDAQAB"
+	sig = "invalid_signature"
+	expectedStr = "failed to decode signature"
+	_, err = VerifySignature(pubkey, []byte(receipt), sig)
+	if err.Error() != expectedStr {
+		t.Errorf("got %v\nwant %v", err, expectedStr)
+	}
+
+	// when signature is invalid
+	pubkey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGvModvVUrqJ9C5fy8J77ZQ7JDC6+tf5iK8C74/3mjmcvwo4nmprCgzR/BQIEuZWJi8KX+jiJUXKXF90JPsXHkKAPq6A1SCga7kWvs/M8srMpjNS9zJdwZF+eDOR0+lJEihO04zlpAV9ybPJ3Q621y1HUeVpwdxDNLQpJTuIflnwIDAQAB"
+	sig = "JTbngOdvBE0rfdOs3GeuBnPB+YEP1w/peM4VJbnVz+hN9Td25vPjAznX9YKTGQN4iDohZ07wtl+zYygIcpSCc2ozNZUs9pV0s5itayQo22aT5myJrQmkp94ZSGI2npDP4+FE6ZiF+7khl3qoE0rVZq4G2mfk5LIIyTPTSA4UvyQ="
+	isValid, err := VerifySignature(pubkey, []byte(receipt), sig)
+	if err != nil {
+		t.Errorf("got %v\n", err)
+	}
+	if isValid {
+		t.Errorf("got %v\nwant %v", isValid, false)
+	}
+
+	// when all arguments are valid
+	pubkey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGvModvVUrqJ9C5fy8J77ZQ7JDC6+tf5iK8C74/3mjmcvwo4nmprCgzR/BQIEuZWJi8KX+jiJUXKXF90JPsXHkKAPq6A1SCga7kWvs/M8srMpjNS9zJdwZF+eDOR0+lJEihO04zlpAV9ybPJ3Q621y1HUeVpwdxDNLQpJTuIflnwIDAQAB"
+	sig = "gj0N8LANKXOw4OhWkS1UZmDVUxM1UIP28F6bDzEp7BCqcVAe0DuDxmAY5wXdEgMRx/VM1Nl2crjogeV60OqCsbIaWqS/ZJwdP127aKR0jk8sbX36ssyYZ0DdZdBdCr1tBZ/eSW1GlGuD/CgVaxns0JaWecXakgoV7j+RF2AFbS4="
+	isValid, err = VerifySignature(pubkey, []byte(receipt), sig)
+	if err != nil {
+		t.Errorf("got %v\n", err)
+	}
+	if !isValid {
+		t.Errorf("got %v\nwant %v", isValid, true)
+	}
+}

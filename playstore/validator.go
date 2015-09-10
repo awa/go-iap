@@ -1,6 +1,12 @@
 package playstore
 
 import (
+	"crypto"
+	"crypto/rsa"
+	"crypto/sha1"
+	"crypto/x509"
+	"encoding/base64"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -118,4 +124,38 @@ func (c *Client) RevokeSubscription(packageName string, subscriptionID string, t
 	err = ps.Revoke(packageName, subscriptionID, token).Do()
 
 	return err
+}
+
+// VerifySignature verifies in app billing signature.
+// You need to prepare a public key for your Android app's in app billing
+// at https://play.google.com/apps/publish/
+func VerifySignature(base64EncodedPublicKey string, receipt []byte, signature string) (isValid bool, err error) {
+	// prepare public key
+	decodedPublicKey, err := base64.StdEncoding.DecodeString(base64EncodedPublicKey)
+	if err != nil {
+		return false, fmt.Errorf("failed to decode public key")
+	}
+	publicKeyInterface, err := x509.ParsePKIXPublicKey(decodedPublicKey)
+	if err != nil {
+		return false, fmt.Errorf("failed to parse public key")
+	}
+	publicKey, _ := publicKeyInterface.(*rsa.PublicKey)
+
+	// generate hash value from receipt
+	hasher := sha1.New()
+	hasher.Write(receipt)
+	hashedReceipt := hasher.Sum(nil)
+
+	// decode signature
+	decodedSignature, err := base64.StdEncoding.DecodeString(signature)
+	if err != nil {
+		return false, fmt.Errorf("failed to decode signature")
+	}
+
+	// verify
+	if err := rsa.VerifyPKCS1v15(publicKey, crypto.SHA1, hashedReceipt, decodedSignature); err != nil {
+		return false, nil
+	}
+
+	return true, nil
 }
