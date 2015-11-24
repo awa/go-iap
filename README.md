@@ -66,6 +66,19 @@ func main() {
 }
 ```
 
+### In App Purchase (via Amazon App Store)
+
+```
+import(
+    "github.com/dogenzaka/go-iap/amazon"
+)
+
+func main() {
+	client := amazon.New("developerSecret")
+
+	resp, err := client.Verify("userID", "receiptID")
+}
+```
 
 # ToDo
 - [x] Validator for In App Purchase Receipt (AppStore)
@@ -81,6 +94,9 @@ This validator supports the receipt type for iOS7 or above.
 
 ### In App Billing
 This validator uses [Version 3 API](http://developer.android.com/google/play/billing/api.html).
+
+### In App Purchase (Amazon)
+This validator uses [RVS for IAP v2.0](https://developer.amazon.com/public/apis/earn/in-app-purchasing/docs-v2/verifying-receipts-in-iap-2.0).
 
 
 # License
