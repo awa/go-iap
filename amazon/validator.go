@@ -16,6 +16,14 @@ const (
 	ProductionURL string = "https://appstore-sdk.amazon.com"
 )
 
+func getSandboxUrl() string {
+	url := os.Getenv("IAP_SANDBOX_URL")
+	if url == "" {
+		url = SandboxURL
+	}
+	return url
+}
+
 // Config is a configuration to initialize client
 type Config struct {
 	IsProduction bool
@@ -53,7 +61,7 @@ type Client struct {
 // New creates a client object
 func New(secret string) IAPClient {
 	client := Client{
-		URL:     SandboxURL,
+		URL:     getSandboxUrl(),
 		Secret:  secret,
 		TimeOut: time.Second * 5,
 	}
@@ -70,7 +78,7 @@ func NewWithConfig(config Config) Client {
 	}
 
 	client := Client{
-		URL:     SandboxURL,
+		URL:     getSandboxUrl(),
 		Secret:  config.Secret,
 		TimeOut: config.TimeOut,
 	}
