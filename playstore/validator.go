@@ -14,6 +14,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	androidpublisher "google.golang.org/api/androidpublisher/v2"
+	"google.golang.org/appengine/urlfetch"
 )
 
 const (
@@ -49,6 +50,18 @@ func New(jsonKey []byte) (Client, error) {
 	conf, err := google.JWTConfigFromJSON(jsonKey, androidpublisher.AndroidpublisherScope)
 
 	return Client{conf.Client(ctx)}, err
+}
+
+// Same as above, use with GAE deployment, uses default urlfetch timeout (30s)
+// No need to supply a JWT client.
+func NewGAE(ctx context.Context) (Client, error) {
+	client := &http.Client{
+		Transport: &oauth2.Transport{
+			Source: google.AppEngineTokenSource(ctx, androidpublisher.AndroidpublisherScope),
+			Base:   &urlfetch.Transport{Context: ctx},
+		},
+	}
+	return Client{client}, nil
 }
 
 // VerifySubscription verifies subscription status

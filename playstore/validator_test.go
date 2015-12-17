@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"golang.org/x/oauth2"
+	"google.golang.org/appengine/aetest"
 )
 
 type testSignature struct {
@@ -61,6 +62,27 @@ func TestVerifySubscription(t *testing.T) {
 
 	client, _ := New(jsonKey)
 	_, err := client.VerifySubscription("package", "subscriptionID", "purchaseToken")
+
+	if err.Error() != expected {
+		t.Errorf("got %v\nwant %v", err, expected)
+	}
+
+	// TODO Normal scenario
+}
+
+func TestVerifySubscriptionGAE(t *testing.T) {
+	// Exception scenario
+
+	expected := "googleapi: Error 401: Invalid Credentials, authError"
+
+	ctx, done, err := aetest.NewContext()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer done()
+
+	client, _ := NewGAE(ctx)
+	_, err = client.VerifySubscription("package", "subscriptionID", "purchaseToken")
 
 	if err.Error() != expected {
 		t.Errorf("got %v\nwant %v", err, expected)

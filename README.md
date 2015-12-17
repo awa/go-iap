@@ -17,6 +17,8 @@ go get github.com/parnurzeal/gorequest
 go get golang.org/x/net/context
 go get golang.org/x/oauth2
 go get google.golang.org/api/androidpublisher/v2
+go get google.golang.org/appengine/urlfetch
+go get google.golang.org/appengine/aetest
 ```
 
 # Installation
@@ -62,6 +64,21 @@ func main() {
 	}
 
 	client := playstore.New(jsonKey)
+	resp, err := client.VerifySubscription("package", "subscriptionID", "purchaseToken")
+}
+```
+
+### In App Billing (via GooglePlay/ Google App Engine)
+
+```
+import(
+    "golang.org/x/oauth2"
+
+    "github.com/dogenzaka/go-iap/playstore"
+)
+
+func foo(ctx context.Context) {
+	client, _ := NewGAE(ctx)
 	resp, err := client.VerifySubscription("package", "subscriptionID", "purchaseToken")
 }
 ```
