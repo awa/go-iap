@@ -11,6 +11,9 @@ Current API Documents:
 * AppStore: [![GoDoc](https://godoc.org/github.com/dogenzaka/go-iap/appstore?status.svg)](https://godoc.org/github.com/dogenzaka/go-iap/appstore)
 * GooglePlay: [![GoDoc](https://godoc.org/github.com/dogenzaka/go-iap/playstore?status.svg)](https://godoc.org/github.com/dogenzaka/go-iap/playstore)
 
+* Amazon AppStore: [![GoDoc](https://godoc.org/github.com/dogenzaka/go-iap/amazon?status.svg)](https://godoc.org/github.com/dogenzaka/go-iap/amazon)
+
+
 # Dependencies
 ```
 go get github.com/parnurzeal/gorequest
