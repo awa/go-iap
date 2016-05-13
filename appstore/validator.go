@@ -13,7 +13,9 @@ import (
 )
 
 const (
-	SandboxURL    string = "https://sandbox.itunes.apple.com/verifyReceipt"
+	// SandboxURL is the endpoint for sandbox environment.
+	SandboxURL string = "https://sandbox.itunes.apple.com/verifyReceipt"
+	// ProductionURL is the endpoint for production environment.
 	ProductionURL string = "https://buy.itunes.apple.com/verifyReceipt"
 )
 
