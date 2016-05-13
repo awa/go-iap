@@ -12,11 +12,13 @@ import (
 )
 
 const (
-	SandboxURL    string = "http://localhost:8080/RVSSandbox"
+	// SandboxURL is the endpoint for local environment.
+	SandboxURL string = "http://localhost:8080/RVSSandbox"
+	// ProductionURL is the endpoint for production environment.
 	ProductionURL string = "https://appstore-sdk.amazon.com"
 )
 
-func getSandboxUrl() string {
+func getSandboxURL() string {
 	url := os.Getenv("IAP_SANDBOX_URL")
 	if url == "" {
 		url = SandboxURL
@@ -41,6 +43,7 @@ type IAPResponse struct {
 	TestTransaction bool   `json:"testTransaction"`
 }
 
+// The IAPResponseError typs has error message and status.
 type IAPResponseError struct {
 	Message string `json:"message"`
 	Status  bool   `json:"status"`
@@ -61,7 +64,7 @@ type Client struct {
 // New creates a client object
 func New(secret string) IAPClient {
 	client := Client{
-		URL:     getSandboxUrl(),
+		URL:     getSandboxURL(),
 		Secret:  secret,
 		TimeOut: time.Second * 5,
 	}
@@ -78,7 +81,7 @@ func NewWithConfig(config Config) Client {
 	}
 
 	client := Client{
-		URL:     getSandboxUrl(),
+		URL:     getSandboxURL(),
 		Secret:  config.Secret,
 		TimeOut: config.TimeOut,
 	}
