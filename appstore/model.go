@@ -62,7 +62,7 @@ type (
 	Receipt struct {
 		ReceiptType                string  `json:"receipt_type"`
 		AdamID                     int64   `json:"adam_id"`
-		AppItemID                  int64   `json:"app_item_id"`
+		AppItemID                  string  `json:"app_item_id"`
 		BundleID                   string  `json:"bundle_id"`
 		ApplicationVersion         string  `json:"application_version"`
 		DownloadID                 int64   `json:"download_id"`
