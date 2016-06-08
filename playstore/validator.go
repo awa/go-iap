@@ -31,6 +31,9 @@ func SetTimeout(t time.Duration) {
 type IABClient interface {
 	VerifySubscription(string, string, string) (*androidpublisher.SubscriptionPurchase, error)
 	VerifyProduct(string, string, string) (*androidpublisher.ProductPurchase, error)
+	CancelSubscription(string, string, string) error
+	RefundSubscription(string, string, string) error
+	RevokeSubscription(string, string, string) error
 }
 
 // The Client type implements VerifySubscription method
