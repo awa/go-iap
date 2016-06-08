@@ -63,8 +63,8 @@ func TestHandleError(t *testing.T) {
 		t.Errorf("got %v\nwant %v", actual, expected)
 	}
 
-	// status unkown
-	expected = errors.New("An unknown error ocurred")
+	// status unknown
+	expected = errors.New("An unknown error occurred")
 	actual = HandleError(100)
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)
