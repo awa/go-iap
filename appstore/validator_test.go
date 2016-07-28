@@ -146,21 +146,6 @@ func TestVerify(t *testing.T) {
 	}
 }
 
-func TestVerifyErrors(t *testing.T) {
-	server, client := testTools(199, "dummy response")
-	defer server.Close()
-
-	req := IAPRequest{
-		ReceiptData: "dummy data",
-	}
-
-	expected := errors.New("An error occurred in IAP - code:199")
-	_, actual := client.Verify(req)
-	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("got %v\nwant %v", actual, expected)
-	}
-}
-
 func TestVerifyTimeout(t *testing.T) {
 	// HTTP 100 is "continue" so it will time out
 	server, client := testTools(100, "dummy response")

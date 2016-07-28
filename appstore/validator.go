@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -101,7 +100,7 @@ func NewWithConfig(config Config) Client {
 // Verify sends receipts and gets validation result
 func (c *Client) Verify(req IAPRequest) (IAPResponse, error) {
 	result := IAPResponse{}
-	res, body, errs := gorequest.New().
+	_, body, errs := gorequest.New().
 		Post(c.URL).
 		Send(req).
 		Timeout(c.TimeOut).
@@ -109,9 +108,6 @@ func (c *Client) Verify(req IAPRequest) (IAPResponse, error) {
 
 	if errs != nil {
 		return result, fmt.Errorf("%v", errs)
-	}
-	if res.StatusCode < 200 || res.StatusCode >= 300 {
-		return result, errors.New("An error occurred in IAP - code:" + strconv.Itoa(res.StatusCode))
 	}
 
 	err := json.NewDecoder(strings.NewReader(body)).Decode(&result)
