@@ -73,6 +73,10 @@ type (
 	}
 
 	// The IAPResponse type has the response properties
+	// We defined each field by the current IAP response, but some fields are not mentioned
+	// in the following Apple's document;
+	// https://developer.apple.com/library/ios/releasenotes/General/ValidateAppStoreReceipt/Chapters/ReceiptFields.html
+	// If you get other types or fileds from the IAP response, you should use the struct you defined.
 	IAPResponse struct {
 		Status            int     `json:"status"`
 		Environment       string  `json:"environment"`
