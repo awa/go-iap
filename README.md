@@ -43,7 +43,7 @@ func main() {
 	req := appstore.IAPRequest{
 		ReceiptData: "your receipt data encoded by base64",
 	}
-	resp := &IAPResponse{}
+	resp := &appstore.IAPResponse{}
 	err := client.Verify(req, resp)
 }
 ```
