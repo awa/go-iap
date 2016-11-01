@@ -2,9 +2,6 @@ package appstore
 
 import (
 	"errors"
-	"fmt"
-	"net/http"
-	"net/http/httptest"
 	"os"
 	"reflect"
 	"testing"
@@ -133,45 +130,23 @@ func TestNewWithConfigTimeout(t *testing.T) {
 
 func TestVerify(t *testing.T) {
 	client := New()
+	client.TimeOut = time.Millisecond * 100
 
-	expected := &IAPResponse{
-		Status: 21002,
-	}
 	req := IAPRequest{
 		ReceiptData: "dummy data",
 	}
 	result := &IAPResponse{}
+	err := client.Verify(req, result)
+	if err == nil {
+		t.Errorf("error should be occurred because of timeout")
+	}
+
+	client = New()
+	expected := &IAPResponse{
+		Status: 21002,
+	}
 	client.Verify(req, result)
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("got %v\nwant %v", result, expected)
 	}
-}
-
-func TestVerifyTimeout(t *testing.T) {
-	// HTTP 100 is "continue" so it will time out
-	server, client := testTools(100, "dummy response")
-	defer server.Close()
-
-	req := IAPRequest{
-		ReceiptData: "dummy data",
-	}
-
-	expected := errors.New("")
-	result := &IAPResponse{}
-	actual := client.Verify(req, result)
-	if !reflect.DeepEqual(reflect.TypeOf(actual), reflect.TypeOf(expected)) {
-		t.Errorf("got %v\nwant %v", actual, expected)
-	}
-}
-
-func testTools(code int, body string) (*httptest.Server, *Client) {
-
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(code)
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintln(w, body)
-	}))
-
-	client := &Client{URL: server.URL, TimeOut: time.Second * 2}
-	return server, client
 }

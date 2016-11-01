@@ -31,6 +31,7 @@ func init() {
 }
 
 func TestNew(t *testing.T) {
+	t.Parallel()
 	// Exception scenario
 	expected := "oauth2: cannot fetch token: 401 Unauthorized\nResponse: {\n  \"error\" : \"invalid_client\",\n  \"error_description\" : \"The OAuth client was invalid.\"\n}"
 
@@ -54,6 +55,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestSetTimeout(t *testing.T) {
+	t.Parallel()
 	_timeout := time.Second * 3
 	SetTimeout(_timeout)
 
@@ -63,6 +65,7 @@ func TestSetTimeout(t *testing.T) {
 }
 
 func TestVerifySubscription(t *testing.T) {
+	t.Parallel()
 	// Exception scenario
 	expected := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
 
@@ -77,6 +80,7 @@ func TestVerifySubscription(t *testing.T) {
 }
 
 func TestVerifySubscriptionAndroidPublisherError(t *testing.T) {
+	t.Parallel()
 	client := Client{nil}
 	expected := errors.New("client is nil")
 	_, actual := client.VerifySubscription("package", "subscriptionID", "purchaseToken")
@@ -87,6 +91,7 @@ func TestVerifySubscriptionAndroidPublisherError(t *testing.T) {
 }
 
 func TestVerifyProduct(t *testing.T) {
+	t.Parallel()
 	// Exception scenario
 	expected := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
 
@@ -101,6 +106,7 @@ func TestVerifyProduct(t *testing.T) {
 }
 
 func TestVerifyProductAndroidPublisherError(t *testing.T) {
+	t.Parallel()
 	client := Client{nil}
 	expected := errors.New("client is nil")
 	_, actual := client.VerifyProduct("package", "productID", "purchaseToken")
@@ -111,6 +117,7 @@ func TestVerifyProductAndroidPublisherError(t *testing.T) {
 }
 
 func TestCancelSubscription(t *testing.T) {
+	t.Parallel()
 	// Exception scenario
 	client := Client{nil}
 	expected := errors.New("client is nil")
@@ -132,6 +139,7 @@ func TestCancelSubscription(t *testing.T) {
 }
 
 func TestRefundSubscription(t *testing.T) {
+	t.Parallel()
 	// Exception scenario
 	client := Client{nil}
 	expected := errors.New("client is nil")
@@ -153,6 +161,7 @@ func TestRefundSubscription(t *testing.T) {
 }
 
 func TestRevokeSubscription(t *testing.T) {
+	t.Parallel()
 	// Exception scenario
 	client := Client{nil}
 	expected := errors.New("client is nil")
@@ -174,6 +183,7 @@ func TestRevokeSubscription(t *testing.T) {
 }
 
 func TestVerifySignature(t *testing.T) {
+	t.Parallel()
 	receipt := `{"orderId":"GPA.xxxx-xxxx-xxxx-xxxxx","packageName":"my.package","productId":"myproduct","purchaseTime":1437564796303,"purchaseState":0,"developerPayload":"user001","purchaseToken":"some-token"}`
 
 	// when public key format is invalid base64
