@@ -1,14 +1,12 @@
 package appstore
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
+	"net/http"
 	"os"
-	"strings"
 	"time"
-
-	"github.com/parnurzeal/gorequest"
 )
 
 const (
@@ -99,17 +97,20 @@ func NewWithConfig(config Config) Client {
 
 // Verify sends receipts and gets validation result
 func (c *Client) Verify(req IAPRequest, result interface{}) error {
-	_, body, errs := gorequest.New().
-		Post(c.URL).
-		Send(req).
-		Timeout(c.TimeOut).
-		End()
-
-	if errs != nil {
-		return fmt.Errorf("%v", errs)
+	client := http.Client{
+		Timeout: c.TimeOut,
 	}
 
-	err := json.NewDecoder(strings.NewReader(body)).Decode(result)
+	b := new(bytes.Buffer)
+	json.NewEncoder(b).Encode(req)
+
+	resp, err := client.Post(c.URL, "application/json; charset=utf-8", b)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	err = json.NewDecoder(resp.Body).Decode(result)
 
 	return err
 }

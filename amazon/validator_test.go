@@ -12,6 +12,7 @@ import (
 )
 
 func TestHandle497Error(t *testing.T) {
+	t.Parallel()
 	var expected, actual error
 	client := New("developerSecret")
 
@@ -33,6 +34,7 @@ func TestHandle497Error(t *testing.T) {
 }
 
 func TestHandle400Error(t *testing.T) {
+	t.Parallel()
 	var expected, actual error
 	client := New("developerSecret")
 
@@ -54,6 +56,7 @@ func TestHandle400Error(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
+	t.Parallel()
 	expected := Client{
 		URL:     SandboxURL,
 		TimeOut: time.Second * 5,
@@ -67,6 +70,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestNewWithEnvironment(t *testing.T) {
+	t.Parallel()
 	expected := Client{
 		URL:     ProductionURL,
 		TimeOut: time.Second * 5,
@@ -83,6 +87,7 @@ func TestNewWithEnvironment(t *testing.T) {
 }
 
 func TestNewWithConfig(t *testing.T) {
+	t.Parallel()
 	config := Config{
 		IsProduction: true,
 		Secret:       "developerSecret",
@@ -102,6 +107,7 @@ func TestNewWithConfig(t *testing.T) {
 }
 
 func TestNewWithConfigTimeout(t *testing.T) {
+	t.Parallel()
 	config := Config{
 		IsProduction: true,
 		Secret:       "developerSecret",
@@ -120,6 +126,7 @@ func TestNewWithConfigTimeout(t *testing.T) {
 }
 
 func TestVerify(t *testing.T) {
+	t.Parallel()
 	server, client := testTools(
 		200,
 		"{\"purchaseDate\":1402008634018,\"receiptId\":\"q1YqVrJSSs7P1UvMTazKz9PLTCwoTswtyEktM9JLrShIzCvOzM-LL04tiTdW0lFKASo2NDEwMjCwMDM2MTC0AIqVAsUsLd1c4l18jIxdfTOK_N1d8kqLLHVLc8oK83OLgtPNCit9AoJdjJ3dXG2BGkqUrAxrAQ\",\"productId\":\"com.amazon.iapsamplev2.expansion_set_3\",\"parentProductId\":null,\"productType\":\"ENTITLED\",\"cancelDate\":null,\"quantity\":1,\"betaProduct\":false,\"testTransaction\":true}",
@@ -145,6 +152,7 @@ func TestVerify(t *testing.T) {
 }
 
 func TestVerifyTimeout(t *testing.T) {
+	t.Parallel()
 	// HTTP 100 is "continue" so it will time out
 	server, client := testTools(100, "timeout response")
 	defer server.Close()
