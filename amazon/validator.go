@@ -4,11 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
-	"strings"
 	"time"
-
-	"github.com/parnurzeal/gorequest"
 )
 
 const (
@@ -96,22 +94,22 @@ func NewWithConfig(config Config) Client {
 func (c Client) Verify(userID string, receiptID string) (IAPResponse, error) {
 	result := IAPResponse{}
 	url := fmt.Sprintf("%v/version/1.0/verifyReceiptId/developer/%v/user/%v/receiptId/%v", c.URL, c.Secret, userID, receiptID)
-	res, body, errs := gorequest.New().
-		Get(url).
-		Timeout(c.TimeOut).
-		End()
-
-	if errs != nil {
-		return result, fmt.Errorf("%v", errs)
+	client := http.Client{
+		Timeout: c.TimeOut,
 	}
+	resp, err := client.Get(url)
+	if err != nil {
+		return result, fmt.Errorf("%v", err)
+	}
+	defer resp.Body.Close()
 
-	if res.StatusCode < 200 || res.StatusCode >= 300 {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		responseError := IAPResponseError{}
-		json.NewDecoder(strings.NewReader(body)).Decode(&responseError)
+		err = json.NewDecoder(resp.Body).Decode(&responseError)
 		return result, errors.New(responseError.Message)
 	}
 
-	err := json.NewDecoder(strings.NewReader(body)).Decode(&result)
+	err = json.NewDecoder(resp.Body).Decode(&result)
 
 	return result, err
 }
