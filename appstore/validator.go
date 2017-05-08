@@ -24,7 +24,7 @@ type Config struct {
 
 // IAPClient is an interface to call validation API in App Store
 type IAPClient interface {
-	Verify(IAPRequest) (IAPResponse, error)
+	Verify(IAPRequest, interface{}) error
 }
 
 // Client implements IAPClient
