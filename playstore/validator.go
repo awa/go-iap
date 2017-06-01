@@ -44,10 +44,13 @@ type Client struct {
 // New returns http client which includes the credentials to access androidpublisher API.
 // You should create a service account for your project at
 // https://console.developers.google.com and download a JSON key file to set this argument.
-func New(jsonKey []byte) (Client, error) {
-	ctx := context.WithValue(oauth2.NoContext, oauth2.HTTPClient, &http.Client{
-		Timeout: timeout,
-	})
+func New(jsonKey []byte, hc *http.Client) (Client, error) {
+	if hc == nil {
+		hc = &http.Client{
+			Timeout: timeout,
+		}
+	}
+	ctx := context.WithValue(oauth2.NoContext, oauth2.HTTPClient, hc)
 
 	conf, err := google.JWTConfigFromJSON(jsonKey, androidpublisher.AndroidpublisherScope)
 
