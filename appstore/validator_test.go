@@ -39,9 +39,23 @@ func TestHandleError(t *testing.T) {
 		t.Errorf("got %v\nwant %v", actual, expected)
 	}
 
+	// status 21004
+	expected = errors.New("The shared secret you provided does not match the shared secret on file for your account.")
+	actual = HandleError(21004)
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+
 	// status 21005
 	expected = errors.New("The receipt server is not currently available.")
 	actual = HandleError(21005)
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+
+	// status 21006
+	expected = errors.New("This receipt is valid but the subscription has expired. When this status code is returned to your server, the receipt data is also decoded and returned as part of the response.")
+	actual = HandleError(21006)
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)
 	}
@@ -56,6 +70,20 @@ func TestHandleError(t *testing.T) {
 	// status 21008
 	expected = errors.New("This receipt is from the production environment, but it was sent to the test environment for verification. Send it to the production environment instead.")
 	actual = HandleError(21008)
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+
+	// status 21010
+	expected = errors.New("This receipt could not be authorized. Treat this the same as if a purchase was never made.")
+	actual = HandleError(21010)
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+
+	// status 21100 - 21199
+	expected = errors.New("Internal data access error.")
+	actual = HandleError(21155)
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)
 	}
