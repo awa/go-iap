@@ -50,8 +50,15 @@ func HandleError(status int) error {
 	case 21003:
 		message = "The receipt could not be authenticated."
 
+	case 21004:
+		message = "The shared secret you provided does not match the shared secret on file for your account."
+
 	case 21005:
 		message = "The receipt server is not currently available."
+
+	case 21006:
+		// Only returned for iOS 6 style transaction receipts for auto-renewable subscriptions.
+		message = "This receipt is valid but the subscription has expired. When this status code is returned to your server, the receipt data is also decoded and returned as part of the response."
 
 	case 21007:
 		message = "This receipt is from the test environment, but it was sent to the production environment for verification. Send it to the test environment instead."
@@ -59,8 +66,15 @@ func HandleError(status int) error {
 	case 21008:
 		message = "This receipt is from the production environment, but it was sent to the test environment for verification. Send it to the production environment instead."
 
+	case 21010:
+		message = "This receipt could not be authorized. Treat this the same as if a purchase was never made."
+
 	default:
-		message = "An unknown error occurred"
+		if status >= 21100 && status <= 21199 {
+			message = "Internal data access error."
+		} else {
+			message = "An unknown error occurred"
+		}
 	}
 
 	return errors.New(message)
