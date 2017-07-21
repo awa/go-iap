@@ -6,7 +6,7 @@ type (
 	IAPRequest struct {
 		ReceiptData            string `json:"receipt-data"`
 		Password               string `json:"password,omitempty"`
-		ExcludeOldTransactions bool   `json:"exclude_old_transactions,omitempty"`
+		ExcludeOldTransactions bool   `json:"exclude-old-transactions"`
 	}
 
 	// The ReceiptCreationDate type indicates the date when the app receipt was created.
