@@ -53,13 +53,6 @@ func TestHandleError(t *testing.T) {
 		t.Errorf("got %v\nwant %v", actual, expected)
 	}
 
-	// status 21006
-	expected = errors.New("This receipt is valid but the subscription has expired. When this status code is returned to your server, the receipt data is also decoded and returned as part of the response.")
-	actual = HandleError(21006)
-	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("got %v\nwant %v", actual, expected)
-	}
-
 	// status 21007
 	expected = errors.New("This receipt is from the test environment, but it was sent to the production environment for verification. Send it to the test environment instead.")
 	actual = HandleError(21007)

@@ -56,10 +56,6 @@ func HandleError(status int) error {
 	case 21005:
 		message = "The receipt server is not currently available."
 
-	case 21006:
-		// Only returned for iOS 6 style transaction receipts for auto-renewable subscriptions.
-		message = "This receipt is valid but the subscription has expired. When this status code is returned to your server, the receipt data is also decoded and returned as part of the response."
-
 	case 21007:
 		message = "This receipt is from the test environment, but it was sent to the production environment for verification. Send it to the test environment instead."
 

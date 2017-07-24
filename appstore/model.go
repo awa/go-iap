@@ -108,13 +108,12 @@ type (
 	// https://developer.apple.com/library/ios/releasenotes/General/ValidateAppStoreReceipt/Chapters/ReceiptFields.html
 	// If you get other types or fileds from the IAP response, you should use the struct you defined.
 	IAPResponse struct {
-		Status                   int                  `json:"status"`
-		Environment              string               `json:"environment"`
-		Receipt                  Receipt              `json:"receipt"`
-		LatestReceiptInfo        []InApp              `json:"latest_receipt_info"`
-		LatestReceipt            string               `json:"latest_receipt"`
-		LatestExpiredReceiptInfo InApp                `json:"latest_expired_receipt_info"`
-		PendingRenewalInfo       []PendingRenewalInfo `json:"pending_renewal_info"`
-		IsRetryable              bool                 `json:"is-retryable"`
+		Status             int                  `json:"status"`
+		Environment        string               `json:"environment"`
+		Receipt            Receipt              `json:"receipt"`
+		LatestReceiptInfo  []InApp              `json:"latest_receipt_info"`
+		LatestReceipt      string               `json:"latest_receipt"`
+		PendingRenewalInfo []PendingRenewalInfo `json:"pending_renewal_info"`
+		IsRetryable        bool                 `json:"is-retryable"`
 	}
 )
