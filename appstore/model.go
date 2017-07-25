@@ -4,9 +4,12 @@ type (
 	// https://developer.apple.com/library/content/releasenotes/General/ValidateAppStoreReceipt/Chapters/ValidateRemotely.html
 	// The IAPRequest type has the request parameter
 	IAPRequest struct {
-		ReceiptData            string `json:"receipt-data"`
-		Password               string `json:"password,omitempty"`
-		ExcludeOldTransactions bool   `json:"exclude-old-transactions"`
+		ReceiptData string `json:"receipt-data"`
+		// Only used for receipts that contain auto-renewable subscriptions.
+		Password string `json:"password,omitempty"`
+		// Only used for iOS7 style app receipts that contain auto-renewable or non-renewing subscriptions.
+		// If value is true, response includes only the latest renewal transaction for any subscriptions.
+		ExcludeOldTransactions bool `json:"exclude-old-transactions"`
 	}
 
 	// The ReceiptCreationDate type indicates the date when the app receipt was created.
@@ -53,20 +56,13 @@ type (
 
 	// The InApp type has the receipt attributes
 	InApp struct {
-		Quantity                  string `json:"quantity"`
-		ProductID                 string `json:"product_id"`
-		TransactionID             string `json:"transaction_id"`
-		OriginalTransactionID     string `json:"original_transaction_id"`
-		AppItemID                 string `json:"app_item_id"`
-		VersionExternalIdentifier string `json:"version_external_identifier"`
-		WebOrderLineItemID        string `json:"web_order_line_item_id"`
+		Quantity              string `json:"quantity"`
+		ProductID             string `json:"product_id"`
+		TransactionID         string `json:"transaction_id"`
+		OriginalTransactionID string `json:"original_transaction_id"`
+		WebOrderLineItemID    string `json:"web_order_line_item_id"`
 
-		IsTrialPeriod                  string `json:"is_trial_period"`
-		SubscriptionExpirationIntent   string `json:"expiration_intent"`
-		SubscriptionRetryFlag          string `json:"is_in_billing_retry_period"`
-		SubscriptionAutoRenewProductID string `json:"auto_renew_product_id"`
-		SubscriptionAutoRenewStatus    string `json:"auto_renew_status"`
-		SubscriptionPriceConsentStatus string `json:"price_consent_status"`
+		IsTrialPeriod string `json:"is_trial_period"`
 		ExpiresDate
 
 		PurchaseDate
