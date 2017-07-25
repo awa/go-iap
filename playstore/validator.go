@@ -1,6 +1,7 @@
 package playstore
 
 import (
+	"context"
 	"crypto"
 	"crypto/rsa"
 	"crypto/sha1"
@@ -10,7 +11,6 @@ import (
 	"net/http"
 	"time"
 
-	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	androidpublisher "google.golang.org/api/androidpublisher/v2"

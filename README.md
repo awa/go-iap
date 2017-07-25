@@ -16,7 +16,6 @@ Current API Documents:
 
 # Dependencies
 ```
-go get golang.org/x/net/context
 go get golang.org/x/oauth2
 go get golang.org/x/oauth2/google
 go get google.golang.org/api/androidpublisher/v2
