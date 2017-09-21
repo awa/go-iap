@@ -91,7 +91,7 @@ func TestHandleError(t *testing.T) {
 
 func TestNew(t *testing.T) {
 	expected := Client{
-		URL:     "https://sandbox.itunes.apple.com/verifyReceipt",
+		URL:     SandboxURL,
 		TimeOut: time.Second * 5,
 	}
 
@@ -103,7 +103,7 @@ func TestNew(t *testing.T) {
 
 func TestNewWithEnvironment(t *testing.T) {
 	expected := Client{
-		URL:     "https://buy.itunes.apple.com/verifyReceipt",
+		URL:     ProductionURL,
 		TimeOut: time.Second * 5,
 	}
 
@@ -123,7 +123,7 @@ func TestNewWithConfig(t *testing.T) {
 	}
 
 	expected := Client{
-		URL:     "https://buy.itunes.apple.com/verifyReceipt",
+		URL:     ProductionURL,
 		TimeOut: time.Second * 2,
 	}
 
@@ -139,8 +139,25 @@ func TestNewWithConfigTimeout(t *testing.T) {
 	}
 
 	expected := Client{
-		URL:     "https://buy.itunes.apple.com/verifyReceipt",
+		URL:     ProductionURL,
 		TimeOut: time.Second * 5,
+	}
+
+	actual := NewWithConfig(config)
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+}
+
+func TestNewWithConfigTryBothStores(t *testing.T) {
+	config := Config{
+		TryBothStores: true,
+	}
+
+	expected := Client{
+		URL:           ProductionURL,
+		TimeOut:       time.Second * 5,
+		TryBothStores: true,
 	}
 
 	actual := NewWithConfig(config)
