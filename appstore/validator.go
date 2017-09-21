@@ -127,7 +127,7 @@ func (c *Client) Verify(req IAPRequest, result interface{}) error {
 	err = json.NewDecoder(resp.Body).Decode(result)
 	if err == nil && c.TryBothStores && result.(IAPResponse).Status == 21007 {
 		c.URL = SandboxURL
-		c.Verify(req, result)
+		err = c.Verify(req, result)
 		c.URL = ProductionURL
 	}
 
