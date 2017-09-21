@@ -129,14 +129,12 @@ func (c *Client) Verify(req IAPRequest, result interface{}) error {
 		return err
 	}
 
-	if c.TryBothStores && c.URL == ProductionURL {
-		r := &IAPResponse{}
-		err = json.Unmarshal(bodyBytes, r)
-		if err == nil && r.Status == 21007 {
-			c.URL = SandboxURL
-			err = c.Verify(req, result)
-			c.URL = ProductionURL
-		}
+	r := &IAPResponse{}
+	err = json.Unmarshal(bodyBytes, r)
+	if c.TryBothStores && c.URL == ProductionURL && err == nil && r.Status == 21007 {
+		c.URL = SandboxURL
+		err = c.Verify(req, result)
+		c.URL = ProductionURL
 	} else {
 		err = json.Unmarshal(bodyBytes, result)
 	}
