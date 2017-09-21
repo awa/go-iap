@@ -169,6 +169,7 @@ func TestNewWithConfigTryBothStores(t *testing.T) {
 func TestVerify(t *testing.T) {
 	client := New()
 	client.TimeOut = time.Millisecond * 100
+	client.TryBothStores = true
 
 	req := IAPRequest{
 		ReceiptData: "dummy data",

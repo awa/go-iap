@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
@@ -123,11 +124,21 @@ func (c *Client) Verify(req IAPRequest, result interface{}) error {
 	}
 	defer resp.Body.Close()
 
-	err = json.NewDecoder(resp.Body).Decode(result)
-	if c.TryBothStores && err == nil && result.(IAPResponse).Status == 21007 {
-		c.URL = SandboxURL
-		err = c.Verify(req, result)
-		c.URL = ProductionURL
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	if c.TryBothStores && c.URL == ProductionURL {
+		r := &IAPResponse{}
+		err = json.Unmarshal(bodyBytes, r)
+		if err == nil && r.Status == 21007 {
+			c.URL = SandboxURL
+			err = c.Verify(req, result)
+			c.URL = ProductionURL
+		}
+	} else {
+		err = json.Unmarshal(bodyBytes, result)
 	}
 
 	return err
