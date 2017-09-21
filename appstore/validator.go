@@ -81,9 +81,8 @@ func HandleError(status int) error {
 // New creates a client object
 func New() Client {
 	client := Client{
-		URL:           SandboxURL,
-		TimeOut:       time.Second * 5,
-		TryBothStores: false,
+		URL:     SandboxURL,
+		TimeOut: time.Second * 5,
 	}
 	if os.Getenv("IAP_ENVIRONMENT") == "production" {
 		client.URL = ProductionURL
@@ -125,7 +124,7 @@ func (c *Client) Verify(req IAPRequest, result interface{}) error {
 	defer resp.Body.Close()
 
 	err = json.NewDecoder(resp.Body).Decode(result)
-	if err == nil && c.TryBothStores && result.(IAPResponse).Status == 21007 {
+	if c.TryBothStores && err == nil && result.(IAPResponse).Status == 21007 {
 		c.URL = SandboxURL
 		err = c.Verify(req, result)
 		c.URL = ProductionURL
