@@ -19,9 +19,8 @@ const (
 
 // Config is a configuration to initialize client
 type Config struct {
-	IsProduction  bool
-	TryBothStores bool
-	TimeOut       time.Duration
+	IsProduction bool
+	TimeOut      time.Duration
 }
 
 // IAPClient is an interface to call validation API in App Store
@@ -31,9 +30,8 @@ type IAPClient interface {
 
 // Client implements IAPClient
 type Client struct {
-	URL           string
-	TimeOut       time.Duration
-	TryBothStores bool
+	URL     string
+	TimeOut time.Duration
 }
 
 // HandleError returns error message by status code
@@ -98,11 +96,10 @@ func NewWithConfig(config Config) Client {
 	}
 
 	client := Client{
-		URL:           SandboxURL,
-		TimeOut:       config.TimeOut,
-		TryBothStores: config.TryBothStores,
+		URL:     SandboxURL,
+		TimeOut: config.TimeOut,
 	}
-	if config.IsProduction || config.TryBothStores {
+	if config.IsProduction {
 		client.URL = ProductionURL
 	}
 
@@ -131,7 +128,7 @@ func (c *Client) Verify(req IAPRequest, result interface{}) error {
 
 	r := &IAPResponse{}
 	err = json.Unmarshal(bodyBytes, r)
-	if c.TryBothStores && c.URL == ProductionURL && err == nil && r.Status == 21007 {
+	if err == nil && r.Status == 21007 {
 		c.URL = SandboxURL
 		err = c.Verify(req, result)
 		c.URL = ProductionURL

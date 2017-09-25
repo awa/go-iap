@@ -149,27 +149,9 @@ func TestNewWithConfigTimeout(t *testing.T) {
 	}
 }
 
-func TestNewWithConfigTryBothStores(t *testing.T) {
-	config := Config{
-		TryBothStores: true,
-	}
-
-	expected := Client{
-		URL:           ProductionURL,
-		TimeOut:       time.Second * 5,
-		TryBothStores: true,
-	}
-
-	actual := NewWithConfig(config)
-	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("got %v\nwant %v", actual, expected)
-	}
-}
-
 func TestVerify(t *testing.T) {
 	client := New()
 	client.TimeOut = time.Millisecond * 100
-	client.TryBothStores = true
 
 	req := IAPRequest{
 		ReceiptData: "dummy data",
