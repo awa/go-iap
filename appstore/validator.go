@@ -128,13 +128,24 @@ func (c *Client) Verify(req IAPRequest, result interface{}) error {
 
 	r := &IAPResponse{}
 	err = json.Unmarshal(bodyBytes, r)
+
+	// Always verify your receipt first with the production URL; proceed to verify with the sandbox URL if you receive
+	// a 21007 status code
+	//
+	// https://developer.apple.com/library/content/technotes/tn2413/_index.html#//apple_ref/doc/uid/DTS40016228-CH1-RECEIPTURL
 	if err == nil && r.Status == 21007 {
-		c.URL = SandboxURL
-		err = c.Verify(req, result)
-		c.URL = ProductionURL
-	} else {
-		err = json.Unmarshal(bodyBytes, result)
+		resp, err := client.Post(SandboxURL, "application/json; charset=utf-8", b)
+		if err != nil {
+			return err
+		}
+
+		bodyBytes, err = ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return err
+		}
 	}
+
+	err = json.Unmarshal(bodyBytes, result)
 
 	return err
 }
