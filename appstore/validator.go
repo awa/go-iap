@@ -131,6 +131,8 @@ func (c *Client) Verify(req IAPRequest, result interface{}) error {
 	// https://developer.apple.com/library/content/technotes/tn2413/_index.html#//apple_ref/doc/uid/DTS40016228-CH1-RECEIPTURL
 	r, ok := result.(*IAPResponse)
 	if ok && r.Status == 21007 {
+		b = new(bytes.Buffer)
+		json.NewEncoder(b).Encode(req)
 		resp, err := client.Post(SandboxURL, "application/json; charset=utf-8", b)
 		if err != nil {
 			return err
