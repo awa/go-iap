@@ -42,6 +42,7 @@ type NotificationReceipt struct {
 	BVRS                      string `json:"bvrs"`
 	TransactionID             string `json:"transaction_id"`
 	OriginalTransactionID     string `json:"original_transaction_id"`
+	IsTrialPeriod             string `json:"is_trial_period"`
 
 	PurchaseDate
 	OriginalPurchaseDate
