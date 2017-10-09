@@ -121,6 +121,26 @@ func (c *Client) Verify(req IAPRequest, result interface{}) error {
 	defer resp.Body.Close()
 
 	err = json.NewDecoder(resp.Body).Decode(result)
+	if err != nil {
+		return err
+	}
 
-	return err
+	// Always verify your receipt first with the production URL; proceed to verify with the sandbox URL if you receive
+	// a 21007 status code
+	//
+	// https://developer.apple.com/library/content/technotes/tn2413/_index.html#//apple_ref/doc/uid/DTS40016228-CH1-RECEIPTURL
+	r, ok := result.(*IAPResponse)
+	if ok && r.Status == 21007 {
+		b = new(bytes.Buffer)
+		json.NewEncoder(b).Encode(req)
+		resp, err := client.Post(SandboxURL, "application/json; charset=utf-8", b)
+		if err != nil {
+			return err
+		}
+		defer resp.Body.Close()
+
+		return json.NewDecoder(resp.Body).Decode(result)
+	}
+
+	return nil
 }
