@@ -254,13 +254,9 @@ func TestVerifySandboxReceiptFailure(t *testing.T) {
 	s := httptest.NewServer(redirectToSandbox())
 	defer s.Close()
 
-	sandboxServ := httptest.NewServer(sandboxTimeout())
-	defer sandboxServ.Close()
-
 	client := New()
 	client.URL = s.URL
 	client.TimeOut = time.Second * 100
-	client.SandboxURL = sandboxServ.URL
 
 	req := IAPRequest{
 		ReceiptData: "dummy data",
@@ -312,12 +308,6 @@ func sandboxSuccess() http.Handler {
 		}
 
 		w.WriteHeader(http.StatusOK)
-	})
-}
-
-func sandboxTimeout() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Do nothing and just dont return anything either
 	})
 }
 
