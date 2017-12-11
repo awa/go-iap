@@ -257,6 +257,7 @@ func TestVerifySandboxReceiptFailure(t *testing.T) {
 	client := New()
 	client.URL = s.URL
 	client.TimeOut = time.Second * 100
+	client.SandboxURL = "localhost"
 
 	req := IAPRequest{
 		ReceiptData: "dummy data",
