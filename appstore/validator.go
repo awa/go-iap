@@ -6,7 +6,6 @@ import (
 	"errors"
 	"net/http"
 	"os"
-	"time"
 )
 
 const (
@@ -19,7 +18,6 @@ const (
 // Config is a configuration to initialize client
 type Config struct {
 	IsProduction bool
-	TimeOut      time.Duration
 }
 
 // IAPClient is an interface to call validation API in App Store
@@ -29,8 +27,8 @@ type IAPClient interface {
 
 // Client implements IAPClient
 type Client struct {
-	URL     string
-	TimeOut time.Duration
+	URL        string
+	HttpClient *http.Client
 }
 
 // HandleError returns error message by status code
@@ -77,10 +75,10 @@ func HandleError(status int) error {
 }
 
 // New creates a client object
-func New() Client {
+func New(httpClient *http.Client) Client {
 	client := Client{
-		URL:     SandboxURL,
-		TimeOut: time.Second * 5,
+		URL:        SandboxURL,
+		HttpClient: httpClient,
 	}
 	if os.Getenv("IAP_ENVIRONMENT") == "production" {
 		client.URL = ProductionURL
@@ -89,14 +87,10 @@ func New() Client {
 }
 
 // NewWithConfig creates a client with configuration
-func NewWithConfig(config Config) Client {
-	if config.TimeOut == 0 {
-		config.TimeOut = time.Second * 5
-	}
-
+func NewWithConfig(httpClient *http.Client, config Config) Client {
 	client := Client{
-		URL:     SandboxURL,
-		TimeOut: config.TimeOut,
+		URL:        SandboxURL,
+		HttpClient: httpClient,
 	}
 	if config.IsProduction {
 		client.URL = ProductionURL
@@ -107,14 +101,10 @@ func NewWithConfig(config Config) Client {
 
 // Verify sends receipts and gets validation result
 func (c *Client) Verify(req IAPRequest, result interface{}) error {
-	client := http.Client{
-		Timeout: c.TimeOut,
-	}
-
 	b := new(bytes.Buffer)
 	json.NewEncoder(b).Encode(req)
 
-	resp, err := client.Post(c.URL, "application/json; charset=utf-8", b)
+	resp, err := c.HttpClient.Post(c.URL, "application/json; charset=utf-8", b)
 	if err != nil {
 		return err
 	}

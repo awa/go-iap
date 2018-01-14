@@ -2,6 +2,7 @@ package appstore
 
 import (
 	"errors"
+	"net/http"
 	"os"
 	"reflect"
 	"testing"
@@ -90,25 +91,27 @@ func TestHandleError(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
+	httpClient := http.Client{}
 	expected := Client{
-		URL:     "https://sandbox.itunes.apple.com/verifyReceipt",
-		TimeOut: time.Second * 5,
+		URL:        "https://sandbox.itunes.apple.com/verifyReceipt",
+		HttpClient: &httpClient,
 	}
 
-	actual := New()
+	actual := New(&httpClient)
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)
 	}
 }
 
 func TestNewWithEnvironment(t *testing.T) {
+	httpClient := http.Client{}
 	expected := Client{
-		URL:     "https://buy.itunes.apple.com/verifyReceipt",
-		TimeOut: time.Second * 5,
+		URL:        "https://buy.itunes.apple.com/verifyReceipt",
+		HttpClient: &httpClient,
 	}
 
 	os.Setenv("IAP_ENVIRONMENT", "production")
-	actual := New()
+	actual := New(&httpClient)
 	os.Clearenv()
 
 	if !reflect.DeepEqual(actual, expected) {
@@ -117,41 +120,44 @@ func TestNewWithEnvironment(t *testing.T) {
 }
 
 func TestNewWithConfig(t *testing.T) {
+	httpClient := http.Client{}
 	config := Config{
 		IsProduction: true,
-		TimeOut:      time.Second * 2,
 	}
 
 	expected := Client{
-		URL:     "https://buy.itunes.apple.com/verifyReceipt",
-		TimeOut: time.Second * 2,
+		URL:        "https://buy.itunes.apple.com/verifyReceipt",
+		HttpClient: &httpClient,
 	}
 
-	actual := NewWithConfig(config)
+	actual := NewWithConfig(&httpClient, config)
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)
 	}
 }
 
 func TestNewWithConfigTimeout(t *testing.T) {
+	httpClient := http.Client{}
 	config := Config{
 		IsProduction: true,
 	}
 
 	expected := Client{
-		URL:     "https://buy.itunes.apple.com/verifyReceipt",
-		TimeOut: time.Second * 5,
+		URL:        "https://buy.itunes.apple.com/verifyReceipt",
+		HttpClient: &httpClient,
 	}
 
-	actual := NewWithConfig(config)
+	actual := NewWithConfig(&httpClient, config)
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)
 	}
 }
 
 func TestVerify(t *testing.T) {
-	client := New()
-	client.TimeOut = time.Millisecond * 100
+	httpClient := http.Client{
+		Timeout: time.Millisecond * 100,
+	}
+	client := New(&httpClient)
 
 	req := IAPRequest{
 		ReceiptData: "dummy data",
@@ -162,7 +168,8 @@ func TestVerify(t *testing.T) {
 		t.Errorf("error should be occurred because of timeout")
 	}
 
-	client = New()
+	httpClient = http.Client{}
+	client = New(&httpClient)
 	expected := &IAPResponse{
 		Status: 21002,
 	}
