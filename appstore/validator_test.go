@@ -2,12 +2,12 @@ package appstore
 
 import (
 	"errors"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"reflect"
 	"testing"
 	"time"
-	"net/http/httptest"
-	"net/http"
 )
 
 func TestHandleError(t *testing.T) {
@@ -93,9 +93,9 @@ func TestHandleError(t *testing.T) {
 
 func TestNew(t *testing.T) {
 	expected := Client{
-		URL:     SandboxURL,
-		TimeOut: time.Second * 5,
-		SandboxURL:SandboxURL,
+		ProductionURL: SandboxURL,
+		TimeOut:       time.Second * 5,
+		SandboxURL:    SandboxURL,
 	}
 
 	actual := New()
@@ -106,9 +106,9 @@ func TestNew(t *testing.T) {
 
 func TestNewWithEnvironment(t *testing.T) {
 	expected := Client{
-		URL:     ProductionURL,
-		TimeOut: time.Second * 5,
-		SandboxURL:SandboxURL,
+		ProductionURL: ProductionURL,
+		TimeOut:       time.Second * 5,
+		SandboxURL:    SandboxURL,
 	}
 
 	os.Setenv("IAP_ENVIRONMENT", "production")
@@ -122,13 +122,12 @@ func TestNewWithEnvironment(t *testing.T) {
 
 func TestNewWithConfig(t *testing.T) {
 	config := Config{
-		IsProduction: true,
-		TimeOut:      time.Second * 2,
+		TimeOut: time.Second * 2,
 	}
 
 	expected := Client{
-		URL:     ProductionURL,
-		TimeOut: time.Second * 2,
+		ProductionURL: ProductionURL,
+		TimeOut:       time.Second * 2,
 	}
 
 	actual := NewWithConfig(config)
@@ -138,13 +137,11 @@ func TestNewWithConfig(t *testing.T) {
 }
 
 func TestNewWithConfigTimeout(t *testing.T) {
-	config := Config{
-		IsProduction: true,
-	}
+	config := Config{}
 
 	expected := Client{
-		URL:     ProductionURL,
-		TimeOut: time.Second * 5,
+		ProductionURL: ProductionURL,
+		TimeOut:       time.Second * 5,
 	}
 
 	actual := NewWithConfig(config)
@@ -169,7 +166,7 @@ func TestVerifyTimeout(t *testing.T) {
 
 func TestVerifyBadURL(t *testing.T) {
 	client := New()
-	client.URL = "127.0.0.1"
+	client.ProductionURL = "127.0.0.1"
 
 	req := IAPRequest{
 		ReceiptData: "dummy data",
@@ -186,7 +183,7 @@ func TestVerifyBadPayload(t *testing.T) {
 	defer s.Close()
 
 	client := New()
-	client.URL = s.URL
+	client.ProductionURL = s.URL
 	expected := &IAPResponse{
 		Status: 21002,
 	}
@@ -209,7 +206,7 @@ func TestVerifyBadResponse(t *testing.T) {
 	defer s.Close()
 
 	client := New()
-	client.URL = s.URL
+	client.ProductionURL = s.URL
 	req := IAPRequest{
 		ReceiptData: "dummy data",
 	}
@@ -229,7 +226,7 @@ func TestVerifySandboxReceipt(t *testing.T) {
 	defer sandboxServ.Close()
 
 	client := New()
-	client.URL = s.URL
+	client.ProductionURL = s.URL
 	client.TimeOut = time.Second * 100
 	client.SandboxURL = sandboxServ.URL
 
@@ -255,7 +252,7 @@ func TestVerifySandboxReceiptFailure(t *testing.T) {
 	defer s.Close()
 
 	client := New()
-	client.URL = s.URL
+	client.ProductionURL = s.URL
 	client.TimeOut = time.Second * 100
 	client.SandboxURL = "localhost"
 

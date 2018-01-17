@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -18,8 +17,7 @@ const (
 
 // Config is a configuration to initialize client
 type Config struct {
-	IsProduction bool
-	TimeOut      time.Duration
+	TimeOut time.Duration
 }
 
 // IAPClient is an interface to call validation API in App Store
@@ -29,9 +27,9 @@ type IAPClient interface {
 
 // Client implements IAPClient
 type Client struct {
-	URL     string
-	TimeOut time.Duration
-	SandboxURL string
+	ProductionURL string
+	SandboxURL    string
+	TimeOut       time.Duration
 }
 
 // HandleError returns error message by status code
@@ -80,12 +78,9 @@ func HandleError(status int) error {
 // New creates a client object
 func New() Client {
 	client := Client{
-		URL:     SandboxURL,
-		TimeOut: time.Second * 5,
-		SandboxURL: SandboxURL,
-	}
-	if os.Getenv("IAP_ENVIRONMENT") == "production" {
-		client.URL = ProductionURL
+		ProductionURL: ProductionURL,
+		SandboxURL:    SandboxURL,
+		TimeOut:       time.Second * 5,
 	}
 	return client
 }
@@ -97,11 +92,9 @@ func NewWithConfig(config Config) Client {
 	}
 
 	client := Client{
-		URL:     SandboxURL,
-		TimeOut: config.TimeOut,
-	}
-	if config.IsProduction {
-		client.URL = ProductionURL
+		ProductionURL: ProductionURL,
+		SandboxURL:    SandboxURL,
+		TimeOut:       config.TimeOut,
 	}
 
 	return client
@@ -116,7 +109,7 @@ func (c *Client) Verify(req IAPRequest, result interface{}) error {
 	b := new(bytes.Buffer)
 	json.NewEncoder(b).Encode(req)
 
-	resp, err := client.Post(c.URL, "application/json; charset=utf-8", b)
+	resp, err := client.Post(c.ProductionURL, "application/json; charset=utf-8", b)
 	if err != nil {
 		return err
 	}
@@ -127,11 +120,8 @@ func (c *Client) Verify(req IAPRequest, result interface{}) error {
 		return err
 	}
 
-	// Always verify your receipt first with the production URL; proceed to verify with the sandbox URL if you receive
-	// a 21007 status code
-	//
 	// https://developer.apple.com/library/content/technotes/tn2413/_index.html#//apple_ref/doc/uid/DTS40016228-CH1-RECEIPTURL
-	r, ok := result.(*IAPResponse)
+	r, ok := result.(*HttpStatusResponse)
 	if ok && r.Status == 21007 {
 		b = new(bytes.Buffer)
 		json.NewEncoder(b).Encode(req)
