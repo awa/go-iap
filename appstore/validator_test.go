@@ -93,9 +93,9 @@ func TestHandleError(t *testing.T) {
 
 func TestNew(t *testing.T) {
 	expected := Client{
-		ProductionURL: SandboxURL,
-		TimeOut:       time.Second * 5,
+		ProductionURL: ProductionURL,
 		SandboxURL:    SandboxURL,
+		TimeOut:       time.Second * 5,
 	}
 
 	actual := New()
@@ -127,6 +127,7 @@ func TestNewWithConfig(t *testing.T) {
 
 	expected := Client{
 		ProductionURL: ProductionURL,
+		SandboxURL:    SandboxURL,
 		TimeOut:       time.Second * 2,
 	}
 
@@ -141,6 +142,7 @@ func TestNewWithConfigTimeout(t *testing.T) {
 
 	expected := Client{
 		ProductionURL: ProductionURL,
+		SandboxURL:    SandboxURL,
 		TimeOut:       time.Second * 5,
 	}
 

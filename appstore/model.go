@@ -115,7 +115,7 @@ type (
 
 	// The HttpStatusResponse struct contains the status code returned by the store
 	// Used as a workaround to detect when to hit the production appstore or sandbox appstore regardless of receipt type
-	HttpStatusResponse struct {
+	StatusResponse struct {
 		Status int `json:"status"`
 	}
 )

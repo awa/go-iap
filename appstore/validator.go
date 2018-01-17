@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"net/http"
 	"time"
 )
@@ -115,14 +116,24 @@ func (c *Client) Verify(req IAPRequest, result interface{}) error {
 	}
 	defer resp.Body.Close()
 
-	err = json.NewDecoder(resp.Body).Decode(result)
+	// Read the body now so that we can unmarshal it twice
+	buf, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(buf, &result)
 	if err != nil {
 		return err
 	}
 
 	// https://developer.apple.com/library/content/technotes/tn2413/_index.html#//apple_ref/doc/uid/DTS40016228-CH1-RECEIPTURL
-	r, ok := result.(*HttpStatusResponse)
-	if ok && r.Status == 21007 {
+	var r StatusResponse
+	err = json.Unmarshal(buf, &r)
+	if err != nil {
+		return err
+	}
+	if r.Status == 21007 {
 		b = new(bytes.Buffer)
 		json.NewEncoder(b).Encode(req)
 		resp, err := client.Post(c.SandboxURL, "application/json; charset=utf-8", b)
