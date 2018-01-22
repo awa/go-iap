@@ -115,7 +115,10 @@ func (c *Client) Verify(req IAPRequest, result interface{}) error {
 		return err
 	}
 	defer resp.Body.Close()
+	return c.parseResponse(resp, result, client, req)
+}
 
+func (c *Client) parseResponse(resp *http.Response, result interface{}, client http.Client, req IAPRequest) error {
 	// Read the body now so that we can unmarshal it twice
 	buf, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -134,7 +137,7 @@ func (c *Client) Verify(req IAPRequest, result interface{}) error {
 		return err
 	}
 	if r.Status == 21007 {
-		b = new(bytes.Buffer)
+		b := new(bytes.Buffer)
 		json.NewEncoder(b).Encode(req)
 		resp, err := client.Post(c.SandboxURL, "application/json; charset=utf-8", b)
 		if err != nil {

@@ -2,10 +2,12 @@ package appstore
 
 import (
 	"errors"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 )
@@ -181,7 +183,7 @@ func TestVerifyBadURL(t *testing.T) {
 }
 
 func TestVerifyBadPayload(t *testing.T) {
-	s := httptest.NewServer(badPayload())
+	s := httptest.NewServer(serverWithResponse(`{"status": 21002}`))
 	defer s.Close()
 
 	client := New()
@@ -204,7 +206,7 @@ func TestVerifyBadPayload(t *testing.T) {
 }
 
 func TestVerifyBadResponse(t *testing.T) {
-	s := httptest.NewServer(invalidResponse())
+	s := httptest.NewServer(serverWithResponse(`qwerty!@#$%^`))
 	defer s.Close()
 
 	client := New()
@@ -221,10 +223,10 @@ func TestVerifyBadResponse(t *testing.T) {
 }
 
 func TestVerifySandboxReceipt(t *testing.T) {
-	s := httptest.NewServer(redirectToSandbox())
+	s := httptest.NewServer(serverWithResponse(`{"status": 21007}`))
 	defer s.Close()
 
-	sandboxServ := httptest.NewServer(sandboxSuccess())
+	sandboxServ := httptest.NewServer(serverWithResponse(`{"status": 0}`))
 	defer sandboxServ.Close()
 
 	client := New()
@@ -250,7 +252,7 @@ func TestVerifySandboxReceipt(t *testing.T) {
 }
 
 func TestVerifySandboxReceiptFailure(t *testing.T) {
-	s := httptest.NewServer(redirectToSandbox())
+	s := httptest.NewServer(serverWithResponse(`{"status": 21007}`))
 	defer s.Close()
 
 	client := New()
@@ -269,58 +271,40 @@ func TestVerifySandboxReceiptFailure(t *testing.T) {
 	}
 }
 
-func badPayload() http.Handler {
+func TestCannotReadBody(t *testing.T) {
+	client := New()
+	testResponse := http.Response{Body: ioutil.NopCloser(errReader(0))}
+
+	if client.parseResponse(&testResponse, IAPResponse{}, http.Client{}, IAPRequest{}) == nil {
+		t.Errorf("expected redirectToSandbox to fail to read the body")
+	}
+}
+
+func TestCannotUnmarshalBody(t *testing.T) {
+	client := New()
+	testResponse := http.Response{Body: ioutil.NopCloser(strings.NewReader(`{"status": true}`))}
+
+	if client.parseResponse(&testResponse, StatusResponse{}, http.Client{}, IAPRequest{}) == nil {
+		t.Errorf("expected redirectToSandbox to fail to unmarshal the data")
+	}
+}
+
+type errReader int
+
+func (errReader) Read(p []byte) (n int, err error) {
+	return 0, errors.New("test error")
+}
+
+func serverWithResponse(response string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if "POST" == r.Method {
 			w.Header().Set("Content-Type", "application/json")
-			w.Write([]byte(`{"status": 21002}`))
+			w.Write([]byte(response))
 			return
 		} else {
 			w.Write([]byte(`unsupported request`))
 		}
 
 		w.WriteHeader(http.StatusBadRequest)
-	})
-}
-
-func redirectToSandbox() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if "POST" == r.Method {
-			w.Header().Set("Content-Type", "application/json")
-			w.Write([]byte(`{"status": 21007}`))
-			return
-		} else {
-			w.Write([]byte(`unsupported request`))
-		}
-
-		w.WriteHeader(http.StatusOK)
-	})
-}
-
-func sandboxSuccess() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if "POST" == r.Method {
-			w.Header().Set("Content-Type", "application/json")
-			w.Write([]byte(`{"status": 0}`))
-			return
-		} else {
-			w.Write([]byte(`unsupported request`))
-		}
-
-		w.WriteHeader(http.StatusOK)
-	})
-}
-
-func invalidResponse() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if "POST" == r.Method {
-			w.Header().Set("Content-Type", "application/json")
-			w.Write([]byte(`qwerty!@#$%^`))
-			return
-		} else {
-			w.Write([]byte(`unsupported request`))
-		}
-
-		w.WriteHeader(http.StatusOK)
 	})
 }
