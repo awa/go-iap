@@ -183,7 +183,7 @@ func TestVerifyBadURL(t *testing.T) {
 }
 
 func TestVerifyBadPayload(t *testing.T) {
-	s := httptest.NewServer(serverWithResponse(`{"status": 21002}`))
+	s := httptest.NewServer(serverWithResponse(http.StatusBadRequest, `{"status": 21002}`))
 	defer s.Close()
 
 	client := New()
@@ -206,7 +206,7 @@ func TestVerifyBadPayload(t *testing.T) {
 }
 
 func TestVerifyBadResponse(t *testing.T) {
-	s := httptest.NewServer(serverWithResponse(`qwerty!@#$%^`))
+	s := httptest.NewServer(serverWithResponse(http.StatusInternalServerError, `qwerty!@#$%^`))
 	defer s.Close()
 
 	client := New()
@@ -223,10 +223,10 @@ func TestVerifyBadResponse(t *testing.T) {
 }
 
 func TestVerifySandboxReceipt(t *testing.T) {
-	s := httptest.NewServer(serverWithResponse(`{"status": 21007}`))
+	s := httptest.NewServer(serverWithResponse(http.StatusOK, `{"status": 21007}`))
 	defer s.Close()
 
-	sandboxServ := httptest.NewServer(serverWithResponse(`{"status": 0}`))
+	sandboxServ := httptest.NewServer(serverWithResponse(http.StatusOK, `{"status": 0}`))
 	defer sandboxServ.Close()
 
 	client := New()
@@ -252,7 +252,7 @@ func TestVerifySandboxReceipt(t *testing.T) {
 }
 
 func TestVerifySandboxReceiptFailure(t *testing.T) {
-	s := httptest.NewServer(serverWithResponse(`{"status": 21007}`))
+	s := httptest.NewServer(serverWithResponse(http.StatusOK, `{"status": 21007}`))
 	defer s.Close()
 
 	client := New()
@@ -295,7 +295,7 @@ func (errReader) Read(p []byte) (n int, err error) {
 	return 0, errors.New("test error")
 }
 
-func serverWithResponse(response string) http.Handler {
+func serverWithResponse(statusCode int, response string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if "POST" == r.Method {
 			w.Header().Set("Content-Type", "application/json")
@@ -305,6 +305,6 @@ func serverWithResponse(response string) http.Handler {
 			w.Write([]byte(`unsupported request`))
 		}
 
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(statusCode)
 	})
 }
