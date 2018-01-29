@@ -182,92 +182,97 @@ func TestVerifyBadURL(t *testing.T) {
 	}
 }
 
-func TestVerifyBadPayload(t *testing.T) {
-	s := httptest.NewServer(serverWithResponse(http.StatusBadRequest, `{"status": 21002}`))
-	defer s.Close()
-
-	client := New()
-	client.ProductionURL = s.URL
-	expected := &IAPResponse{
-		Status: 21002,
-	}
+func TestResponses(t *testing.T) {
 	req := IAPRequest{
 		ReceiptData: "dummy data",
 	}
 	result := &IAPResponse{}
 
-	err := client.Verify(req, result)
-	if err != nil {
-		t.Errorf("got error %s", err)
+	type testCase struct {
+		testServer  *httptest.Server
+		sandboxServ *httptest.Server
+		expected    *IAPResponse
 	}
-	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("got %v\nwant %v", result, expected)
-	}
-}
 
-func TestVerifyBadResponse(t *testing.T) {
-	s := httptest.NewServer(serverWithResponse(http.StatusInternalServerError, `qwerty!@#$%^`))
-	defer s.Close()
+	testCases := []testCase{
+		// VerifySandboxReceipt
+		{
+			testServer:  httptest.NewServer(serverWithResponse(http.StatusOK, `{"status": 21007}`)),
+			sandboxServ: httptest.NewServer(serverWithResponse(http.StatusOK, `{"status": 0}`)),
+			expected: &IAPResponse{
+				Status: 0,
+			},
+		},
+		// VerifyBadPayload
+		{
+			testServer: httptest.NewServer(serverWithResponse(http.StatusBadRequest, `{"status": 21002}`)),
+			expected: &IAPResponse{
+				Status: 21002,
+			},
+		},
+		// SuccessPayload
+		{
+			testServer: httptest.NewServer(serverWithResponse(http.StatusBadRequest, `{"status": 0}`)),
+			expected: &IAPResponse{
+				Status: 0,
+			},
+		},
+	}
 
 	client := New()
-	client.ProductionURL = s.URL
-	req := IAPRequest{
-		ReceiptData: "dummy data",
-	}
-	result := &IAPResponse{}
-
-	err := client.Verify(req, result)
-	if err == nil {
-		t.Errorf("expected an error because Verify could not unmarshal server response")
-	}
-}
-
-func TestVerifySandboxReceipt(t *testing.T) {
-	s := httptest.NewServer(serverWithResponse(http.StatusOK, `{"status": 21007}`))
-	defer s.Close()
-
-	sandboxServ := httptest.NewServer(serverWithResponse(http.StatusOK, `{"status": 0}`))
-	defer sandboxServ.Close()
-
-	client := New()
-	client.ProductionURL = s.URL
-	client.TimeOut = time.Second * 100
-	client.SandboxURL = sandboxServ.URL
-
-	expected := &IAPResponse{
-		Status: 0,
-	}
-	req := IAPRequest{
-		ReceiptData: "dummy data",
-	}
-	result := &IAPResponse{}
-
-	err := client.Verify(req, result)
-	if err != nil {
-		t.Errorf("got error %s", err)
-	}
-	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("got %v\nwant %v", result, expected)
-	}
-}
-
-func TestVerifySandboxReceiptFailure(t *testing.T) {
-	s := httptest.NewServer(serverWithResponse(http.StatusOK, `{"status": 21007}`))
-	defer s.Close()
-
-	client := New()
-	client.ProductionURL = s.URL
 	client.TimeOut = time.Second * 100
 	client.SandboxURL = "localhost"
 
+	for i, tc := range testCases {
+		defer tc.testServer.Close()
+		client.ProductionURL = tc.testServer.URL
+		if tc.sandboxServ != nil {
+			client.SandboxURL = tc.sandboxServ.URL
+		}
+
+		err := client.Verify(req, result)
+		if err != nil {
+			t.Errorf("Test case %d - %s", i, err.Error())
+		}
+		if !reflect.DeepEqual(result, tc.expected) {
+			t.Errorf("Test case %d - got %v\nwant %v", i, result, tc.expected)
+		}
+	}
+}
+
+func TestErrors(t *testing.T) {
 	req := IAPRequest{
 		ReceiptData: "dummy data",
 	}
 	result := &IAPResponse{}
 
-	err := client.Verify(req, result)
-	if err == nil {
-		t.Errorf("expected error to be not nil since the sandbox is not responding")
+	type testCase struct {
+		testServer *httptest.Server
+	}
+
+	testCases := []testCase{
+		// VerifySandboxReceiptFailure
+		{
+			testServer: httptest.NewServer(serverWithResponse(http.StatusOK, `{"status": 21007}`)),
+		},
+		// VerifyBadResponse
+		{
+			testServer: httptest.NewServer(serverWithResponse(http.StatusInternalServerError, `qwerty!@#$%^`)),
+		},
+	}
+
+	client := New()
+	client.TimeOut = time.Second * 100
+	client.SandboxURL = "localhost"
+
+	for i, tc := range testCases {
+		defer tc.testServer.Close()
+		client.ProductionURL = tc.testServer.URL
+
+		err := client.Verify(req, result)
+		if err == nil {
+			t.Errorf("Test case %d - expected error to be not nil since the sandbox is not responding", i)
+		}
 	}
 }
 
