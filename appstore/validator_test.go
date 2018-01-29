@@ -205,7 +205,7 @@ func TestResponses(t *testing.T) {
 		},
 		// VerifyBadPayload
 		{
-			testServer: httptest.NewServer(serverWithResponse(http.StatusBadRequest, `{"status": 21002}`)),
+			testServer: httptest.NewServer(serverWithResponse(http.StatusOK, `{"status": 21002}`)),
 			expected: &IAPResponse{
 				Status: 21002,
 			},
