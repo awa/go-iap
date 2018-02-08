@@ -1,12 +1,14 @@
 language: go
 go:
-  - 1.9
+- 1.9
 before_install:
-  - sudo pip install codecov
+- sudo pip install codecov
 install:
-  - make setup
+- make setup
 script:
-  - make cover
+- make cover
 after_success:
-  - codecov
-
+- codecov
+notifications:
+  slack:
+    secure: aJFbqyz8+5mB2EcfVLdcCtosdhonBxHxDvjjPyOBBMR7KRX3IV8+79pR2xR0KIvQhDHWh1wkdztG7aXfZjtwdW1+mDWbR9oed0ZzcL4+FHrV3vi16oqex28fAM3ZVRGyswxFmUUFjfpBbiaVy25wpFnZoPW3t6FrDjrCnE8HBzA=
