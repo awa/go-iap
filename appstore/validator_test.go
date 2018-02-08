@@ -2,8 +2,12 @@ package appstore
 
 import (
 	"errors"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 )
@@ -91,8 +95,9 @@ func TestHandleError(t *testing.T) {
 
 func TestNew(t *testing.T) {
 	expected := Client{
-		URL:     "https://sandbox.itunes.apple.com/verifyReceipt",
-		TimeOut: time.Second * 5,
+		ProductionURL: ProductionURL,
+		SandboxURL:    SandboxURL,
+		TimeOut:       time.Second * 5,
 	}
 
 	actual := New()
@@ -103,8 +108,9 @@ func TestNew(t *testing.T) {
 
 func TestNewWithEnvironment(t *testing.T) {
 	expected := Client{
-		URL:     "https://buy.itunes.apple.com/verifyReceipt",
-		TimeOut: time.Second * 5,
+		ProductionURL: ProductionURL,
+		TimeOut:       time.Second * 5,
+		SandboxURL:    SandboxURL,
 	}
 
 	os.Setenv("IAP_ENVIRONMENT", "production")
@@ -118,13 +124,13 @@ func TestNewWithEnvironment(t *testing.T) {
 
 func TestNewWithConfig(t *testing.T) {
 	config := Config{
-		IsProduction: true,
-		TimeOut:      time.Second * 2,
+		TimeOut: time.Second * 2,
 	}
 
 	expected := Client{
-		URL:     "https://buy.itunes.apple.com/verifyReceipt",
-		TimeOut: time.Second * 2,
+		ProductionURL: ProductionURL,
+		SandboxURL:    SandboxURL,
+		TimeOut:       time.Second * 2,
 	}
 
 	actual := NewWithConfig(config)
@@ -134,13 +140,12 @@ func TestNewWithConfig(t *testing.T) {
 }
 
 func TestNewWithConfigTimeout(t *testing.T) {
-	config := Config{
-		IsProduction: true,
-	}
+	config := Config{}
 
 	expected := Client{
-		URL:     "https://buy.itunes.apple.com/verifyReceipt",
-		TimeOut: time.Second * 5,
+		ProductionURL: ProductionURL,
+		SandboxURL:    SandboxURL,
+		TimeOut:       time.Second * 5,
 	}
 
 	actual := NewWithConfig(config)
@@ -149,9 +154,9 @@ func TestNewWithConfigTimeout(t *testing.T) {
 	}
 }
 
-func TestVerify(t *testing.T) {
+func TestVerifyTimeout(t *testing.T) {
 	client := New()
-	client.TimeOut = time.Millisecond * 100
+	client.TimeOut = time.Millisecond
 
 	req := IAPRequest{
 		ReceiptData: "dummy data",
@@ -161,13 +166,150 @@ func TestVerify(t *testing.T) {
 	if err == nil {
 		t.Errorf("error should be occurred because of timeout")
 	}
+}
 
-	client = New()
-	expected := &IAPResponse{
-		Status: 21002,
+func TestVerifyBadURL(t *testing.T) {
+	client := New()
+	client.ProductionURL = "127.0.0.1"
+
+	req := IAPRequest{
+		ReceiptData: "dummy data",
 	}
-	client.Verify(req, result)
-	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("got %v\nwant %v", result, expected)
+	result := &IAPResponse{}
+	err := client.Verify(req, result)
+	if err == nil {
+		t.Errorf("error should be occurred because the server is not real")
 	}
+}
+
+func TestResponses(t *testing.T) {
+	req := IAPRequest{
+		ReceiptData: "dummy data",
+	}
+	result := &IAPResponse{}
+
+	type testCase struct {
+		testServer  *httptest.Server
+		sandboxServ *httptest.Server
+		expected    *IAPResponse
+	}
+
+	testCases := []testCase{
+		// VerifySandboxReceipt
+		{
+			testServer:  httptest.NewServer(serverWithResponse(http.StatusOK, `{"status": 21007}`)),
+			sandboxServ: httptest.NewServer(serverWithResponse(http.StatusOK, `{"status": 0}`)),
+			expected: &IAPResponse{
+				Status: 0,
+			},
+		},
+		// VerifyBadPayload
+		{
+			testServer: httptest.NewServer(serverWithResponse(http.StatusOK, `{"status": 21002}`)),
+			expected: &IAPResponse{
+				Status: 21002,
+			},
+		},
+		// SuccessPayload
+		{
+			testServer: httptest.NewServer(serverWithResponse(http.StatusBadRequest, `{"status": 0}`)),
+			expected: &IAPResponse{
+				Status: 0,
+			},
+		},
+	}
+
+	client := New()
+	client.TimeOut = time.Second * 100
+	client.SandboxURL = "localhost"
+
+	for i, tc := range testCases {
+		defer tc.testServer.Close()
+		client.ProductionURL = tc.testServer.URL
+		if tc.sandboxServ != nil {
+			client.SandboxURL = tc.sandboxServ.URL
+		}
+
+		err := client.Verify(req, result)
+		if err != nil {
+			t.Errorf("Test case %d - %s", i, err.Error())
+		}
+		if !reflect.DeepEqual(result, tc.expected) {
+			t.Errorf("Test case %d - got %v\nwant %v", i, result, tc.expected)
+		}
+	}
+}
+
+func TestErrors(t *testing.T) {
+	req := IAPRequest{
+		ReceiptData: "dummy data",
+	}
+	result := &IAPResponse{}
+
+	type testCase struct {
+		testServer *httptest.Server
+	}
+
+	testCases := []testCase{
+		// VerifySandboxReceiptFailure
+		{
+			testServer: httptest.NewServer(serverWithResponse(http.StatusOK, `{"status": 21007}`)),
+		},
+		// VerifyBadResponse
+		{
+			testServer: httptest.NewServer(serverWithResponse(http.StatusInternalServerError, `qwerty!@#$%^`)),
+		},
+	}
+
+	client := New()
+	client.TimeOut = time.Second * 100
+	client.SandboxURL = "localhost"
+
+	for i, tc := range testCases {
+		defer tc.testServer.Close()
+		client.ProductionURL = tc.testServer.URL
+
+		err := client.Verify(req, result)
+		if err == nil {
+			t.Errorf("Test case %d - expected error to be not nil since the sandbox is not responding", i)
+		}
+	}
+}
+
+func TestCannotReadBody(t *testing.T) {
+	client := New()
+	testResponse := http.Response{Body: ioutil.NopCloser(errReader(0))}
+
+	if client.parseResponse(&testResponse, IAPResponse{}, http.Client{}, IAPRequest{}) == nil {
+		t.Errorf("expected redirectToSandbox to fail to read the body")
+	}
+}
+
+func TestCannotUnmarshalBody(t *testing.T) {
+	client := New()
+	testResponse := http.Response{Body: ioutil.NopCloser(strings.NewReader(`{"status": true}`))}
+
+	if client.parseResponse(&testResponse, StatusResponse{}, http.Client{}, IAPRequest{}) == nil {
+		t.Errorf("expected redirectToSandbox to fail to unmarshal the data")
+	}
+}
+
+type errReader int
+
+func (errReader) Read(p []byte) (n int, err error) {
+	return 0, errors.New("test error")
+}
+
+func serverWithResponse(statusCode int, response string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if "POST" == r.Method {
+			w.Header().Set("Content-Type", "application/json")
+			w.Write([]byte(response))
+			return
+		} else {
+			w.Write([]byte(`unsupported request`))
+		}
+
+		w.WriteHeader(statusCode)
+	})
 }

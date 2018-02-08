@@ -102,7 +102,7 @@ type (
 	// We defined each field by the current IAP response, but some fields are not mentioned
 	// in the following Apple's document;
 	// https://developer.apple.com/library/ios/releasenotes/General/ValidateAppStoreReceipt/Chapters/ReceiptFields.html
-	// If you get other types or fileds from the IAP response, you should use the struct you defined.
+	// If you get other types or fields from the IAP response, you should use the struct you defined.
 	IAPResponse struct {
 		Status             int                  `json:"status"`
 		Environment        string               `json:"environment"`
@@ -111,5 +111,11 @@ type (
 		LatestReceipt      string               `json:"latest_receipt"`
 		PendingRenewalInfo []PendingRenewalInfo `json:"pending_renewal_info"`
 		IsRetryable        bool                 `json:"is-retryable"`
+	}
+
+	// The HttpStatusResponse struct contains the status code returned by the store
+	// Used as a workaround to detect when to hit the production appstore or sandbox appstore regardless of receipt type
+	StatusResponse struct {
+		Status int `json:"status"`
 	}
 )
