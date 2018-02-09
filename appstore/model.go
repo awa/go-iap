@@ -1,5 +1,18 @@
 package appstore
 
+import "encoding/json"
+
+type numericString string
+
+func (n *numericString) UnmarshalJSON(b []byte) error {
+	var number json.Number
+	if err := json.Unmarshal(b, &number); err != nil {
+		return err
+	}
+	*n = numericString(number.String())
+	return nil
+}
+
 type (
 	// https://developer.apple.com/library/content/releasenotes/General/ValidateAppStoreReceipt/Chapters/ValidateRemotely.html
 	// The IAPRequest type has the request parameter
@@ -74,15 +87,15 @@ type (
 
 	// The Receipt type has whole data of receipt
 	Receipt struct {
-		ReceiptType                string  `json:"receipt_type"`
-		AdamID                     int64   `json:"adam_id"`
-		AppItemID                  int64   `json:"app_item_id"`
-		BundleID                   string  `json:"bundle_id"`
-		ApplicationVersion         string  `json:"application_version"`
-		DownloadID                 int64   `json:"download_id"`
-		VersionExternalIdentifier  int64   `json:"version_external_identifier"`
-		OriginalApplicationVersion string  `json:"original_application_version"`
-		InApp                      []InApp `json:"in_app"`
+		ReceiptType                string        `json:"receipt_type"`
+		AdamID                     int64         `json:"adam_id"`
+		AppItemID                  numericString `json:"app_item_id"`
+		BundleID                   string        `json:"bundle_id"`
+		ApplicationVersion         string        `json:"application_version"`
+		DownloadID                 int64         `json:"download_id"`
+		VersionExternalIdentifier  numericString `json:"version_external_identifier"`
+		OriginalApplicationVersion string        `json:"original_application_version"`
+		InApp                      []InApp       `json:"in_app"`
 		ReceiptCreationDate
 		RequestDate
 		OriginalPurchaseDate
