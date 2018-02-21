@@ -55,16 +55,16 @@ type (
 
 	// The ExpiresDate type indicates the expiration date for the subscription
 	ExpiresDate struct {
-		ExpiresDate    string `json:"expires_date"`
-		ExpiresDateMS  string `json:"expires_date_ms"`
-		ExpiresDatePST string `json:"expires_date_pst"`
+		ExpiresDate    string `json:"expires_date,omitempty"`
+		ExpiresDateMS  string `json:"expires_date_ms,omitempty"`
+		ExpiresDatePST string `json:"expires_date_pst,omitempty"`
 	}
 
 	// The CancellationDate type indicates the time and date of the cancellation by Apple customer support
 	CancellationDate struct {
-		CancellationDate    string `json:"cancellation_date"`
-		CancellationDateMS  string `json:"cancellation_date_ms"`
-		CancellationDatePST string `json:"cancellation_date_pst"`
+		CancellationDate    string `json:"cancellation_date,omitempty"`
+		CancellationDateMS  string `json:"cancellation_date_ms,omitempty"`
+		CancellationDatePST string `json:"cancellation_date_pst,omitempty"`
 	}
 
 	// The InApp type has the receipt attributes
@@ -73,7 +73,7 @@ type (
 		ProductID             string `json:"product_id"`
 		TransactionID         string `json:"transaction_id"`
 		OriginalTransactionID string `json:"original_transaction_id"`
-		WebOrderLineItemID    string `json:"web_order_line_item_id"`
+		WebOrderLineItemID    string `json:"web_order_line_item_id,omitempty"`
 
 		IsTrialPeriod string `json:"is_trial_period"`
 		ExpiresDate
@@ -82,7 +82,7 @@ type (
 		OriginalPurchaseDate
 
 		CancellationDate
-		CancellationReason string `json:"cancellation_reason"`
+		CancellationReason string `json:"cancellation_reason,omitempty"`
 	}
 
 	// The Receipt type has whole data of receipt
@@ -120,10 +120,10 @@ type (
 		Status             int                  `json:"status"`
 		Environment        string               `json:"environment"`
 		Receipt            Receipt              `json:"receipt"`
-		LatestReceiptInfo  []InApp              `json:"latest_receipt_info"`
-		LatestReceipt      string               `json:"latest_receipt"`
-		PendingRenewalInfo []PendingRenewalInfo `json:"pending_renewal_info"`
-		IsRetryable        bool                 `json:"is-retryable"`
+		LatestReceiptInfo  []InApp              `json:"latest_receipt_info,omitempty"`
+		LatestReceipt      string               `json:"latest_receipt,omitempty"`
+		PendingRenewalInfo []PendingRenewalInfo `json:"pending_renewal_info,omitempty"`
+		IsRetryable        bool                 `json:"is-retryable,omitempty"`
 	}
 
 	// The HttpStatusResponse struct contains the status code returned by the store
