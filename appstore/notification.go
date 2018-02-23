@@ -16,13 +16,6 @@ const (
 	NotificationTypeDidChangeRenewalPreference NotificationType = "DID_CHANGE_RENEWAL_PREFERENCE"
 )
 
-type NotificationEnv string
-
-const (
-	NotificationEnvSandbox    NotificationEnv = "SANDBOX"
-	NotificationEnvProduction NotificationEnv = "PROD"
-)
-
 type NotificationExpiresDate struct {
 	ExpiresDateMS  string `json:"expires_date"`
 	ExpiresDateUTC string `json:"expires_date_formatted"`
@@ -51,7 +44,7 @@ type NotificationReceipt struct {
 }
 
 type SubscriptionNotification struct {
-	Environment      NotificationEnv  `json:"environment"`
+	Environment      Environment      `json:"environment"`
 	NotificationType NotificationType `json:"notification_type"`
 
 	// Not show in raw notify body

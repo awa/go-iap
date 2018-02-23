@@ -13,6 +13,13 @@ func (n *numericString) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+type Environment string
+
+const (
+	Sandbox    Environment = "Sandbox"
+	Production Environment = "PROD"
+)
+
 type (
 	// https://developer.apple.com/library/content/releasenotes/General/ValidateAppStoreReceipt/Chapters/ValidateRemotely.html
 	// The IAPRequest type has the request parameter
@@ -118,7 +125,7 @@ type (
 	// If you get other types or fields from the IAP response, you should use the struct you defined.
 	IAPResponse struct {
 		Status             int                  `json:"status"`
-		Environment        string               `json:"environment"`
+		Environment        Environment          `json:"environment"`
 		Receipt            Receipt              `json:"receipt"`
 		LatestReceiptInfo  []InApp              `json:"latest_receipt_info"`
 		LatestReceipt      string               `json:"latest_receipt"`
