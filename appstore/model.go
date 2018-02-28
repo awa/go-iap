@@ -17,7 +17,7 @@ type Environment string
 
 const (
 	Sandbox    Environment = "Sandbox"
-	Production Environment = "PROD"
+	Production Environment = "Production"
 )
 
 type (
