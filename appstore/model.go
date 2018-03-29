@@ -62,9 +62,11 @@ type (
 
 	// The ExpiresDate type indicates the expiration date for the subscription
 	ExpiresDate struct {
-		ExpiresDate    string `json:"expires_date,omitempty"`
-		ExpiresDateMS  string `json:"expires_date_ms,omitempty"`
-		ExpiresDatePST string `json:"expires_date_pst,omitempty"`
+		ExpiresDate             string `json:"expires_date,omitempty"`
+		ExpiresDateMS           string `json:"expires_date_ms,omitempty"`
+		ExpiresDatePST          string `json:"expires_date_pst,omitempty"`
+		ExpiresDateFormatted    string `json:"expires_date_formatted,omitempty"`
+		ExpiresDateFormattedPST string `json:"expires_date_formatted_pst,omitempty"`
 	}
 
 	// The CancellationDate type indicates the time and date of the cancellation by Apple customer support
@@ -137,5 +139,36 @@ type (
 	// Used as a workaround to detect when to hit the production appstore or sandbox appstore regardless of receipt type
 	StatusResponse struct {
 		Status int `json:"status"`
+	}
+
+	// IAPResponseForIOS6 is iOS 6 style receipt schema.
+	IAPResponseForIOS6 struct {
+		AutoRenewProductID     string         `json:"auto_renew_product_id"`
+		AutoRenewStatus        int            `json:"auto_renew_status"`
+		ExpirationIntent       string         `json:"expiration_intent"`
+		ISInBillingRetryPeriod string         `json:"is_in_billing_retry_period"`
+		LatestReceiptInfo      ReceiptForIOS6 `json:"latest_expired_receipt_info"`
+		Receipt                ReceiptForIOS6 `json:"receipt"`
+		Status                 int            `json:"status"`
+	}
+
+	ReceiptForIOS6 struct {
+		AppItemID numericString `json:"app_item_id"`
+		BID       string        `json:"bid"`
+		BVRS      string        `json:"bvrs"`
+		ExpiresDate
+		IsTrialPeriod        string `json:"is_trial_period"`
+		IsInIntroOfferPeriod string `json:"is_in_intro_offer_period"`
+		ItemID               string `json:"item_id"`
+		ProductID            string `json:"product_id"`
+		PurchaseDate
+		OriginalTransactionID string `json:"original_transaction_id"`
+		OriginalPurchaseDate
+		Quantity                  string        `json:"quantity"`
+		TransactionID             string        `json:"transaction_id"`
+		UniqueIdentifier          string        `json:"unique_identifier"`
+		UniqueVendorIdentifier    string        `json:"unique_vendor_identifier"`
+		VersionExternalIdentifier numericString `json:"version_external_identifier,omitempty"`
+		WebOrderLineItemID        string        `json:"web_order_line_item_id"`
 	}
 )
