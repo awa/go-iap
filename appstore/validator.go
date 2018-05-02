@@ -14,12 +14,10 @@ const (
 	SandboxURL string = "https://sandbox.itunes.apple.com/verifyReceipt"
 	// ProductionURL is the endpoint for production environment.
 	ProductionURL string = "https://buy.itunes.apple.com/verifyReceipt"
+	// DefaultTimeout is the limitation for default timeout control.
+	DefaultTimeout  = time.Second * DefaultDuration
+	DefaultDuration = 5
 )
-
-// Config is a configuration to initialize client
-type Config struct {
-	TimeOut time.Duration
-}
 
 // IAPClient is an interface to call validation API in App Store
 type IAPClient interface {
@@ -30,7 +28,7 @@ type IAPClient interface {
 type Client struct {
 	ProductionURL string
 	SandboxURL    string
-	TimeOut       time.Duration
+	HTTPClient    *http.Client
 }
 
 // HandleError returns error message by status code
@@ -81,44 +79,32 @@ func New() Client {
 	client := Client{
 		ProductionURL: ProductionURL,
 		SandboxURL:    SandboxURL,
-		TimeOut:       time.Second * 5,
+		HTTPClient: &http.Client{
+			Timeout: DefaultTimeout,
+		},
 	}
 	return client
 }
 
-// NewWithConfig creates a client with configuration
-func NewWithConfig(config Config) Client {
-	if config.TimeOut == 0 {
-		config.TimeOut = time.Second * 5
-	}
-
-	client := Client{
-		ProductionURL: ProductionURL,
-		SandboxURL:    SandboxURL,
-		TimeOut:       config.TimeOut,
-	}
-
-	return client
+// SetHTTPClient sets a client with http.Client
+func (c *Client) SetHTTPClient(customCli *http.Client) {
+	c.HTTPClient = customCli
 }
 
 // Verify sends receipts and gets validation result
 func (c *Client) Verify(req IAPRequest, result interface{}) error {
-	client := http.Client{
-		Timeout: c.TimeOut,
-	}
-
 	b := new(bytes.Buffer)
 	json.NewEncoder(b).Encode(req)
 
-	resp, err := client.Post(c.ProductionURL, "application/json; charset=utf-8", b)
+	resp, err := c.HTTPClient.Post(c.ProductionURL, "application/json; charset=utf-8", b)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
-	return c.parseResponse(resp, result, client, req)
+	return c.parseResponse(resp, result, req)
 }
 
-func (c *Client) parseResponse(resp *http.Response, result interface{}, client http.Client, req IAPRequest) error {
+func (c *Client) parseResponse(resp *http.Response, result interface{}, req IAPRequest) error {
 	// Read the body now so that we can unmarshal it twice
 	buf, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -139,7 +125,7 @@ func (c *Client) parseResponse(resp *http.Response, result interface{}, client h
 	if r.Status == 21007 {
 		b := new(bytes.Buffer)
 		json.NewEncoder(b).Encode(req)
-		resp, err := client.Post(c.SandboxURL, "application/json; charset=utf-8", b)
+		resp, err := c.HTTPClient.Post(c.SandboxURL, "application/json; charset=utf-8", b)
 		if err != nil {
 			return err
 		}
