@@ -97,7 +97,9 @@ func TestNew(t *testing.T) {
 	expected := Client{
 		ProductionURL: ProductionURL,
 		SandboxURL:    SandboxURL,
-		TimeOut:       time.Second * 5,
+		HTTPClient: &http.Client{
+			Timeout: DefaultTimeout,
+		},
 	}
 
 	actual := New()
@@ -109,8 +111,10 @@ func TestNew(t *testing.T) {
 func TestNewWithEnvironment(t *testing.T) {
 	expected := Client{
 		ProductionURL: ProductionURL,
-		TimeOut:       time.Second * 5,
 		SandboxURL:    SandboxURL,
+		HTTPClient: &http.Client{
+			Timeout: DefaultTimeout,
+		},
 	}
 
 	os.Setenv("IAP_ENVIRONMENT", "production")
@@ -122,33 +126,19 @@ func TestNewWithEnvironment(t *testing.T) {
 	}
 }
 
-func TestNewWithConfig(t *testing.T) {
-	config := Config{
-		TimeOut: time.Second * 2,
-	}
-
+func TestSetHTTPClient(t *testing.T) {
 	expected := Client{
 		ProductionURL: ProductionURL,
 		SandboxURL:    SandboxURL,
-		TimeOut:       time.Second * 2,
+		HTTPClient: &http.Client{
+			Timeout: time.Second * 2,
+		},
 	}
 
-	actual := NewWithConfig(config)
-	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("got %v\nwant %v", actual, expected)
-	}
-}
-
-func TestNewWithConfigTimeout(t *testing.T) {
-	config := Config{}
-
-	expected := Client{
-		ProductionURL: ProductionURL,
-		SandboxURL:    SandboxURL,
-		TimeOut:       time.Second * 5,
-	}
-
-	actual := NewWithConfig(config)
+	actual := New()
+	actual.SetHTTPClient(&http.Client{
+		Timeout: time.Second * 2,
+	})
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)
 	}
@@ -156,7 +146,9 @@ func TestNewWithConfigTimeout(t *testing.T) {
 
 func TestVerifyTimeout(t *testing.T) {
 	client := New()
-	client.TimeOut = time.Millisecond
+	client.SetHTTPClient(&http.Client{
+		Timeout: time.Millisecond,
+	})
 
 	req := IAPRequest{
 		ReceiptData: "dummy data",
@@ -220,7 +212,9 @@ func TestResponses(t *testing.T) {
 	}
 
 	client := New()
-	client.TimeOut = time.Second * 100
+	client.SetHTTPClient(&http.Client{
+		Timeout: time.Second * 100,
+	})
 	client.SandboxURL = "localhost"
 
 	for i, tc := range testCases {
@@ -262,7 +256,9 @@ func TestErrors(t *testing.T) {
 	}
 
 	client := New()
-	client.TimeOut = time.Second * 100
+	client.SetHTTPClient(&http.Client{
+		Timeout: time.Second * 100,
+	})
 	client.SandboxURL = "localhost"
 
 	for i, tc := range testCases {
@@ -280,7 +276,7 @@ func TestCannotReadBody(t *testing.T) {
 	client := New()
 	testResponse := http.Response{Body: ioutil.NopCloser(errReader(0))}
 
-	if client.parseResponse(&testResponse, IAPResponse{}, http.Client{}, IAPRequest{}) == nil {
+	if client.parseResponse(&testResponse, IAPResponse{}, IAPRequest{}) == nil {
 		t.Errorf("expected redirectToSandbox to fail to read the body")
 	}
 }
@@ -289,7 +285,7 @@ func TestCannotUnmarshalBody(t *testing.T) {
 	client := New()
 	testResponse := http.Response{Body: ioutil.NopCloser(strings.NewReader(`{"status": true}`))}
 
-	if client.parseResponse(&testResponse, StatusResponse{}, http.Client{}, IAPRequest{}) == nil {
+	if client.parseResponse(&testResponse, StatusResponse{}, IAPRequest{}) == nil {
 		t.Errorf("expected redirectToSandbox to fail to unmarshal the data")
 	}
 }
