@@ -1,11 +1,11 @@
 package playstore
 
 import (
+	"context"
 	"encoding/base64"
 	"errors"
 	"reflect"
 	"testing"
-	"time"
 
 	"golang.org/x/oauth2"
 )
@@ -34,8 +34,8 @@ func TestNew(t *testing.T) {
 	t.Parallel()
 	// Exception scenario
 	expected := "oauth2: cannot fetch token: 401 Unauthorized\nResponse: {\n  \"error\" : \"invalid_client\",\n  \"error_description\" : \"The OAuth client was invalid.\"\n}"
-
-	actual, _ := New(dummyKey)
+	ctx := context.TODO()
+	actual, _ := New(ctx, dummyKey)
 	val := actual.httpClient.Transport.(*oauth2.Transport)
 	token, err := val.Source.Token()
 	if token != nil {
@@ -46,7 +46,7 @@ func TestNew(t *testing.T) {
 	}
 
 	// TODO Normal scenario
-	actual, _ = New(jsonKey)
+	actual, _ = New(ctx, jsonKey)
 	val = actual.httpClient.Transport.(*oauth2.Transport)
 	token, err = val.Source.Token()
 	if err != nil {
@@ -54,22 +54,12 @@ func TestNew(t *testing.T) {
 	}
 }
 
-func TestSetTimeout(t *testing.T) {
-	t.Parallel()
-	_timeout := time.Second * 3
-	SetTimeout(_timeout)
-
-	if timeout != _timeout {
-		t.Errorf("got %#v\nwant %#v", timeout, _timeout)
-	}
-}
-
 func TestVerifySubscription(t *testing.T) {
 	t.Parallel()
 	// Exception scenario
 	expected := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
-
-	client, _ := New(jsonKey)
+	ctx := context.TODO()
+	client, _ := New(ctx, jsonKey)
 	_, err := client.VerifySubscription("package", "subscriptionID", "purchaseToken")
 
 	if err.Error() != expected {
@@ -94,8 +84,8 @@ func TestVerifyProduct(t *testing.T) {
 	t.Parallel()
 	// Exception scenario
 	expected := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
-
-	client, _ := New(jsonKey)
+	ctx := context.TODO()
+	client, _ := New(ctx, jsonKey)
 	_, err := client.VerifyProduct("package", "productID", "purchaseToken")
 
 	if err.Error() != expected {
@@ -126,8 +116,8 @@ func TestCancelSubscription(t *testing.T) {
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)
 	}
-
-	client, _ = New(jsonKey)
+	ctx := context.TODO()
+	client, _ = New(ctx, jsonKey)
 	expectedStr := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
 	actual = client.CancelSubscription("package", "productID", "purchaseToken")
 
@@ -148,8 +138,8 @@ func TestRefundSubscription(t *testing.T) {
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)
 	}
-
-	client, _ = New(jsonKey)
+	ctx := context.TODO()
+	client, _ = New(ctx, jsonKey)
 	expectedStr := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
 	actual = client.RefundSubscription("package", "productID", "purchaseToken")
 
@@ -170,8 +160,8 @@ func TestRevokeSubscription(t *testing.T) {
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)
 	}
-
-	client, _ = New(jsonKey)
+	ctx := context.TODO()
+	client, _ = New(ctx, jsonKey)
 	expectedStr := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
 	actual = client.RevokeSubscription("package", "productID", "purchaseToken")
 

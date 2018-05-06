@@ -20,13 +20,6 @@ const (
 	defaultTimeout = time.Second * 5
 )
 
-var timeout = defaultTimeout
-
-// SetTimeout sets dial timeout duration
-func SetTimeout(t time.Duration) {
-	timeout = t
-}
-
 // The IABClient type is an interface to verify purchase token
 type IABClient interface {
 	VerifySubscription(string, string, string) (*androidpublisher.SubscriptionPurchase, error)
@@ -44,14 +37,17 @@ type Client struct {
 // New returns http client which includes the credentials to access androidpublisher API.
 // You should create a service account for your project at
 // https://console.developers.google.com and download a JSON key file to set this argument.
-func New(jsonKey []byte) (Client, error) {
-	ctx := context.WithValue(oauth2.NoContext, oauth2.HTTPClient, &http.Client{
-		Timeout: timeout,
+func New(ctx context.Context, jsonKey []byte) (Client, error) {
+	return NewWithClient(ctx, jsonKey, &http.Client{
+		Timeout: defaultTimeout,
 	})
+}
 
+// NewWithClient returns http client which includes custom internal http client and the credentials to access androidpublisher API.
+func NewWithClient(ctx context.Context, jsonKey []byte, cli *http.Client) (Client, error) {
+	c := context.WithValue(ctx, oauth2.HTTPClient, cli)
 	conf, err := google.JWTConfigFromJSON(jsonKey, androidpublisher.AndroidpublisherScope)
-
-	return Client{conf.Client(ctx)}, err
+	return Client{conf.Client(c)}, err
 }
 
 // VerifySubscription verifies subscription status
