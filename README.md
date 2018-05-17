@@ -44,7 +44,8 @@ func main() {
 		ReceiptData: "your receipt data encoded by base64",
 	}
 	resp := &appstore.IAPResponse{}
-	err := client.Verify(req, resp)
+	ctx := context.Background()
+	err := client.Verify(ctx, req, resp)
 }
 ```
 
@@ -66,7 +67,8 @@ func main() {
 	}
 
 	client := playstore.New(jsonKey)
-	resp, err := client.VerifySubscription("package", "subscriptionID", "purchaseToken")
+	ctx := context.Background()
+	resp, err := client.VerifySubscription(ctx, "package", "subscriptionID", "purchaseToken")
 }
 ```
 

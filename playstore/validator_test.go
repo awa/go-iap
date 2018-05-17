@@ -1,6 +1,7 @@
 package playstore
 
 import (
+	"context"
 	"encoding/base64"
 	"errors"
 	"reflect"
@@ -70,7 +71,8 @@ func TestVerifySubscription(t *testing.T) {
 	expected := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
 
 	client, _ := New(jsonKey)
-	_, err := client.VerifySubscription("package", "subscriptionID", "purchaseToken")
+	ctx := context.Background()
+	_, err := client.VerifySubscription(ctx, "package", "subscriptionID", "purchaseToken")
 
 	if err.Error() != expected {
 		t.Errorf("got %v\nwant %v", err, expected)
@@ -83,7 +85,8 @@ func TestVerifySubscriptionAndroidPublisherError(t *testing.T) {
 	t.Parallel()
 	client := Client{nil}
 	expected := errors.New("client is nil")
-	_, actual := client.VerifySubscription("package", "subscriptionID", "purchaseToken")
+	ctx := context.Background()
+	_, actual := client.VerifySubscription(ctx, "package", "subscriptionID", "purchaseToken")
 
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)
@@ -96,7 +99,8 @@ func TestVerifyProduct(t *testing.T) {
 	expected := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
 
 	client, _ := New(jsonKey)
-	_, err := client.VerifyProduct("package", "productID", "purchaseToken")
+	ctx := context.Background()
+	_, err := client.VerifyProduct(ctx, "package", "productID", "purchaseToken")
 
 	if err.Error() != expected {
 		t.Errorf("got %v", err)
@@ -109,7 +113,8 @@ func TestVerifyProductAndroidPublisherError(t *testing.T) {
 	t.Parallel()
 	client := Client{nil}
 	expected := errors.New("client is nil")
-	_, actual := client.VerifyProduct("package", "productID", "purchaseToken")
+	ctx := context.Background()
+	_, actual := client.VerifyProduct(ctx, "package", "productID", "purchaseToken")
 
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)
@@ -121,7 +126,8 @@ func TestCancelSubscription(t *testing.T) {
 	// Exception scenario
 	client := Client{nil}
 	expected := errors.New("client is nil")
-	actual := client.CancelSubscription("package", "productID", "purchaseToken")
+	ctx := context.Background()
+	actual := client.CancelSubscription(ctx, "package", "productID", "purchaseToken")
 
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)
@@ -129,7 +135,7 @@ func TestCancelSubscription(t *testing.T) {
 
 	client, _ = New(jsonKey)
 	expectedStr := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
-	actual = client.CancelSubscription("package", "productID", "purchaseToken")
+	actual = client.CancelSubscription(ctx, "package", "productID", "purchaseToken")
 
 	if actual.Error() != expectedStr {
 		t.Errorf("got %v\nwant %v", actual, expectedStr)
@@ -143,7 +149,8 @@ func TestRefundSubscription(t *testing.T) {
 	// Exception scenario
 	client := Client{nil}
 	expected := errors.New("client is nil")
-	actual := client.RefundSubscription("package", "productID", "purchaseToken")
+	ctx := context.Background()
+	actual := client.RefundSubscription(ctx, "package", "productID", "purchaseToken")
 
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)
@@ -151,7 +158,7 @@ func TestRefundSubscription(t *testing.T) {
 
 	client, _ = New(jsonKey)
 	expectedStr := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
-	actual = client.RefundSubscription("package", "productID", "purchaseToken")
+	actual = client.RefundSubscription(ctx, "package", "productID", "purchaseToken")
 
 	if actual.Error() != expectedStr {
 		t.Errorf("got %v\nwant %v", actual, expectedStr)
@@ -165,7 +172,8 @@ func TestRevokeSubscription(t *testing.T) {
 	// Exception scenario
 	client := Client{nil}
 	expected := errors.New("client is nil")
-	actual := client.RevokeSubscription("package", "productID", "purchaseToken")
+	ctx := context.Background()
+	actual := client.RevokeSubscription(ctx, "package", "productID", "purchaseToken")
 
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)
@@ -173,7 +181,7 @@ func TestRevokeSubscription(t *testing.T) {
 
 	client, _ = New(jsonKey)
 	expectedStr := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
-	actual = client.RevokeSubscription("package", "productID", "purchaseToken")
+	actual = client.RevokeSubscription(ctx, "package", "productID", "purchaseToken")
 
 	if actual.Error() != expectedStr {
 		t.Errorf("got %v\nwant %v", actual, expectedStr)

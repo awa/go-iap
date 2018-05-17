@@ -29,11 +29,11 @@ func SetTimeout(t time.Duration) {
 
 // The IABClient type is an interface to verify purchase token
 type IABClient interface {
-	VerifySubscription(string, string, string) (*androidpublisher.SubscriptionPurchase, error)
-	VerifyProduct(string, string, string) (*androidpublisher.ProductPurchase, error)
-	CancelSubscription(string, string, string) error
-	RefundSubscription(string, string, string) error
-	RevokeSubscription(string, string, string) error
+	VerifySubscription(context.Context, string, string, string) (*androidpublisher.SubscriptionPurchase, error)
+	VerifyProduct(context.Context, string, string, string) (*androidpublisher.ProductPurchase, error)
+	CancelSubscription(context.Context, string, string, string) error
+	RefundSubscription(context.Context, string, string, string) error
+	RevokeSubscription(context.Context, string, string, string) error
 }
 
 // The Client type implements VerifySubscription method
@@ -56,6 +56,7 @@ func New(jsonKey []byte) (Client, error) {
 
 // VerifySubscription verifies subscription status
 func (c *Client) VerifySubscription(
+	ctx context.Context,
 	packageName string,
 	subscriptionID string,
 	token string,
@@ -66,13 +67,14 @@ func (c *Client) VerifySubscription(
 	}
 
 	ps := androidpublisher.NewPurchasesSubscriptionsService(service)
-	result, err := ps.Get(packageName, subscriptionID, token).Do()
+	result, err := ps.Get(packageName, subscriptionID, token).Context(ctx).Do()
 
 	return result, err
 }
 
 // VerifyProduct verifies product status
 func (c *Client) VerifyProduct(
+	ctx context.Context,
 	packageName string,
 	productID string,
 	token string,
@@ -83,48 +85,48 @@ func (c *Client) VerifyProduct(
 	}
 
 	ps := androidpublisher.NewPurchasesProductsService(service)
-	result, err := ps.Get(packageName, productID, token).Do()
+	result, err := ps.Get(packageName, productID, token).Context(ctx).Do()
 
 	return result, err
 }
 
 // CancelSubscription cancels a user's subscription purchase.
-func (c *Client) CancelSubscription(packageName string, subscriptionID string, token string) error {
+func (c *Client) CancelSubscription(ctx context.Context, packageName string, subscriptionID string, token string) error {
 	service, err := androidpublisher.New(c.httpClient)
 	if err != nil {
 		return err
 	}
 
 	ps := androidpublisher.NewPurchasesSubscriptionsService(service)
-	err = ps.Cancel(packageName, subscriptionID, token).Do()
+	err = ps.Cancel(packageName, subscriptionID, token).Context(ctx).Do()
 
 	return err
 }
 
 // RefundSubscription refunds a user's subscription purchase, but the subscription remains valid
 // until its expiration time and it will continue to recur.
-func (c *Client) RefundSubscription(packageName string, subscriptionID string, token string) error {
+func (c *Client) RefundSubscription(ctx context.Context, packageName string, subscriptionID string, token string) error {
 	service, err := androidpublisher.New(c.httpClient)
 	if err != nil {
 		return err
 	}
 
 	ps := androidpublisher.NewPurchasesSubscriptionsService(service)
-	err = ps.Refund(packageName, subscriptionID, token).Do()
+	err = ps.Refund(packageName, subscriptionID, token).Context(ctx).Do()
 
 	return err
 }
 
 // RevokeSubscription refunds and immediately revokes a user's subscription purchase.
 // Access to the subscription will be terminated immediately and it will stop recurring.
-func (c *Client) RevokeSubscription(packageName string, subscriptionID string, token string) error {
+func (c *Client) RevokeSubscription(ctx context.Context, packageName string, subscriptionID string, token string) error {
 	service, err := androidpublisher.New(c.httpClient)
 	if err != nil {
 		return err
 	}
 
 	ps := androidpublisher.NewPurchasesSubscriptionsService(service)
-	err = ps.Revoke(packageName, subscriptionID, token).Do()
+	err = ps.Revoke(packageName, subscriptionID, token).Context(ctx).Do()
 
 	return err
 }
