@@ -5,6 +5,7 @@ all: setup cover
 
 setup:
 		go get golang.org/x/tools/cmd/cover
+		go get google.golang.org/appengine/urlfetch
 		go get ./...
 
 test:
