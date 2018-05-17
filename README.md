@@ -44,7 +44,8 @@ func main() {
 		ReceiptData: "your receipt data encoded by base64",
 	}
 	resp := &appstore.IAPResponse{}
-	err := client.Verify(req, resp)
+	ctx := context.Background()
+	err := client.Verify(ctx, req, resp)
 }
 ```
 
