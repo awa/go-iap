@@ -14,6 +14,8 @@ const (
 	SandboxURL string = "https://sandbox.itunes.apple.com/verifyReceipt"
 	// ProductionURL is the endpoint for production environment.
 	ProductionURL string = "https://buy.itunes.apple.com/verifyReceipt"
+	// ContentType is the request content-type for apple store.
+	ContentType string = "application/json; charset=utf-8"
 )
 
 // Config is a configuration to initialize client
@@ -30,7 +32,7 @@ type IAPClient interface {
 type Client struct {
 	ProductionURL string
 	SandboxURL    string
-	TimeOut       time.Duration
+	httpCli       *http.Client
 }
 
 // HandleError returns error message by status code
@@ -77,48 +79,43 @@ func HandleError(status int) error {
 }
 
 // New creates a client object
-func New() Client {
-	client := Client{
+func New() *Client {
+	client := &Client{
 		ProductionURL: ProductionURL,
 		SandboxURL:    SandboxURL,
-		TimeOut:       time.Second * 5,
+		httpCli:       http.DefaultClient,
 	}
 	return client
 }
 
-// NewWithConfig creates a client with configuration
-func NewWithConfig(config Config) Client {
-	if config.TimeOut == 0 {
-		config.TimeOut = time.Second * 5
-	}
-
-	client := Client{
+// NewWithClient creates a client with a custom http client.
+func NewWithClient(client *http.Client) *Client {
+	return &Client{
 		ProductionURL: ProductionURL,
 		SandboxURL:    SandboxURL,
-		TimeOut:       config.TimeOut,
+		httpCli:       client,
 	}
-
-	return client
 }
 
 // Verify sends receipts and gets validation result
-func (c *Client) Verify(req IAPRequest, result interface{}) error {
-	client := http.Client{
-		Timeout: c.TimeOut,
-	}
-
+func (c *Client) Verify(reqBody IAPRequest, result interface{}) error {
 	b := new(bytes.Buffer)
-	json.NewEncoder(b).Encode(req)
+	json.NewEncoder(b).Encode(reqBody)
 
-	resp, err := client.Post(c.ProductionURL, "application/json; charset=utf-8", b)
+	req, err := http.NewRequest("POST", c.ProductionURL, b)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", ContentType)
+	resp, err := c.httpCli.Do(req)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
-	return c.parseResponse(resp, result, client, req)
+	return c.parseResponse(resp, result, reqBody)
 }
 
-func (c *Client) parseResponse(resp *http.Response, result interface{}, client http.Client, req IAPRequest) error {
+func (c *Client) parseResponse(resp *http.Response, result interface{}, reqBody IAPRequest) error {
 	// Read the body now so that we can unmarshal it twice
 	buf, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -138,8 +135,14 @@ func (c *Client) parseResponse(resp *http.Response, result interface{}, client h
 	}
 	if r.Status == 21007 {
 		b := new(bytes.Buffer)
-		json.NewEncoder(b).Encode(req)
-		resp, err := client.Post(c.SandboxURL, "application/json; charset=utf-8", b)
+		json.NewEncoder(b).Encode(reqBody)
+
+		req, err := http.NewRequest("POST", c.SandboxURL, b)
+		if err != nil {
+			return err
+		}
+		req.Header.Set("Content-Type", ContentType)
+		resp, err := c.httpCli.Do(req)
 		if err != nil {
 			return err
 		}
