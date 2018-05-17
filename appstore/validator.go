@@ -2,11 +2,11 @@ package appstore
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/http"
-	"time"
 )
 
 const (
@@ -18,14 +18,9 @@ const (
 	ContentType string = "application/json; charset=utf-8"
 )
 
-// Config is a configuration to initialize client
-type Config struct {
-	TimeOut time.Duration
-}
-
 // IAPClient is an interface to call validation API in App Store
 type IAPClient interface {
-	Verify(IAPRequest, interface{}) error
+	Verify(ctx context.Context, reqBody IAPRequest, resp interface{}) error
 }
 
 // Client implements IAPClient
@@ -98,7 +93,7 @@ func NewWithClient(client *http.Client) *Client {
 }
 
 // Verify sends receipts and gets validation result
-func (c *Client) Verify(reqBody IAPRequest, result interface{}) error {
+func (c *Client) Verify(ctx context.Context, reqBody IAPRequest, result interface{}) error {
 	b := new(bytes.Buffer)
 	json.NewEncoder(b).Encode(reqBody)
 
@@ -107,15 +102,16 @@ func (c *Client) Verify(reqBody IAPRequest, result interface{}) error {
 		return err
 	}
 	req.Header.Set("Content-Type", ContentType)
+	req = req.WithContext(ctx)
 	resp, err := c.httpCli.Do(req)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
-	return c.parseResponse(resp, result, reqBody)
+	return c.parseResponse(resp, result, ctx, reqBody)
 }
 
-func (c *Client) parseResponse(resp *http.Response, result interface{}, reqBody IAPRequest) error {
+func (c *Client) parseResponse(resp *http.Response, result interface{}, ctx context.Context, reqBody IAPRequest) error {
 	// Read the body now so that we can unmarshal it twice
 	buf, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -142,6 +138,7 @@ func (c *Client) parseResponse(resp *http.Response, result interface{}, reqBody 
 			return err
 		}
 		req.Header.Set("Content-Type", ContentType)
+		req = req.WithContext(ctx)
 		resp, err := c.httpCli.Do(req)
 		if err != nil {
 			return err

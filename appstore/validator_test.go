@@ -1,6 +1,7 @@
 package appstore
 
 import (
+	"context"
 	"errors"
 	"io/ioutil"
 	"net/http"
@@ -128,10 +129,31 @@ func TestVerifyTimeout(t *testing.T) {
 		ReceiptData: "dummy data",
 	}
 	result := &IAPResponse{}
-	err := client.Verify(req, result)
+	ctx := context.Background()
+	err := client.Verify(ctx, req, result)
 	if err == nil {
 		t.Errorf("error should be occurred because of timeout")
 	}
+	t.Log(err)
+}
+
+func TestVerifyWithCancel(t *testing.T) {
+	client := New()
+
+	req := IAPRequest{
+		ReceiptData: "dummy data",
+	}
+	result := &IAPResponse{}
+	ctx, cancelFunc := context.WithCancel(context.Background())
+	go func() {
+		time.Sleep(10 * time.Millisecond)
+		cancelFunc()
+	}()
+	err := client.Verify(ctx, req, result)
+	if err == nil {
+		t.Errorf("error should be occurred because of context cancel")
+	}
+	t.Log(err)
 }
 
 func TestVerifyBadURL(t *testing.T) {
@@ -142,7 +164,8 @@ func TestVerifyBadURL(t *testing.T) {
 		ReceiptData: "dummy data",
 	}
 	result := &IAPResponse{}
-	err := client.Verify(req, result)
+	ctx := context.Background()
+	err := client.Verify(ctx, req, result)
 	if err == nil {
 		t.Errorf("error should be occurred because the server is not real")
 	}
@@ -195,7 +218,8 @@ func TestResponses(t *testing.T) {
 			client.SandboxURL = tc.sandboxServ.URL
 		}
 
-		err := client.Verify(req, result)
+		ctx := context.Background()
+		err := client.Verify(ctx, req, result)
 		if err != nil {
 			t.Errorf("Test case %d - %s", i, err.Error())
 		}
@@ -233,7 +257,8 @@ func TestErrors(t *testing.T) {
 		defer tc.testServer.Close()
 		client.ProductionURL = tc.testServer.URL
 
-		err := client.Verify(req, result)
+		ctx := context.Background()
+		err := client.Verify(ctx, req, result)
 		if err == nil {
 			t.Errorf("Test case %d - expected error to be not nil since the sandbox is not responding", i)
 		}
@@ -244,7 +269,8 @@ func TestCannotReadBody(t *testing.T) {
 	client := New()
 	testResponse := http.Response{Body: ioutil.NopCloser(errReader(0))}
 
-	if client.parseResponse(&testResponse, IAPResponse{}, IAPRequest{}) == nil {
+	ctx := context.Background()
+	if client.parseResponse(&testResponse, IAPResponse{}, ctx, IAPRequest{}) == nil {
 		t.Errorf("expected redirectToSandbox to fail to read the body")
 	}
 }
@@ -253,7 +279,8 @@ func TestCannotUnmarshalBody(t *testing.T) {
 	client := New()
 	testResponse := http.Response{Body: ioutil.NopCloser(strings.NewReader(`{"status": true}`))}
 
-	if client.parseResponse(&testResponse, StatusResponse{}, IAPRequest{}) == nil {
+	ctx := context.Background()
+	if client.parseResponse(&testResponse, StatusResponse{}, ctx, IAPRequest{}) == nil {
 		t.Errorf("expected redirectToSandbox to fail to unmarshal the data")
 	}
 }
