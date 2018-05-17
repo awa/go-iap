@@ -6,9 +6,9 @@ import (
 	"errors"
 	"reflect"
 	"testing"
-	"time"
 
 	"golang.org/x/oauth2"
+	"google.golang.org/appengine/urlfetch"
 )
 
 var base64JsonKey = "ew0KICAidHlwZSI6ICJzZXJ2aWNlX2FjY291bnQiLA0KICAicHJvamVjdF9pZCI6ICJnby1pYXAiLA0KICAicHJpdmF0ZV9rZXlfaWQiOiAiZjI0MGRmZTg4Y2NlMTBmMThhZjM2ZjdhNTEyNDUyZjE0Y2RkM2EyZSIsDQogICJwcml2YXRlX2tleSI6ICItLS0tLUJFR0lOIFBSSVZBVEUgS0VZLS0tLS1cbk1JSUV2Z0lCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktnd2dnU2tBZ0VBQW9JQkFRQ29sbndXRmhacjlmQUNcbjNqcEozbGk5SSt4ZzUyZGl3R0pzUnBoY0U0S0xielJpM1ZWdUEvMU1EMkcwMmNOYkZ5V3NDSWg4aDMvNE1sZmxcbmtMa29wVlJlNVFlczRMY3E4RDRVOUdubjZwWXduWlI5NVBlK2Z6TVdLNGJpSWgvdHhNMzJlemxvQWwvaU5Rbi9cbmdQQ3lUc0pHNlVlNzJsdFJyblFXdkM0L24vQzNHL3lLY2ZLaHo2ODZ6NTd4ODZma28yUnEra21RaFNmY3REY3pcbng3YlNmUDU4SFdUOVhDNHlHSERqZmkwMmxnVU1YaW5Fa2VQVzB1UC9SZG8ya0dlaWhSV1JGMFFNRHlld2p1S0pcbmtaL3pCOGhyZm9RVEdmMjE4L29lQXR0UWl0ZkxkVlkrajc5Y2VxQTlBUXorbGoxQjUrSVZiRjlOQ2toaTNYYThcbndHMml6WEViQWdNQkFBRUNnZ0VBTFZnRVdnQm8yWExWc2ovSlY3THBGVDVEUnJFV3VwWGFJeHM5d1k0eHo0VUNcbmh4RFcrSGMwT3Evc2JMTWhleStYbjFUUU9RWk00aG5RVUZ1RG9hNE9LbFBabzZMeFFTaEsybUgrMWpUZlhvWVRcbnVXVExTYjUycENEaTc1R1VHdVNUTFJkcGtsTUpMUk5zOC83ZlBtWTJsTklMekRmbjFlbGhLZmhGVERHZGtmSVNcbkprNjQvd0JTRUx5ZTFQOFdYM0JLV3hZdFBKajgvc0pqTDl0SVhXcitaSjR2bGgzM1c1b25BWS9lMFJoZkZDSjJcbjBFWkZFVXkrblNUVHBUR1JmYzYyMFl2c2JyVWozcFo3dDBIRE5IN3ovbnVEeVB4UUpORTg1RVlQRDBaeU9VNnpcbmV2aW9ObmJBKzFVREdFOVg5NFVVbnJNckJ5NU5Jbk13bCt3djZ5VWFJUUtCZ1FEYnFhazVXbTRla1FJZVpsMmhcbkZ3ZU9TR0FOek9ZVmE3TWExQm9hUHBLKzVuak1xbUQxRHB4cGlFYmFGNnpwVWMyZkVIT0ZEZ21zQUZrYUw1cmNcbnRzVC84amtXRHdKSjAvQlE4QlpiekZuU1I4bHhlbFBscFNySVcremcrNWdhbDZtTXpLS2J0a29TVUsxem5uMnpcbkEydmhTTis5N1VsYTByK2d3ZCttQ0gvTVN3S0JnUURFZWVPbE1vRzM2eWxlRXFOaDdhNUlySWt0dFlCbnJuMXFcblhCSFJmWFQ5c3ROOHhPL0pYQ2s1S1JIREkzUWZJbVcrSmdJV3NwRjY1Q00rZnFRN1l2UWNwV0RGdDZvc1hRNm5cbmVhZC9RYlJ5TzlLcXY3SEo2aHJycGJrS0NvSjBBbFRKZmt4T2svTDBnM3Zkblhia242L3pVeC9JZXRsZHE4T1NcbjNlU2FBbnBNY1FLQmdRQ3diQWQ2Qk9ORXNYcGVLQ0V5N0dncEluL2pGWm9Gd2taTFdlYk5CVXllL2tRdlBQZzZcbldjM09CS0hETUJpMEcvdGxzYlRXUEh3UUpRZHJQS2pJZEJLczdrSmpNUkxKY09zbVZtM2V0TFcvYWVDa3YzYjZcbmpqbGFTbHBxS0NmMTA3RmRZRTJKZWxMcmV0aVViOHJOS0FaUkhsSjFIRXM2SXVHOW4zaWN4VjYvR1FLQmdISElcbnJUK0Vpbjg2MzFBdHR4VUZrd05mZUdwU1RMUys1cjdyNXgzTmJDMW9uUFlMRDFzcjFtdldEd1ZWeVBBbStZa3ZcbmRkSXpRL0ZKb2VlVmJBTkFnV0w5bTVlbGtCWDFKb0Z6QUwvQUM0S0VocktBSmJScnNYOTdFRGh5Y2E1QmsxekZcbm1lZC80eG9iODJZYXhUb09DTlgvODg0azV6RktRZzhTRmt2aTEzVGhBb0dCQUxRV1krV0hDL0hDU3VhaVQ1ck5cbnFiclIwM01BVTg4T3UyelZLZ1FLa0t0eDhaN0RLY2duRmNEWktQOUdPcXJFVjdhZElxdDZIckwvR1FqdVFDSGFcblRoc3dGRmVZM005MEViempGTE1WWVhlaHlFYzJidkJmcFpFSG5UM1VSNXI1ZWRYWmpGYnJySFdDMGFsYnNSR1pcbnZoQ2dBT3c4bk54SFRtMlBrMkZ2bHZyWFxuLS0tLS1FTkQgUFJJVkFURSBLRVktLS0tLVxuIiwNCiAgImNsaWVudF9lbWFpbCI6ICJnby1pYXBAZ28taWFwLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwNCiAgImNsaWVudF9pZCI6ICIxMDMxMTMwNDc5ODIwNjMwMTE3MjciLA0KICAiYXV0aF91cmkiOiAiaHR0cHM6Ly9hY2NvdW50cy5nb29nbGUuY29tL28vb2F1dGgyL2F1dGgiLA0KICAidG9rZW5fdXJpIjogImh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbS9vL29hdXRoMi90b2tlbiIsDQogICJhdXRoX3Byb3ZpZGVyX3g1MDlfY2VydF91cmwiOiAiaHR0cHM6Ly93d3cuZ29vZ2xlYXBpcy5jb20vb2F1dGgyL3YxL2NlcnRzIiwNCiAgImNsaWVudF94NTA5X2NlcnRfdXJsIjogImh0dHBzOi8vd3d3Lmdvb2dsZWFwaXMuY29tL3JvYm90L3YxL21ldGFkYXRhL3g1MDkvZ28taWFwJTQwZ28taWFwLmlhbS5nc2VydmljZWFjY291bnQuY29tIg0KfQ=="
@@ -55,13 +55,17 @@ func TestNew(t *testing.T) {
 	}
 }
 
-func TestSetTimeout(t *testing.T) {
+func TestNewWithClient(t *testing.T) {
 	t.Parallel()
-	_timeout := time.Second * 3
-	SetTimeout(_timeout)
 
-	if timeout != _timeout {
-		t.Errorf("got %#v\nwant %#v", timeout, _timeout)
+	ctx := context.Background()
+	httpClient := urlfetch.Client(ctx)
+
+	cli, _ := NewWithClient(dummyKey, httpClient)
+	tr, _ := cli.httpClient.Transport.(*oauth2.Transport)
+
+	if !reflect.DeepEqual(tr.Base, httpClient.Transport) {
+		t.Errorf("transport should be urlfetch's one")
 	}
 }
 
@@ -124,7 +128,7 @@ func TestVerifyProductAndroidPublisherError(t *testing.T) {
 func TestCancelSubscription(t *testing.T) {
 	t.Parallel()
 	// Exception scenario
-	client := Client{nil}
+	client := &Client{nil}
 	expected := errors.New("client is nil")
 	ctx := context.Background()
 	actual := client.CancelSubscription(ctx, "package", "productID", "purchaseToken")
@@ -147,7 +151,7 @@ func TestCancelSubscription(t *testing.T) {
 func TestRefundSubscription(t *testing.T) {
 	t.Parallel()
 	// Exception scenario
-	client := Client{nil}
+	client := &Client{nil}
 	expected := errors.New("client is nil")
 	ctx := context.Background()
 	actual := client.RefundSubscription(ctx, "package", "productID", "purchaseToken")
@@ -170,7 +174,7 @@ func TestRefundSubscription(t *testing.T) {
 func TestRevokeSubscription(t *testing.T) {
 	t.Parallel()
 	// Exception scenario
-	client := Client{nil}
+	client := &Client{nil}
 	expected := errors.New("client is nil")
 	ctx := context.Background()
 	actual := client.RevokeSubscription(ctx, "package", "productID", "purchaseToken")
