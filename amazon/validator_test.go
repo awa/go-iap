@@ -59,10 +59,10 @@ func TestHandle400Error(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
-	expected := Client{
+	expected := &Client{
 		URL:     SandboxURL,
-		TimeOut: time.Second * 5,
 		Secret:  "developerSecret",
+		httpCli: http.DefaultClient,
 	}
 
 	actual := New("developerSecret")
@@ -72,10 +72,10 @@ func TestNew(t *testing.T) {
 }
 
 func TestNewWithEnvironment(t *testing.T) {
-	expected := Client{
+	expected := &Client{
 		URL:     ProductionURL,
-		TimeOut: time.Second * 5,
 		Secret:  "developerSecret",
+		httpCli: http.DefaultClient,
 	}
 
 	os.Setenv("IAP_ENVIRONMENT", "production")
@@ -87,40 +87,20 @@ func TestNewWithEnvironment(t *testing.T) {
 	}
 }
 
-func TestNewWithConfig(t *testing.T) {
-	t.Parallel()
-	config := Config{
-		IsProduction: true,
-		Secret:       "developerSecret",
-		TimeOut:      time.Second * 2,
+func TestNewWithClient(t *testing.T) {
+	expected := &Client{
+		URL:    ProductionURL,
+		Secret: "developerSecret",
+		httpCli: &http.Client{
+			Timeout: time.Second * 2,
+		},
 	}
+	os.Setenv("IAP_ENVIRONMENT", "production")
 
-	expected := Client{
-		URL:     ProductionURL,
-		TimeOut: time.Second * 2,
-		Secret:  "developerSecret",
+	cli := &http.Client{
+		Timeout: time.Second * 2,
 	}
-
-	actual := NewWithConfig(config)
-	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("got %v\nwant %v", actual, expected)
-	}
-}
-
-func TestNewWithConfigTimeout(t *testing.T) {
-	t.Parallel()
-	config := Config{
-		IsProduction: true,
-		Secret:       "developerSecret",
-	}
-
-	expected := Client{
-		URL:     ProductionURL,
-		TimeOut: time.Second * 5,
-		Secret:  "developerSecret",
-	}
-
-	actual := NewWithConfig(config)
+	actual := NewWithClient("developerSecret", cli)
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("got %v\nwant %v", actual, expected)
 	}
@@ -175,6 +155,6 @@ func testTools(code int, body string) (*httptest.Server, *Client) {
 		fmt.Fprintln(w, body)
 	}))
 
-	client := &Client{URL: server.URL, TimeOut: time.Second * 2, Secret: "developerSecret"}
+	client := &Client{URL: server.URL, Secret: "developerSecret", httpCli: &http.Client{Timeout: 2 * time.Second}}
 	return server, client
 }
