@@ -9,6 +9,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"time"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -26,14 +27,14 @@ type IABClient interface {
 
 // The Client type implements VerifySubscription method
 type Client struct {
-	httpClient *http.Client
+	httpCli *http.Client
 }
 
 // New returns http client which includes the credentials to access androidpublisher API.
 // You should create a service account for your project at
 // https://console.developers.google.com and download a JSON key file to set this argument.
 func New(jsonKey []byte) (*Client, error) {
-	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, http.DefaultClient)
+	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, &http.Client{Timeout: 10 * time.Second})
 
 	conf, err := google.JWTConfigFromJSON(jsonKey, androidpublisher.AndroidpublisherScope)
 
@@ -59,7 +60,7 @@ func (c *Client) VerifySubscription(
 	subscriptionID string,
 	token string,
 ) (*androidpublisher.SubscriptionPurchase, error) {
-	service, err := androidpublisher.New(c.httpClient)
+	service, err := androidpublisher.New(c.httpCli)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +78,7 @@ func (c *Client) VerifyProduct(
 	productID string,
 	token string,
 ) (*androidpublisher.ProductPurchase, error) {
-	service, err := androidpublisher.New(c.httpClient)
+	service, err := androidpublisher.New(c.httpCli)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +91,7 @@ func (c *Client) VerifyProduct(
 
 // CancelSubscription cancels a user's subscription purchase.
 func (c *Client) CancelSubscription(ctx context.Context, packageName string, subscriptionID string, token string) error {
-	service, err := androidpublisher.New(c.httpClient)
+	service, err := androidpublisher.New(c.httpCli)
 	if err != nil {
 		return err
 	}
@@ -104,7 +105,7 @@ func (c *Client) CancelSubscription(ctx context.Context, packageName string, sub
 // RefundSubscription refunds a user's subscription purchase, but the subscription remains valid
 // until its expiration time and it will continue to recur.
 func (c *Client) RefundSubscription(ctx context.Context, packageName string, subscriptionID string, token string) error {
-	service, err := androidpublisher.New(c.httpClient)
+	service, err := androidpublisher.New(c.httpCli)
 	if err != nil {
 		return err
 	}
@@ -118,7 +119,7 @@ func (c *Client) RefundSubscription(ctx context.Context, packageName string, sub
 // RevokeSubscription refunds and immediately revokes a user's subscription purchase.
 // Access to the subscription will be terminated immediately and it will stop recurring.
 func (c *Client) RevokeSubscription(ctx context.Context, packageName string, subscriptionID string, token string) error {
-	service, err := androidpublisher.New(c.httpClient)
+	service, err := androidpublisher.New(c.httpCli)
 	if err != nil {
 		return err
 	}

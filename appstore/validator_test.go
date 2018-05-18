@@ -90,7 +90,9 @@ func TestNew(t *testing.T) {
 	expected := &Client{
 		ProductionURL: ProductionURL,
 		SandboxURL:    SandboxURL,
-		httpCli:       http.DefaultClient,
+		httpCli: &http.Client{
+			Timeout: 10 * time.Second,
+		},
 	}
 
 	actual := New()
