@@ -1,12 +1,12 @@
 package amazon
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"os"
-	"time"
 )
 
 const (
@@ -22,13 +22,6 @@ func getSandboxURL() string {
 		url = SandboxURL
 	}
 	return url
-}
-
-// Config is a configuration to initialize client
-type Config struct {
-	IsProduction bool
-	Secret       string
-	TimeOut      time.Duration
 }
 
 // The IAPResponse type has the response properties
@@ -49,41 +42,38 @@ type IAPResponseError struct {
 
 // IAPClient is an interface to call validation API in Amazon App Store
 type IAPClient interface {
-	Verify(string, string) (IAPResponse, error)
+	Verify(context.Context, string, string) (IAPResponse, error)
 }
 
 // Client implements IAPClient
 type Client struct {
 	URL     string
 	Secret  string
-	TimeOut time.Duration
+	httpCli *http.Client
 }
 
 // New creates a client object
-func New(secret string) IAPClient {
-	client := Client{
+func New(secret string) *Client {
+	client := &Client{
 		URL:     getSandboxURL(),
 		Secret:  secret,
-		TimeOut: time.Second * 5,
+		httpCli: http.DefaultClient,
 	}
 	if os.Getenv("IAP_ENVIRONMENT") == "production" {
 		client.URL = ProductionURL
 	}
+
 	return client
 }
 
-// NewWithConfig creates a client with configuration
-func NewWithConfig(config Config) Client {
-	if config.TimeOut == 0 {
-		config.TimeOut = time.Second * 5
-	}
-
-	client := Client{
+// NewWithClient creates a client with a custom client.
+func NewWithClient(secret string, cli *http.Client) *Client {
+	client := &Client{
 		URL:     getSandboxURL(),
-		Secret:  config.Secret,
-		TimeOut: config.TimeOut,
+		Secret:  secret,
+		httpCli: cli,
 	}
-	if config.IsProduction {
+	if os.Getenv("IAP_ENVIRONMENT") == "production" {
 		client.URL = ProductionURL
 	}
 
@@ -91,13 +81,16 @@ func NewWithConfig(config Config) Client {
 }
 
 // Verify sends receipts and gets validation result
-func (c Client) Verify(userID string, receiptID string) (IAPResponse, error) {
+func (c *Client) Verify(ctx context.Context, userID string, receiptID string) (IAPResponse, error) {
 	result := IAPResponse{}
 	url := fmt.Sprintf("%v/version/1.0/verifyReceiptId/developer/%v/user/%v/receiptId/%v", c.URL, c.Secret, userID, receiptID)
-	client := http.Client{
-		Timeout: c.TimeOut,
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return result, err
 	}
-	resp, err := client.Get(url)
+	req = req.WithContext(ctx)
+
+	resp, err := c.httpCli.Do(req)
 	if err != nil {
 		return result, fmt.Errorf("%v", err)
 	}
