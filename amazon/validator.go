@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 )
 
 const (
@@ -55,9 +56,11 @@ type Client struct {
 // New creates a client object
 func New(secret string) *Client {
 	client := &Client{
-		URL:     getSandboxURL(),
-		Secret:  secret,
-		httpCli: http.DefaultClient,
+		URL:    getSandboxURL(),
+		Secret: secret,
+		httpCli: &http.Client{
+			Timeout: 10 * time.Second,
+		},
 	}
 	if os.Getenv("IAP_ENVIRONMENT") == "production" {
 		client.URL = ProductionURL

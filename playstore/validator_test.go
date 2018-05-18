@@ -37,7 +37,7 @@ func TestNew(t *testing.T) {
 	expected := "oauth2: cannot fetch token: 401 Unauthorized\nResponse: {\n  \"error\" : \"invalid_client\",\n  \"error_description\" : \"The OAuth client was invalid.\"\n}"
 
 	actual, _ := New(dummyKey)
-	val := actual.httpClient.Transport.(*oauth2.Transport)
+	val := actual.httpCli.Transport.(*oauth2.Transport)
 	token, err := val.Source.Token()
 	if token != nil {
 		t.Errorf("got %#v", token)
@@ -48,7 +48,7 @@ func TestNew(t *testing.T) {
 
 	// TODO Normal scenario
 	actual, _ = New(jsonKey)
-	val = actual.httpClient.Transport.(*oauth2.Transport)
+	val = actual.httpCli.Transport.(*oauth2.Transport)
 	token, err = val.Source.Token()
 	if err != nil {
 		t.Errorf("got %#v", err)
@@ -62,7 +62,7 @@ func TestNewWithClient(t *testing.T) {
 	httpClient := urlfetch.Client(ctx)
 
 	cli, _ := NewWithClient(dummyKey, httpClient)
-	tr, _ := cli.httpClient.Transport.(*oauth2.Transport)
+	tr, _ := cli.httpCli.Transport.(*oauth2.Transport)
 
 	if !reflect.DeepEqual(tr.Base, httpClient.Transport) {
 		t.Errorf("transport should be urlfetch's one")

@@ -60,9 +60,11 @@ func TestHandle400Error(t *testing.T) {
 
 func TestNew(t *testing.T) {
 	expected := &Client{
-		URL:     SandboxURL,
-		Secret:  "developerSecret",
-		httpCli: http.DefaultClient,
+		URL:    SandboxURL,
+		Secret: "developerSecret",
+		httpCli: &http.Client{
+			Timeout: 10 * time.Second,
+		},
 	}
 
 	actual := New("developerSecret")
@@ -73,9 +75,11 @@ func TestNew(t *testing.T) {
 
 func TestNewWithEnvironment(t *testing.T) {
 	expected := &Client{
-		URL:     ProductionURL,
-		Secret:  "developerSecret",
-		httpCli: http.DefaultClient,
+		URL:    ProductionURL,
+		Secret: "developerSecret",
+		httpCli: &http.Client{
+			Timeout: 10 * time.Second,
+		},
 	}
 
 	os.Setenv("IAP_ENVIRONMENT", "production")

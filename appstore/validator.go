@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 const (
@@ -78,7 +79,9 @@ func New() *Client {
 	client := &Client{
 		ProductionURL: ProductionURL,
 		SandboxURL:    SandboxURL,
-		httpCli:       http.DefaultClient,
+		httpCli: &http.Client{
+			Timeout: 10 * time.Second,
+		},
 	}
 	return client
 }
