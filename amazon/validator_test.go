@@ -1,6 +1,7 @@
 package amazon
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -25,6 +26,7 @@ func TestHandle497Error(t *testing.T) {
 	// status 400
 	expected = errors.New("Purchase token/app user mismatch")
 	_, actual = client.Verify(
+		context.Background(),
 		"99FD_DL23EMhrOGDnur9-ulvqomrSg6qyLPSD3CFE=",
 		"q1YqVrJSSs7P1UvMTazKz9PLTCwoTswtyEktM9JLrShIzCvOzM-LL04tiTdW0lFKASo2NDEwMjCwMDM2MTC0AIqVAsUsLd1c4l18jIxdfTOK_N1d8kqLLHVLc8oK83OLgtPNCit9AoJdjJ3dXG2BGkqUrAxrAQ",
 	)
@@ -47,6 +49,7 @@ func TestHandle400Error(t *testing.T) {
 	// status 400
 	expected = errors.New("Failed to parse receipt Id")
 	_, actual = client.Verify(
+		context.Background(),
 		"99FD_DL23EMhrOGDnur9-ulvqomrSg6qyLPSD3CFE=",
 		"q1YqVrJSSs7P1UvMTazKz9PLTCwoTswtyEktM9JLrShIzCvOzM-LL04tiTdW0lFKASo2NDEwMjCwMDM2MTC0AIqVAsUsLd1c4l18jIxdfTOK_N1d8kqLLHVLc8oK83OLgtPNCit9AoJdjJ3dXG2BGkqUrAxrAQ",
 	)
@@ -56,7 +59,6 @@ func TestHandle400Error(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
-	t.Parallel()
 	expected := Client{
 		URL:     SandboxURL,
 		TimeOut: time.Second * 5,
@@ -70,7 +72,6 @@ func TestNew(t *testing.T) {
 }
 
 func TestNewWithEnvironment(t *testing.T) {
-	t.Parallel()
 	expected := Client{
 		URL:     ProductionURL,
 		TimeOut: time.Second * 5,
@@ -143,6 +144,7 @@ func TestVerify(t *testing.T) {
 	}
 
 	actual, _ := client.Verify(
+		context.Background(),
 		"99FD_DL23EMhrOGDnur9-ulvqomrSg6qyLPSD3CFE=",
 		"q1YqVrJSSs7P1UvMTazKz9PLTCwoTswtyEktM9JLrShIzCvOzM-LL04tiTdW0lFKASo2NDEwMjCwMDM2MTC0AIqVAsUsLd1c4l18jIxdfTOK_N1d8kqLLHVLc8oK83OLgtPNCit9AoJdjJ3dXG2BGkqUrAxrAQ",
 	)
@@ -158,7 +160,8 @@ func TestVerifyTimeout(t *testing.T) {
 	defer server.Close()
 
 	expected := errors.New("")
-	_, actual := client.Verify("timeout", "timeout")
+	ctx := context.Background()
+	_, actual := client.Verify(ctx, "timeout", "timeout")
 	if !reflect.DeepEqual(reflect.TypeOf(actual), reflect.TypeOf(expected)) {
 		t.Errorf("got %v\nwant %v", actual, expected)
 	}

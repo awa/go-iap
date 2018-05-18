@@ -1,6 +1,7 @@
 package amazon
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -49,7 +50,7 @@ type IAPResponseError struct {
 
 // IAPClient is an interface to call validation API in Amazon App Store
 type IAPClient interface {
-	Verify(string, string) (IAPResponse, error)
+	Verify(context.Context, string, string) (IAPResponse, error)
 }
 
 // Client implements IAPClient
@@ -91,13 +92,19 @@ func NewWithConfig(config Config) Client {
 }
 
 // Verify sends receipts and gets validation result
-func (c Client) Verify(userID string, receiptID string) (IAPResponse, error) {
+func (c Client) Verify(ctx context.Context, userID string, receiptID string) (IAPResponse, error) {
 	result := IAPResponse{}
 	url := fmt.Sprintf("%v/version/1.0/verifyReceiptId/developer/%v/user/%v/receiptId/%v", c.URL, c.Secret, userID, receiptID)
 	client := http.Client{
 		Timeout: c.TimeOut,
 	}
-	resp, err := client.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return result, err
+	}
+	req = req.WithContext(ctx)
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return result, fmt.Errorf("%v", err)
 	}
