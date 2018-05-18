@@ -53,8 +53,6 @@ func main() {
 
 ```
 import(
-    "golang.org/x/oauth2"
-
     "github.com/awa/go-iap/playstore"
 )
 
@@ -82,7 +80,8 @@ import(
 func main() {
 	client := amazon.New("developerSecret")
 
-	resp, err := client.Verify("userID", "receiptID")
+	ctx := context.Background()
+	resp, err := client.Verify(ctx, "userID", "receiptID")
 }
 ```
 
