@@ -33,8 +33,9 @@ func init() {
 
 func TestNew(t *testing.T) {
 	t.Parallel()
+
 	// Exception scenario
-	expected := "oauth2: cannot fetch token: 401 Unauthorized\nResponse: {\n  \"error\" : \"invalid_client\",\n  \"error_description\" : \"The OAuth client was invalid.\"\n}"
+	expected := "oauth2: cannot fetch token: 400 Bad Request\nResponse: {\n  \"error\": \"invalid_grant\",\n  \"error_description\": \"Invalid issuer: Not a service account.\"\n}"
 
 	actual, _ := New(dummyKey)
 	val := actual.httpCli.Transport.(*oauth2.Transport)
@@ -196,54 +197,83 @@ func TestRevokeSubscription(t *testing.T) {
 
 func TestVerifySignature(t *testing.T) {
 	t.Parallel()
-	receipt := `{"orderId":"GPA.xxxx-xxxx-xxxx-xxxxx","packageName":"my.package","productId":"myproduct","purchaseTime":1437564796303,"purchaseState":0,"developerPayload":"user001","purchaseToken":"some-token"}`
+	receipt := []byte(`{"orderId":"GPA.xxxx-xxxx-xxxx-xxxxx","packageName":"my.package","productId":"myproduct","purchaseTime":1437564796303,"purchaseState":0,"developerPayload":"user001","purchaseToken":"some-token"}`)
 
-	// when public key format is invalid base64
-	pubkey := "dummy_public_key"
-	sig := "gj0N8LANKXOw4OhWkS1UZmDVUxM1UIP28F6bDzEp7BCqcVAe0DuDxmAY5wXdEgMRx/VM1Nl2crjogeV60OqCsbIaWqS/ZJwdP127aKR0jk8sbX36ssyYZ0DdZdBdCr1tBZ/eSW1GlGuD/CgVaxns0JaWecXakgoV7j+RF2AFbS4="
-	expectedStr := "failed to decode public key"
-	_, err := VerifySignature(pubkey, []byte(receipt), sig)
-	if err.Error() != expectedStr {
-		t.Errorf("got %v\nwant %v", err, expectedStr)
+	type in struct {
+		pubkey  string
+		receipt []byte
+		sig     string
 	}
 
-	// when pub key is not rsa public key
-	pubkey = "JTbngOdvBE0rfdOs3GeuBnPB+YEP1w/peM4VJbnVz+hN9Td25vPjAznX9YKTGQN4iDohZ07wtl+zYygIcpSCc2ozNZUs9pV0s5itayQo22aT5myJrQmkp94ZSGI2npDP4+FE6ZiF+7khl3qoE0rVZq4G2mfk5LIIyTPTSA4UvyQ="
-	sig = "gj0N8LANKXOw4OhWkS1UZmDVUxM1UIP28F6bDzEp7BCqcVAe0DuDxmAY5wXdEgMRx/VM1Nl2crjogeV60OqCsbIaWqS/ZJwdP127aKR0jk8sbX36ssyYZ0DdZdBdCr1tBZ/eSW1GlGuD/CgVaxns0JaWecXakgoV7j+RF2AFbS4="
-	expectedStr = "failed to parse public key"
-	_, err = VerifySignature(pubkey, []byte(receipt), sig)
-	if err.Error() != expectedStr {
-		t.Errorf("got %v\nwant %v", err, expectedStr)
+	tests := []struct {
+		name  string
+		in    in
+		err   error
+		valid bool
+	}{
+		{
+			name: "public key is invalid base64 format",
+			in: in{
+				pubkey:  "dummy_public_key",
+				receipt: receipt,
+				sig:     "gj0N8LANKXOw4OhWkS1UZmDVUxM1UIP28F6bDzEp7BCqcVAe0DuDxmAY5wXdEgMRx/VM1Nl2crjogeV60OqCsbIaWqS/ZJwdP127aKR0jk8sbX36ssyYZ0DdZdBdCr1tBZ/eSW1GlGuD/CgVaxns0JaWecXakgoV7j+RF2AFbS4=",
+			},
+			err:   errors.New("failed to decode public key"),
+			valid: false,
+		},
+		{
+			name: "public key is not rsa public key",
+			in: in{
+				pubkey:  "JTbngOdvBE0rfdOs3GeuBnPB+YEP1w/peM4VJbnVz+hN9Td25vPjAznX9YKTGQN4iDohZ07wtl+zYygIcpSCc2ozNZUs9pV0s5itayQo22aT5myJrQmkp94ZSGI2npDP4+FE6ZiF+7khl3qoE0rVZq4G2mfk5LIIyTPTSA4UvyQ=",
+				receipt: receipt,
+				sig:     "gj0N8LANKXOw4OhWkS1UZmDVUxM1UIP28F6bDzEp7BCqcVAe0DuDxmAY5wXdEgMRx/VM1Nl2crjogeV60OqCsbIaWqS/ZJwdP127aKR0jk8sbX36ssyYZ0DdZdBdCr1tBZ/eSW1GlGuD/CgVaxns0JaWecXakgoV7j+RF2AFbS4=",
+			},
+			err:   errors.New("failed to parse public key"),
+			valid: false,
+		},
+		{
+			name: "signature is invalid base64 format",
+			in: in{
+				pubkey:  "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGvModvVUrqJ9C5fy8J77ZQ7JDC6+tf5iK8C74/3mjmcvwo4nmprCgzR/BQIEuZWJi8KX+jiJUXKXF90JPsXHkKAPq6A1SCga7kWvs/M8srMpjNS9zJdwZF+eDOR0+lJEihO04zlpAV9ybPJ3Q621y1HUeVpwdxDNLQpJTuIflnwIDAQAB",
+				receipt: receipt,
+				sig:     "invalid_signature",
+			},
+			err:   errors.New("failed to decode signature"),
+			valid: false,
+		},
+		{
+			name: "signature is invalid",
+			in: in{
+				pubkey:  "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGvModvVUrqJ9C5fy8J77ZQ7JDC6+tf5iK8C74/3mjmcvwo4nmprCgzR/BQIEuZWJi8KX+jiJUXKXF90JPsXHkKAPq6A1SCga7kWvs/M8srMpjNS9zJdwZF+eDOR0+lJEihO04zlpAV9ybPJ3Q621y1HUeVpwdxDNLQpJTuIflnwIDAQAB",
+				receipt: receipt,
+				sig:     "JTbngOdvBE0rfdOs3GeuBnPB+YEP1w/peM4VJbnVz+hN9Td25vPjAznX9YKTGQN4iDohZ07wtl+zYygIcpSCc2ozNZUs9pV0s5itayQo22aT5myJrQmkp94ZSGI2npDP4+FE6ZiF+7khl3qoE0rVZq4G2mfk5LIIyTPTSA4UvyQ=",
+			},
+			err:   nil,
+			valid: false,
+		},
+		{
+			name: "normal",
+			in: in{
+				pubkey:  "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGvModvVUrqJ9C5fy8J77ZQ7JDC6+tf5iK8C74/3mjmcvwo4nmprCgzR/BQIEuZWJi8KX+jiJUXKXF90JPsXHkKAPq6A1SCga7kWvs/M8srMpjNS9zJdwZF+eDOR0+lJEihO04zlpAV9ybPJ3Q621y1HUeVpwdxDNLQpJTuIflnwIDAQAB",
+				receipt: receipt,
+				sig:     "gj0N8LANKXOw4OhWkS1UZmDVUxM1UIP28F6bDzEp7BCqcVAe0DuDxmAY5wXdEgMRx/VM1Nl2crjogeV60OqCsbIaWqS/ZJwdP127aKR0jk8sbX36ssyYZ0DdZdBdCr1tBZ/eSW1GlGuD/CgVaxns0JaWecXakgoV7j+RF2AFbS4=",
+			},
+			err:   nil,
+			valid: true,
+		},
 	}
 
-	// when signature is invalid base64 format
-	pubkey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGvModvVUrqJ9C5fy8J77ZQ7JDC6+tf5iK8C74/3mjmcvwo4nmprCgzR/BQIEuZWJi8KX+jiJUXKXF90JPsXHkKAPq6A1SCga7kWvs/M8srMpjNS9zJdwZF+eDOR0+lJEihO04zlpAV9ybPJ3Q621y1HUeVpwdxDNLQpJTuIflnwIDAQAB"
-	sig = "invalid_signature"
-	expectedStr = "failed to decode signature"
-	_, err = VerifySignature(pubkey, []byte(receipt), sig)
-	if err.Error() != expectedStr {
-		t.Errorf("got %v\nwant %v", err, expectedStr)
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			valid, err := VerifySignature(tt.in.pubkey, tt.in.receipt, tt.in.sig)
 
-	// when signature is invalid
-	pubkey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGvModvVUrqJ9C5fy8J77ZQ7JDC6+tf5iK8C74/3mjmcvwo4nmprCgzR/BQIEuZWJi8KX+jiJUXKXF90JPsXHkKAPq6A1SCga7kWvs/M8srMpjNS9zJdwZF+eDOR0+lJEihO04zlpAV9ybPJ3Q621y1HUeVpwdxDNLQpJTuIflnwIDAQAB"
-	sig = "JTbngOdvBE0rfdOs3GeuBnPB+YEP1w/peM4VJbnVz+hN9Td25vPjAznX9YKTGQN4iDohZ07wtl+zYygIcpSCc2ozNZUs9pV0s5itayQo22aT5myJrQmkp94ZSGI2npDP4+FE6ZiF+7khl3qoE0rVZq4G2mfk5LIIyTPTSA4UvyQ="
-	isValid, err := VerifySignature(pubkey, []byte(receipt), sig)
-	if err != nil {
-		t.Errorf("got %v\n", err)
-	}
-	if isValid {
-		t.Errorf("got %v\nwant %v", isValid, false)
-	}
+			if valid != tt.valid {
+				t.Errorf("input: %v\nget: %t\nwant: %t\n", tt.in, valid, tt.valid)
+			}
 
-	// when all arguments are valid
-	pubkey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGvModvVUrqJ9C5fy8J77ZQ7JDC6+tf5iK8C74/3mjmcvwo4nmprCgzR/BQIEuZWJi8KX+jiJUXKXF90JPsXHkKAPq6A1SCga7kWvs/M8srMpjNS9zJdwZF+eDOR0+lJEihO04zlpAV9ybPJ3Q621y1HUeVpwdxDNLQpJTuIflnwIDAQAB"
-	sig = "gj0N8LANKXOw4OhWkS1UZmDVUxM1UIP28F6bDzEp7BCqcVAe0DuDxmAY5wXdEgMRx/VM1Nl2crjogeV60OqCsbIaWqS/ZJwdP127aKR0jk8sbX36ssyYZ0DdZdBdCr1tBZ/eSW1GlGuD/CgVaxns0JaWecXakgoV7j+RF2AFbS4="
-	isValid, err = VerifySignature(pubkey, []byte(receipt), sig)
-	if err != nil {
-		t.Errorf("got %v\n", err)
-	}
-	if !isValid {
-		t.Errorf("got %v\nwant %v", isValid, true)
+			if !reflect.DeepEqual(err, tt.err) {
+				t.Errorf("input: %v\nget: %s\nwant: %s\n", tt.in, err, tt.err)
+			}
+		})
 	}
 }
