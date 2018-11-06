@@ -33,8 +33,9 @@ func init() {
 
 func TestNew(t *testing.T) {
 	t.Parallel()
+
 	// Exception scenario
-	expected := "oauth2: cannot fetch token: 401 Unauthorized\nResponse: {\n  \"error\" : \"invalid_client\",\n  \"error_description\" : \"The OAuth client was invalid.\"\n}"
+	expected := "oauth2: cannot fetch token: 400 Bad Request\nResponse: {\n  \"error\": \"invalid_grant\",\n  \"error_description\": \"Invalid issuer: Not a service account.\"\n}"
 
 	actual, _ := New(dummyKey)
 	val := actual.httpCli.Transport.(*oauth2.Transport)
