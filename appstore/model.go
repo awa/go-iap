@@ -84,7 +84,8 @@ type (
 		OriginalTransactionID string `json:"original_transaction_id"`
 		WebOrderLineItemID    string `json:"web_order_line_item_id,omitempty"`
 
-		IsTrialPeriod string `json:"is_trial_period"`
+		IsTrialPeriod        string `json:"is_trial_period"`
+		IsInIntroOfferPeriod string `json:"is_in_intro_offer_period,omitempty"`
 		ExpiresDate
 
 		PurchaseDate
