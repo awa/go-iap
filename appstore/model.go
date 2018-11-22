@@ -119,6 +119,7 @@ type (
 		SubscriptionAutoRenewStatus    string `json:"auto_renew_status"`
 		SubscriptionPriceConsentStatus string `json:"price_consent_status"`
 		ProductID                      string `json:"product_id"`
+		OriginalTransactionID          string `json:"original_transaction_id"`
 	}
 
 	// The IAPResponse type has the response properties
