@@ -134,7 +134,9 @@ func (c *Client) parseResponse(resp *http.Response, result interface{}, ctx cont
 	}
 	if r.Status == 21007 {
 		b := new(bytes.Buffer)
-		json.NewEncoder(b).Encode(reqBody)
+		if err := json.NewEncoder(b).Encode(reqBody); err != nil {
+			return err
+		}
 
 		req, err := http.NewRequest("POST", c.SandboxURL, b)
 		if err != nil {
