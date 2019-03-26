@@ -14,6 +14,8 @@ const (
 	NotificationTypeInteractiveRenewal NotificationType = "INTERACTIVE_RENEWAL"
 	// Customer changed the plan that takes affect at the next subscription renewal. Current active plan is not affected.
 	NotificationTypeDidChangeRenewalPreference NotificationType = "DID_CHANGE_RENEWAL_PREF"
+	// Customer changed the subscription renewal status. Current active plan is not affected.
+	NotificationTypeDidChangeRenewalStatus NotificationType = "DID_CHANGE_RENEWAL_STATUS"
 )
 
 type NotificationEnvironment string
