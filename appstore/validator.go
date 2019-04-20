@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"net/http"
 	"time"
 )
@@ -110,26 +109,21 @@ func (c *Client) Verify(ctx context.Context, reqBody IAPRequest, result interfac
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
 	return c.parseResponse(resp, result, ctx, reqBody)
 }
 
 func (c *Client) parseResponse(resp *http.Response, result interface{}, ctx context.Context, reqBody IAPRequest) error {
+	defer resp.Body.Close()
 	// Read the body now so that we can unmarshal it twice
-	buf, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
+	dec := json.NewDecoder(resp.Body)
 
-	err = json.Unmarshal(buf, &result)
-	if err != nil {
+	if err := dec.Decode(&result); err != nil {
 		return err
 	}
 
 	// https://developer.apple.com/library/content/technotes/tn2413/_index.html#//apple_ref/doc/uid/DTS40016228-CH1-RECEIPTURL
 	var r StatusResponse
-	err = json.Unmarshal(buf, &r)
-	if err != nil {
+	if err := dec.Decode(&r); err != nil {
 		return err
 	}
 	if r.Status == 21007 {
