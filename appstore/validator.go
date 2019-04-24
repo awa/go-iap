@@ -98,7 +98,9 @@ func NewWithClient(client *http.Client) *Client {
 // Verify sends receipts and gets validation result
 func (c *Client) Verify(ctx context.Context, reqBody IAPRequest, result interface{}) error {
 	b := new(bytes.Buffer)
-	json.NewEncoder(b).Encode(reqBody)
+	if err := json.NewEncoder(b).Encode(reqBody); err != nil {
+		return err
+	}
 
 	req, err := http.NewRequest("POST", c.ProductionURL, b)
 	if err != nil {

@@ -102,6 +102,9 @@ func (c *Client) Verify(ctx context.Context, userID string, receiptID string) (I
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		responseError := IAPResponseError{}
 		err = json.NewDecoder(resp.Body).Decode(&responseError)
+		if err != nil {
+			return result, err
+		}
 		return result, errors.New(responseError.Message)
 	}
 
