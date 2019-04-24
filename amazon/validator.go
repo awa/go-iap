@@ -95,7 +95,7 @@ func (c *Client) Verify(ctx context.Context, userID string, receiptID string) (I
 
 	resp, err := c.httpCli.Do(req)
 	if err != nil {
-		return result, fmt.Errorf("%v", err)
+		return result, err
 	}
 	defer resp.Body.Close()
 
