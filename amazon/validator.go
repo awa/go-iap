@@ -31,8 +31,14 @@ type IAPResponse struct {
 	ProductType     string `json:"productType"`
 	ProductID       string `json:"productId"`
 	PurchaseDate    int64  `json:"purchaseDate"`
+	RenewalDate     int64  `json:"renewalDate"`
 	CancelDate      int64  `json:"cancelDate"`
 	TestTransaction bool   `json:"testTransaction"`
+	BetaProduct     bool   `json:"betaProduct"`
+	ParentProductID string `json:"parentProductId"`
+	Quantity        int64  `json:"quantity"`
+	Term            string `json:"term"`
+	TermSku         string `json:"termSku"`
 }
 
 // The IAPResponseError typs has error message and status.

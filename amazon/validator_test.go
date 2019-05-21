@@ -110,7 +110,38 @@ func TestNewWithClient(t *testing.T) {
 	}
 }
 
-func TestVerify(t *testing.T) {
+func TestVerifySubscription(t *testing.T) {
+	t.Parallel()
+	server, client := testTools(
+		200,
+		"{\"purchaseDate\":1558424877035,\"receiptId\":\"q1YqVrJSSs7P1UvMTazKz9PLTCwoTswtyEktM9JLrShIzCvOzM-LL04tiTdW0lFKASo2NDEwMjCwMDM2MTC0AIqVAsUsLd1c4l18jIxdfTOK_N1d8kqLLHVLc8oK83OLgtPNCit9AoJdjJ3dXG2BGkqUrAxrAQ\",\"productId\":\"com.amazon.iapsamplev2.expansion_set_3\",\"parentProductId\":null,\"productType\":\"SUBSCRIPTION\",\"renewalDate\":1561103277035,\"quantity\":1,\"betaProduct\":false,\"testTransaction\":true,\"term\":\"1 Week\",\"termSku\":\"sub1-weekly\"}",
+	)
+	defer server.Close()
+
+	expected := IAPResponse{
+		ReceiptID:       "q1YqVrJSSs7P1UvMTazKz9PLTCwoTswtyEktM9JLrShIzCvOzM-LL04tiTdW0lFKASo2NDEwMjCwMDM2MTC0AIqVAsUsLd1c4l18jIxdfTOK_N1d8kqLLHVLc8oK83OLgtPNCit9AoJdjJ3dXG2BGkqUrAxrAQ",
+		ProductType:     "SUBSCRIPTION",
+		ProductID:       "com.amazon.iapsamplev2.expansion_set_3",
+		PurchaseDate:    1558424877035,
+		RenewalDate:     1561103277035,
+		CancelDate:      0,
+		TestTransaction: true,
+		Quantity:        1,
+		Term:            "1 Week",
+		TermSku:         "sub1-weekly",
+	}
+
+	actual, _ := client.Verify(
+		context.Background(),
+		"99FD_DL23EMhrOGDnur9-ulvqomrSg6qyLPSD3CFE=",
+		"q1YqVrJSSs7P1UvMTazKz9PLTCwoTswtyEktM9JLrShIzCvOzM-LL04tiTdW0lFKASo2NDEwMjCwMDM2MTC0AIqVAsUsLd1c4l18jIxdfTOK_N1d8kqLLHVLc8oK83OLgtPNCit9AoJdjJ3dXG2BGkqUrAxrAQ",
+	)
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+}
+
+func TestVerifyEntitled(t *testing.T) {
 	t.Parallel()
 	server, client := testTools(
 		200,
@@ -125,6 +156,7 @@ func TestVerify(t *testing.T) {
 		PurchaseDate:    1402008634018,
 		CancelDate:      0,
 		TestTransaction: true,
+		Quantity:        1,
 	}
 
 	actual, _ := client.Verify(
