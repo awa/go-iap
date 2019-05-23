@@ -13,7 +13,7 @@ import (
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-	androidpublisher "google.golang.org/api/androidpublisher/v2"
+	androidpublisher "google.golang.org/api/androidpublisher/v3"
 )
 
 // The IABClient type is an interface to verify purchase token

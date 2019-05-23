@@ -14,13 +14,6 @@ Current API Documents:
 * Amazon AppStore: [![GoDoc](https://godoc.org/github.com/awa/go-iap/amazon?status.svg)](https://godoc.org/github.com/awa/go-iap/amazon)
 
 
-# Dependencies
-```
-go get golang.org/x/oauth2
-go get golang.org/x/oauth2/google
-go get google.golang.org/api/androidpublisher/v2
-```
-
 # Installation
 ```
 go get github.com/awa/go-iap/appstore
