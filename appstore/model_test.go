@@ -33,7 +33,7 @@ func TestNumericString_UnmarshalJSON(t *testing.T) {
 		{
 			name: "object case",
 			in:   []byte("{\"ID\":{\"Num\": 8080}}"),
-			err:  errors.New("json: cannot unmarshal object into Go value of type json.Number"),
+			err:  errors.New("json: cannot unmarshal object into Go struct field foo.ID of type json.Number"),
 			out:  foo{},
 		},
 	}

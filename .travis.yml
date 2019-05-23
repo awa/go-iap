@@ -1,6 +1,9 @@
 language: go
 go:
-- 1.11.2
+- 1.12.5
+env:
+  global:
+  - GO111MODULE=on
 before_install:
 - sudo pip install codecov
 install:
