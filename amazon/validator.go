@@ -101,13 +101,16 @@ func (c *Client) Verify(ctx context.Context, userID string, receiptID string) (I
 
 	resp, err := c.httpCli.Do(req)
 	if err != nil {
-		return result, fmt.Errorf("%v", err)
+		return result, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		responseError := IAPResponseError{}
 		err = json.NewDecoder(resp.Body).Decode(&responseError)
+		if err != nil {
+			return result, err
+		}
 		return result, errors.New(responseError.Message)
 	}
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"reflect"
 	"testing"
@@ -175,11 +176,17 @@ func TestVerifyTimeout(t *testing.T) {
 	server, client := testTools(100, "timeout response")
 	defer server.Close()
 
-	expected := errors.New("")
 	ctx := context.Background()
 	_, actual := client.Verify(ctx, "timeout", "timeout")
-	if !reflect.DeepEqual(reflect.TypeOf(actual), reflect.TypeOf(expected)) {
-		t.Errorf("got %v\nwant %v", actual, expected)
+
+	// Actual should be a "request canceled" *url.Error
+	urlErr, ok := actual.(*url.Error)
+	if !ok {
+		t.Errorf("Expected *url.Error, got %T", actual)
+	}
+
+	if !urlErr.Timeout() {
+		t.Errorf("got %v\nwant timeout", actual)
 	}
 }
 
