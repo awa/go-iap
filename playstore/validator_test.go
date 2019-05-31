@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"golang.org/x/oauth2"
+	androidpublisher "google.golang.org/api/androidpublisher/v3"
 	"google.golang.org/appengine/urlfetch"
 )
 
@@ -68,6 +69,25 @@ func TestNewWithClient(t *testing.T) {
 	if !reflect.DeepEqual(tr.Base, httpClient.Transport) {
 		t.Errorf("transport should be urlfetch's one")
 	}
+}
+
+func TestAcknowledgeSubscription(t *testing.T) {
+	t.Parallel()
+	// Exception scenario
+	expected := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
+
+	client, _ := New(jsonKey)
+	ctx := context.Background()
+	req := &androidpublisher.SubscriptionPurchasesAcknowledgeRequest{
+		DeveloperPayload: "user001",
+	}
+	err := client.AcknowledgeSubscription(ctx, "package", "subscriptionID", "purchaseToken", req)
+
+	if err.Error() != expected {
+		t.Errorf("got %v\nwant %v", err, expected)
+	}
+
+	// TODO Normal scenario
 }
 
 func TestVerifySubscription(t *testing.T) {
