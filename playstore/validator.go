@@ -13,13 +13,18 @@ import (
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-	androidpublisher "google.golang.org/api/androidpublisher/v2"
+	androidpublisher "google.golang.org/api/androidpublisher/v3"
 )
 
-// The IABClient type is an interface to verify purchase token
-type IABClient interface {
-	VerifySubscription(context.Context, string, string, string) (*androidpublisher.SubscriptionPurchase, error)
+// The IABProduct type is an interface for product service
+type IABProduct interface {
 	VerifyProduct(context.Context, string, string, string) (*androidpublisher.ProductPurchase, error)
+}
+
+// The IABSubscription type is an interface  for subscription service
+type IABSubscription interface {
+	AcknowledgeSubscription(context.Context, string, string, string, *androidpublisher.SubscriptionPurchasesAcknowledgeRequest) error
+	VerifySubscription(context.Context, string, string, string) (*androidpublisher.SubscriptionPurchase, error)
 	CancelSubscription(context.Context, string, string, string) error
 	RefundSubscription(context.Context, string, string, string) error
 	RevokeSubscription(context.Context, string, string, string) error
@@ -51,6 +56,25 @@ func NewWithClient(jsonKey []byte, cli *http.Client) (*Client, error) {
 	}
 
 	return &Client{conf.Client(ctx)}, err
+}
+
+// AcknowledgeSubscription acknowledges a subscription purchase.
+func (c *Client) AcknowledgeSubscription(
+	ctx context.Context,
+	packageName string,
+	subscriptionID string,
+	token string,
+	req *androidpublisher.SubscriptionPurchasesAcknowledgeRequest,
+) error {
+	service, err := androidpublisher.New(c.httpCli)
+	if err != nil {
+		return err
+	}
+
+	ps := androidpublisher.NewPurchasesSubscriptionsService(service)
+	err = ps.Acknowledge(packageName, subscriptionID, token, req).Context(ctx).Do()
+
+	return err
 }
 
 // VerifySubscription verifies subscription status
