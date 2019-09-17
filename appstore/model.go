@@ -76,6 +76,13 @@ type (
 		CancellationDatePST string `json:"cancellation_date_pst,omitempty"`
 	}
 
+	// The GracePeriodDate type indicates the grace period date for the subscription
+	GracePeriodDate struct {
+		GracePeriodDate    string `json:"grace_period_expires_date,omitempty"`
+		GracePeriodDateMS  string `json:"grace_period_expires_date_ms,omitempty"`
+		GracePeriodDatePST string `json:"grace_period_expires_date_pst,omitempty"`
+	}
+
 	// The InApp type has the receipt attributes
 	InApp struct {
 		Quantity              string `json:"quantity"`
@@ -120,6 +127,8 @@ type (
 		SubscriptionPriceConsentStatus string `json:"price_consent_status"`
 		ProductID                      string `json:"product_id"`
 		OriginalTransactionID          string `json:"original_transaction_id"`
+
+		GracePeriodDate
 	}
 
 	// The IAPResponse type has the response properties
