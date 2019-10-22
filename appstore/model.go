@@ -184,4 +184,21 @@ type (
 		VersionExternalIdentifier numericString `json:"version_external_identifier,omitempty"`
 		WebOrderLineItemID        string        `json:"web_order_line_item_id"`
 	}
+
+	S2SNotification struct {
+		Environment      string `json:"environment"`
+		NotificationType string `json:"notification_type"`
+		LatestReceipt    string `json:"latest_receipt"`
+
+		AutoRenewStatus    string `json:"auto_renew_status"`
+		AutoRenewProductID string `json:"auto_renew_product_id"`
+
+		LatestReceiptInfo InApp `json:"latest_receipt_info"`
+
+		AutoRenewStatusChangeDate    string `json:"auto_renew_status_change_date"`
+		AutoRenewStatusChangeDatePST string `json:"auto_renew_status_change_date_pst"`
+		AutoRenewStatusChangeDateMS  string `json:"auto_renew_status_change_date_ms"`
+
+		Password string `json:"password"`
+	}
 )
