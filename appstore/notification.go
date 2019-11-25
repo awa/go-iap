@@ -57,11 +57,8 @@ type NotificationReceipt struct {
 }
 
 type NotificationUnifiedReceipt struct {
-	Status string `json:"status"`
-
-	// For production we will get "Production" instead of "PROD"
-	Environment NotificationEnvironment `json:"environment"`
-
+	Status             string               `json:"status"`
+	Environment        Environment          `json:"environment"`
 	LatestReceipt      string               `json:"latest_receipt"`
 	LatestReceiptInfo  []InApp              `json:"latest_receipt_info"`
 	PendingRenewalInfo []PendingRenewalInfo `json:"pending_renewal_info,omitempty"`
