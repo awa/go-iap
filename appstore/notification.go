@@ -35,23 +35,20 @@ type NotificationExpiresDate struct {
 }
 
 type NotificationReceipt struct {
-	UniqueIdentifier            string `json:"unique_identifier"`
-	AppItemID                   string `json:"app_item_id"`
-	Quantity                    string `json:"quantity"`
-	VersionExternalIdentifier   string `json:"version_external_identifier"`
-	UniqueVendorIdentifier      string `json:"unique_vendor_identifier"`
-	WebOrderLineItemID          string `json:"web_order_line_item_id"`
-	ItemID                      string `json:"item_id"`
-	ProductID                   string `json:"product_id"`
-	BID                         string `json:"bid"`
-	BVRS                        string `json:"bvrs"`
-	TransactionID               string `json:"transaction_id"`
-	OriginalTransactionID       string `json:"original_transaction_id"`
-	IsTrialPeriod               string `json:"is_trial_period"`
-	IsInIntroOfferPeriod        string `json:"is_in_intro_offer_period"`
-	IsUpgraded                  string `json:"is_upgraded"`
-	PromotionalOfferID          string `json:"promotional_offer_id"`
-	SubscriptionGroupIdentifier string `json:"subscription_group_identifier"`
+	UniqueIdentifier          string `json:"unique_identifier"`
+	AppItemID                 string `json:"app_item_id"`
+	Quantity                  string `json:"quantity"`
+	VersionExternalIdentifier string `json:"version_external_identifier"`
+	UniqueVendorIdentifier    string `json:"unique_vendor_identifier"`
+	WebOrderLineItemID        string `json:"web_order_line_item_id"`
+	ItemID                    string `json:"item_id"`
+	ProductID                 string `json:"product_id"`
+	BID                       string `json:"bid"`
+	BVRS                      string `json:"bvrs"`
+	TransactionID             string `json:"transaction_id"`
+	OriginalTransactionID     string `json:"original_transaction_id"`
+	IsTrialPeriod             string `json:"is_trial_period"`
+	IsInIntroOfferPeriod      string `json:"is_in_intro_offer_period"`
 
 	PurchaseDate
 	OriginalPurchaseDate
@@ -65,9 +62,9 @@ type NotificationUnifiedReceipt struct {
 	// For production we will get "Production" instead of "PROD"
 	Environment NotificationEnvironment `json:"environment"`
 
-	LatestReceipt      string                `json:"latest_receipt"`
-	LatestReceiptInfo  []NotificationReceipt `json:"latest_receipt_info"`
-	PendingRenewalInfo []PendingRenewalInfo  `json:"pending_renewal_info,omitempty"`
+	LatestReceipt      string               `json:"latest_receipt"`
+	LatestReceiptInfo  []InApp              `json:"latest_receipt_info"`
+	PendingRenewalInfo []PendingRenewalInfo `json:"pending_renewal_info,omitempty"`
 }
 
 type SubscriptionNotification struct {
