@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -95,6 +96,26 @@ func NewWithClient(client *http.Client) *Client {
 	}
 }
 
+func httpResponseErrorForStatusCode(code int) error {
+	if code < 500 {
+		return nil
+	}
+
+	return httpResponseError{httpStatusCode: code}
+}
+
+type httpResponseError struct {
+	httpStatusCode int
+}
+
+func (e httpResponseError) Error() string {
+	return fmt.Sprintf("Received http status code %v from the App Store", e.httpStatusCode)
+}
+
+func (e httpResponseError) Temporary() bool {
+	return e.httpStatusCode >= 500
+}
+
 // Verify sends receipts and gets validation result
 func (c *Client) Verify(ctx context.Context, reqBody IAPRequest, result interface{}) error {
 	b := new(bytes.Buffer)
@@ -113,6 +134,10 @@ func (c *Client) Verify(ctx context.Context, reqBody IAPRequest, result interfac
 		return err
 	}
 	defer resp.Body.Close()
+
+	if err = httpResponseErrorForStatusCode(resp.StatusCode); err != nil {
+		return err
+	}
 	return c.parseResponse(resp, result, ctx, reqBody)
 }
 
