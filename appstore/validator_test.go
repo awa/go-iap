@@ -295,14 +295,14 @@ func (errReader) Read(p []byte) (n int, err error) {
 
 func serverWithResponse(statusCode int, response string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if "POST" == r.Method {
-			w.Header().Set("Content-Type", "application/json")
-			w.Write([]byte(response))
-			return
-		} else {
+		if "POST" != r.Method {
+			w.WriteHeader(http.StatusMethodNotAllowed)
 			w.Write([]byte(`unsupported request`))
+			return
 		}
 
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(statusCode)
+		w.Write([]byte(response))
 	})
 }
