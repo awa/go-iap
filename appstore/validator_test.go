@@ -267,6 +267,78 @@ func TestErrors(t *testing.T) {
 	}
 }
 
+func TestStatusCodeErrors(t *testing.T) {
+	req := IAPRequest{
+		ReceiptData: "dummy data",
+	}
+	result := &IAPResponse{}
+
+	type testCase struct {
+		statusCode           int
+		expectErrIsTemporary bool
+	}
+
+	testCases := []testCase{
+		{
+			statusCode:           503,
+			expectErrIsTemporary: true,
+		},
+	}
+	client := New()
+
+	for i, tc := range testCases {
+		testServer := httptest.NewServer(serverWithResponse(tc.statusCode, "{}"))
+		defer testServer.Close()
+		client.ProductionURL = testServer.URL
+
+		err := client.Verify(context.Background(), req, result)
+		if err == nil {
+			t.Errorf("Test case %d - expected error for status code %v", i, tc.statusCode)
+		}
+
+		errIsTemporary := isErrorTemporary(err)
+		if errIsTemporary != tc.expectErrIsTemporary {
+			t.Errorf("Test case %d - expected temporary=%v, got %v",
+				i, tc.expectErrIsTemporary, errIsTemporary)
+		}
+	}
+}
+func isErrorTemporary(err error) bool {
+	temporary, ok := err.(interface{ Temporary() bool })
+	if !ok {
+		return false
+	}
+
+	return temporary.Temporary()
+}
+
+func TestHttpResponseErrorTemporary(t *testing.T) {
+	type testCase struct {
+		statusCode        int
+		expectedTemporary bool
+	}
+
+	testCases := []testCase{
+		{
+			statusCode:        404,
+			expectedTemporary: false,
+		},
+		{
+			statusCode:        503,
+			expectedTemporary: true,
+		},
+	}
+
+	for i, tc := range testCases {
+		err := httpResponseError{httpStatusCode: tc.statusCode}
+		isTemporary := err.Temporary()
+		if tc.expectedTemporary != isTemporary {
+			t.Errorf("Test case %d - expected temporary=%v, got %v",
+				i, tc.expectedTemporary, isTemporary)
+		}
+	}
+}
+
 func TestCannotReadBody(t *testing.T) {
 	client := New()
 	testResponse := http.Response{Body: ioutil.NopCloser(errReader(0))}
