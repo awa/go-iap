@@ -57,7 +57,7 @@ type NotificationReceipt struct {
 }
 
 type NotificationUnifiedReceipt struct {
-	Status             string               `json:"status"`
+	Status             int                  `json:"status"`
 	Environment        Environment          `json:"environment"`
 	LatestReceipt      string               `json:"latest_receipt"`
 	LatestReceiptInfo  []InApp              `json:"latest_receipt_info"`
