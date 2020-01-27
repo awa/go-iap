@@ -8,6 +8,7 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"fmt"
+	"google.golang.org/api/option"
 	"net/http"
 	"time"
 
@@ -19,6 +20,7 @@ import (
 // The IABProduct type is an interface for product service
 type IABProduct interface {
 	VerifyProduct(context.Context, string, string, string) (*androidpublisher.ProductPurchase, error)
+	AcknowledgeProduct(context.Context, string, string, string, string) error
 }
 
 // The IABSubscription type is an interface  for subscription service
@@ -32,22 +34,42 @@ type IABSubscription interface {
 
 // The Client type implements VerifySubscription method
 type Client struct {
-	httpCli *http.Client
+	service *androidpublisher.Service
 }
 
 // New returns http client which includes the credentials to access androidpublisher API.
 // You should create a service account for your project at
 // https://console.developers.google.com and download a JSON key file to set this argument.
 func New(jsonKey []byte) (*Client, error) {
-	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, &http.Client{Timeout: 10 * time.Second})
+	c := &http.Client{Timeout: 10 * time.Second}
+	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, c)
+
 
 	conf, err := google.JWTConfigFromJSON(jsonKey, androidpublisher.AndroidpublisherScope)
+	if err != nil {
+		return nil, err
+	}
 
-	return &Client{conf.Client(ctx)}, err
+	val := conf.Client(ctx).Transport.(*oauth2.Transport)
+	_, err = val.Source.Token()
+	if err != nil {
+		return nil, err
+	}
+
+	service, err := androidpublisher.NewService(ctx, option.WithHTTPClient(conf.Client(ctx)))
+	if err != nil {
+		return nil, err
+	}
+
+	return &Client{service}, err
 }
 
 // NewWithClient returns http client which includes the custom http client.
 func NewWithClient(jsonKey []byte, cli *http.Client) (*Client, error) {
+	if cli == nil {
+		return nil, fmt.Errorf("client is nil")
+	}
+
 	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, cli)
 
 	conf, err := google.JWTConfigFromJSON(jsonKey, androidpublisher.AndroidpublisherScope)
@@ -55,7 +77,12 @@ func NewWithClient(jsonKey []byte, cli *http.Client) (*Client, error) {
 		return nil, err
 	}
 
-	return &Client{conf.Client(ctx)}, err
+	service, err := androidpublisher.NewService(ctx, option.WithHTTPClient(conf.Client(ctx)))
+	if err != nil {
+		return nil, err
+	}
+
+	return &Client{service}, err
 }
 
 // AcknowledgeSubscription acknowledges a subscription purchase.
@@ -66,13 +93,8 @@ func (c *Client) AcknowledgeSubscription(
 	token string,
 	req *androidpublisher.SubscriptionPurchasesAcknowledgeRequest,
 ) error {
-	service, err := androidpublisher.New(c.httpCli)
-	if err != nil {
-		return err
-	}
-
-	ps := androidpublisher.NewPurchasesSubscriptionsService(service)
-	err = ps.Acknowledge(packageName, subscriptionID, token, req).Context(ctx).Do()
+	ps := androidpublisher.NewPurchasesSubscriptionsService(c.service)
+	err := ps.Acknowledge(packageName, subscriptionID, token, req).Context(ctx).Do()
 
 	return err
 }
@@ -84,12 +106,7 @@ func (c *Client) VerifySubscription(
 	subscriptionID string,
 	token string,
 ) (*androidpublisher.SubscriptionPurchase, error) {
-	service, err := androidpublisher.New(c.httpCli)
-	if err != nil {
-		return nil, err
-	}
-
-	ps := androidpublisher.NewPurchasesSubscriptionsService(service)
+	ps := androidpublisher.NewPurchasesSubscriptionsService(c.service)
 	result, err := ps.Get(packageName, subscriptionID, token).Context(ctx).Do()
 
 	return result, err
@@ -102,26 +119,24 @@ func (c *Client) VerifyProduct(
 	productID string,
 	token string,
 ) (*androidpublisher.ProductPurchase, error) {
-	service, err := androidpublisher.New(c.httpCli)
-	if err != nil {
-		return nil, err
-	}
-
-	ps := androidpublisher.NewPurchasesProductsService(service)
+	ps := androidpublisher.NewPurchasesProductsService(c.service)
 	result, err := ps.Get(packageName, productID, token).Context(ctx).Do()
 
 	return result, err
 }
 
+func (c *Client) AcknowledgeProduct(ctx context.Context, packageName, productID, token, developerPayload string) error {
+	ps := androidpublisher.NewPurchasesProductsService(c.service)
+	acknowledgeRequest := &androidpublisher.ProductPurchasesAcknowledgeRequest{DeveloperPayload: developerPayload}
+	err := ps.Acknowledge(packageName, productID, token, acknowledgeRequest).Context(ctx).Do()
+
+	return err
+}
+
 // CancelSubscription cancels a user's subscription purchase.
 func (c *Client) CancelSubscription(ctx context.Context, packageName string, subscriptionID string, token string) error {
-	service, err := androidpublisher.New(c.httpCli)
-	if err != nil {
-		return err
-	}
-
-	ps := androidpublisher.NewPurchasesSubscriptionsService(service)
-	err = ps.Cancel(packageName, subscriptionID, token).Context(ctx).Do()
+	ps := androidpublisher.NewPurchasesSubscriptionsService(c.service)
+	err := ps.Cancel(packageName, subscriptionID, token).Context(ctx).Do()
 
 	return err
 }
@@ -129,13 +144,8 @@ func (c *Client) CancelSubscription(ctx context.Context, packageName string, sub
 // RefundSubscription refunds a user's subscription purchase, but the subscription remains valid
 // until its expiration time and it will continue to recur.
 func (c *Client) RefundSubscription(ctx context.Context, packageName string, subscriptionID string, token string) error {
-	service, err := androidpublisher.New(c.httpCli)
-	if err != nil {
-		return err
-	}
-
-	ps := androidpublisher.NewPurchasesSubscriptionsService(service)
-	err = ps.Refund(packageName, subscriptionID, token).Context(ctx).Do()
+	ps := androidpublisher.NewPurchasesSubscriptionsService(c.service)
+	err := ps.Refund(packageName, subscriptionID, token).Context(ctx).Do()
 
 	return err
 }
@@ -143,13 +153,8 @@ func (c *Client) RefundSubscription(ctx context.Context, packageName string, sub
 // RevokeSubscription refunds and immediately revokes a user's subscription purchase.
 // Access to the subscription will be terminated immediately and it will stop recurring.
 func (c *Client) RevokeSubscription(ctx context.Context, packageName string, subscriptionID string, token string) error {
-	service, err := androidpublisher.New(c.httpCli)
-	if err != nil {
-		return err
-	}
-
-	ps := androidpublisher.NewPurchasesSubscriptionsService(service)
-	err = ps.Revoke(packageName, subscriptionID, token).Context(ctx).Do()
+	ps := androidpublisher.NewPurchasesSubscriptionsService(c.service)
+	err := ps.Revoke(packageName, subscriptionID, token).Context(ctx).Do()
 
 	return err
 }
