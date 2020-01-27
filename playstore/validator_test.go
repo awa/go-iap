@@ -42,6 +42,11 @@ func TestNew(t *testing.T) {
 		t.Errorf("got %v\nwant %v", err, expected)
 	}
 
+	_, actual := New(nil)
+	if actual == nil || actual.Error() != "unexpected end of JSON input" {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+
 	_, err = New(jsonKey)
 	if err != nil {
 		t.Errorf("got %#v", err)
@@ -60,12 +65,20 @@ func TestNewWithClient(t *testing.T) {
 	}
 }
 
-func TestNewWithNoClient(t *testing.T) {
+func TestNewWithClientErrors(t *testing.T) {
 	t.Parallel()
 	expected := errors.New("client is nil")
 
 	_, actual := NewWithClient(dummyKey, nil)
 	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+
+	ctx := context.Background()
+	httpClient := urlfetch.Client(ctx)
+
+	_, actual = NewWithClient(nil, httpClient)
+	if actual == nil || actual.Error() != "unexpected end of JSON input" {
 		t.Errorf("got %v\nwant %v", actual, expected)
 	}
 
