@@ -17,6 +17,8 @@ import (
 	androidpublisher "google.golang.org/api/androidpublisher/v3"
 )
 
+//go:generate mockgen  -destination=mocks/mock_playstore.go -package=mocks github.com/awa/go-iap/playstore IABProduct,IABSubscription
+
 // The IABProduct type is an interface for product service
 type IABProduct interface {
 	VerifyProduct(context.Context, string, string, string) (*androidpublisher.ProductPurchase, error)
