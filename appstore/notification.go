@@ -19,6 +19,8 @@ const (
 	NotificationTypeDidChangeRenewalPreference NotificationType = "DID_CHANGE_RENEWAL_PREF"
 	// Customer changed the subscription renewal status. Current active plan is not affected.
 	NotificationTypeDidChangeRenewalStatus NotificationType = "DID_CHANGE_RENEWAL_STATUS"
+	// Subscription failed to renew due to a billing issue.
+	NotificationTypeDidFailToRenew NotificationType = "DID_FAIL_TO_RENEW"
 )
 
 type NotificationEnvironment string
