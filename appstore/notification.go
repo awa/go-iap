@@ -19,6 +19,8 @@ const (
 	NotificationTypeDidChangeRenewalPreference NotificationType = "DID_CHANGE_RENEWAL_PREF"
 	// Customer changed the subscription renewal status. Current active plan is not affected.
 	NotificationTypeDidChangeRenewalStatus NotificationType = "DID_CHANGE_RENEWAL_STATUS"
+	// Subscription failed to renew due to a billing issue.
+	NotificationTypeDidFailToRenew NotificationType = "DID_FAIL_TO_RENEW"
 )
 
 type NotificationEnvironment string
@@ -89,7 +91,7 @@ type SubscriptionNotification struct {
 	// Posted also if the notification_type is INITIAL_BUY.
 	// Not posted for notification_type CANCEL.
 	// Deprecated: use UnifiedReceipt.LatestReceipt instead. See details: https://developer.apple.com/documentation/appstoreservernotifications/ .
-	LatestReceipt     string              `json:"latest_receipt"`
+	LatestReceipt string `json:"latest_receipt"`
 	// Deprecated: use UnifiedReceipt.LatestReceiptInfo instead. See details: https://developer.apple.com/documentation/appstoreservernotifications/ .
 	LatestReceiptInfo NotificationReceipt `json:"latest_receipt_info"`
 
@@ -98,7 +100,7 @@ type SubscriptionNotification struct {
 
 	// Posted only if the notification_type is RENEWAL or CANCEL or if renewal failed and subscription expired.
 	// Deprecated: see details: https://developer.apple.com/documentation/appstoreservernotifications/ .
-	LatestExpiredReceipt     string              `json:"latest_expired_receipt"`
+	LatestExpiredReceipt string `json:"latest_expired_receipt"`
 	// Deprecated: see details: https://developer.apple.com/documentation/appstoreservernotifications/ .
 	LatestExpiredReceiptInfo NotificationReceipt `json:"latest_expired_receipt_info"`
 
