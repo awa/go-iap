@@ -7,8 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"golang.org/x/oauth2"
-	androidpublisher "google.golang.org/api/androidpublisher/v3"
+	"google.golang.org/api/androidpublisher/v3"
 	"google.golang.org/appengine/urlfetch"
 )
 
@@ -38,20 +37,17 @@ func TestNew(t *testing.T) {
 	// Exception scenario
 	expected := "oauth2: cannot fetch token: 400 Bad Request\nResponse: {\n  \"error\": \"invalid_grant\",\n  \"error_description\": \"Invalid issuer: Not a service account.\"\n}"
 
-	actual, _ := New(dummyKey)
-	val := actual.httpCli.Transport.(*oauth2.Transport)
-	token, err := val.Source.Token()
-	if token != nil {
-		t.Errorf("got %#v", token)
-	}
-	if err.Error() != expected {
+	_, err := New(dummyKey)
+	if err == nil || err.Error() != expected {
 		t.Errorf("got %v\nwant %v", err, expected)
 	}
 
-	// TODO Normal scenario
-	actual, _ = New(jsonKey)
-	val = actual.httpCli.Transport.(*oauth2.Transport)
-	token, err = val.Source.Token()
+	_, actual := New(nil)
+	if actual == nil || actual.Error() != "unexpected end of JSON input" {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+
+	_, err = New(jsonKey)
 	if err != nil {
 		t.Errorf("got %#v", err)
 	}
@@ -63,12 +59,29 @@ func TestNewWithClient(t *testing.T) {
 	ctx := context.Background()
 	httpClient := urlfetch.Client(ctx)
 
-	cli, _ := NewWithClient(dummyKey, httpClient)
-	tr, _ := cli.httpCli.Transport.(*oauth2.Transport)
-
-	if !reflect.DeepEqual(tr.Base, httpClient.Transport) {
+	_, err := NewWithClient(dummyKey, httpClient)
+	if err != nil {
 		t.Errorf("transport should be urlfetch's one")
 	}
+}
+
+func TestNewWithClientErrors(t *testing.T) {
+	t.Parallel()
+	expected := errors.New("client is nil")
+
+	_, actual := NewWithClient(dummyKey, nil)
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+
+	ctx := context.Background()
+	httpClient := urlfetch.Client(ctx)
+
+	_, actual = NewWithClient(nil, httpClient)
+	if actual == nil || actual.Error() != "unexpected end of JSON input" {
+		t.Errorf("got %v\nwant %v", actual, expected)
+	}
+
 }
 
 func TestAcknowledgeSubscription(t *testing.T) {
@@ -83,7 +96,7 @@ func TestAcknowledgeSubscription(t *testing.T) {
 	}
 	err := client.AcknowledgeSubscription(ctx, "package", "subscriptionID", "purchaseToken", req)
 
-	if err.Error() != expected {
+	if err == nil || err.Error() != expected {
 		t.Errorf("got %v\nwant %v", err, expected)
 	}
 
@@ -99,23 +112,11 @@ func TestVerifySubscription(t *testing.T) {
 	ctx := context.Background()
 	_, err := client.VerifySubscription(ctx, "package", "subscriptionID", "purchaseToken")
 
-	if err.Error() != expected {
+	if err == nil || err.Error() != expected {
 		t.Errorf("got %v\nwant %v", err, expected)
 	}
 
 	// TODO Normal scenario
-}
-
-func TestVerifySubscriptionAndroidPublisherError(t *testing.T) {
-	t.Parallel()
-	client := Client{nil}
-	expected := errors.New("client is nil")
-	ctx := context.Background()
-	_, actual := client.VerifySubscription(ctx, "package", "subscriptionID", "purchaseToken")
-
-	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("got %v\nwant %v", actual, expected)
-	}
 }
 
 func TestVerifyProduct(t *testing.T) {
@@ -127,42 +128,37 @@ func TestVerifyProduct(t *testing.T) {
 	ctx := context.Background()
 	_, err := client.VerifyProduct(ctx, "package", "productID", "purchaseToken")
 
-	if err.Error() != expected {
+	if err == nil || err.Error() != expected {
 		t.Errorf("got %v", err)
 	}
 
 	// TODO Normal scenario
 }
 
-func TestVerifyProductAndroidPublisherError(t *testing.T) {
+func TestAcknowledgeProduct(t *testing.T) {
 	t.Parallel()
-	client := Client{nil}
-	expected := errors.New("client is nil")
-	ctx := context.Background()
-	_, actual := client.VerifyProduct(ctx, "package", "productID", "purchaseToken")
+	// Exception scenario
+	expected := "googleapi: Error 400: Invalid Value, invalid"
 
-	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("got %v\nwant %v", actual, expected)
+	client, _ := New(jsonKey)
+	ctx := context.Background()
+	err := client.AcknowledgeProduct(ctx, "package", "productID", "purchaseToken", "")
+
+	if err == nil || err.Error() != expected {
+		t.Errorf("got %v", err)
 	}
+
+	// TODO Normal scenario
 }
 
 func TestCancelSubscription(t *testing.T) {
 	t.Parallel()
-	// Exception scenario
-	client := &Client{nil}
-	expected := errors.New("client is nil")
 	ctx := context.Background()
+	client, _ := New(jsonKey)
+	expectedStr := "googleapi: Error 400: Invalid Value, invalid"
 	actual := client.CancelSubscription(ctx, "package", "productID", "purchaseToken")
 
-	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("got %v\nwant %v", actual, expected)
-	}
-
-	client, _ = New(jsonKey)
-	expectedStr := "googleapi: Error 400: Invalid Value, invalid"
-	actual = client.CancelSubscription(ctx, "package", "productID", "purchaseToken")
-
-	if actual.Error() != expectedStr {
+	if actual == nil || actual.Error() != expectedStr {
 		t.Errorf("got %v\nwant %v", actual, expectedStr)
 	}
 
@@ -171,21 +167,13 @@ func TestCancelSubscription(t *testing.T) {
 
 func TestRefundSubscription(t *testing.T) {
 	t.Parallel()
-	// Exception scenario
-	client := &Client{nil}
-	expected := errors.New("client is nil")
+
 	ctx := context.Background()
+	client, _ := New(jsonKey)
+	expectedStr := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
 	actual := client.RefundSubscription(ctx, "package", "productID", "purchaseToken")
 
-	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("got %v\nwant %v", actual, expected)
-	}
-
-	client, _ = New(jsonKey)
-	expectedStr := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
-	actual = client.RefundSubscription(ctx, "package", "productID", "purchaseToken")
-
-	if actual.Error() != expectedStr {
+	if actual == nil || actual.Error() != expectedStr {
 		t.Errorf("got %v\nwant %v", actual, expectedStr)
 	}
 
@@ -194,21 +182,13 @@ func TestRefundSubscription(t *testing.T) {
 
 func TestRevokeSubscription(t *testing.T) {
 	t.Parallel()
-	// Exception scenario
-	client := &Client{nil}
-	expected := errors.New("client is nil")
+
 	ctx := context.Background()
+	client, _ := New(jsonKey)
+	expectedStr := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
 	actual := client.RevokeSubscription(ctx, "package", "productID", "purchaseToken")
 
-	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("got %v\nwant %v", actual, expected)
-	}
-
-	client, _ = New(jsonKey)
-	expectedStr := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
-	actual = client.RevokeSubscription(ctx, "package", "productID", "purchaseToken")
-
-	if actual.Error() != expectedStr {
+	if actual == nil || actual.Error() != expectedStr {
 		t.Errorf("got %v\nwant %v", actual, expectedStr)
 	}
 
