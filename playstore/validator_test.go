@@ -35,7 +35,7 @@ func TestNew(t *testing.T) {
 	t.Parallel()
 
 	// Exception scenario
-	expected := "oauth2: cannot fetch token: 400 Bad Request\nResponse: {\n  \"error\": \"invalid_grant\",\n  \"error_description\": \"Invalid issuer: Not a service account.\"\n}"
+	expected := "oauth2: cannot fetch token: 400 Bad Request\nResponse: {\"error\":\"invalid_grant\",\"error_description\":\"Invalid JWT: iss field missing.\"}"
 
 	_, err := New(dummyKey)
 	if err == nil || err.Error() != expected {

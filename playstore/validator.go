@@ -8,16 +8,17 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"fmt"
-	"google.golang.org/api/option"
 	"net/http"
 	"time"
+
+	"google.golang.org/api/option"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	androidpublisher "google.golang.org/api/androidpublisher/v3"
 )
 
-//go:generate mockgen  -destination=mocks/mock_playstore.go -package=mocks github.com/awa/go-iap/playstore IABProduct,IABSubscription
+//go:generate mockgen  -destination=mocks/playstore.go -package=mocks github.com/awa/go-iap/playstore IABProduct,IABSubscription
 
 // The IABProduct type is an interface for product service
 type IABProduct interface {
@@ -45,7 +46,6 @@ type Client struct {
 func New(jsonKey []byte) (*Client, error) {
 	c := &http.Client{Timeout: 10 * time.Second}
 	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, c)
-
 
 	conf, err := google.JWTConfigFromJSON(jsonKey, androidpublisher.AndroidpublisherScope)
 	if err != nil {
