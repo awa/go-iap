@@ -29,5 +29,11 @@ const (
 	NotificationTypePurchased
 	NotificationTypeAccountHold
 	NotificationTypeGracePeriod
-	NotificationTypeReactivated
+	NotificationTypeRestarted
+	NotificationTypePriceChangeConfirmed
+	NotificationTypeDeferred
+	NotificationTypePaused
+	NotificationTypePauseScheduleChanged
+	NotificationTypeRevoked
+	NotificationTypeExpired
 )
