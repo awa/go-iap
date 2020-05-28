@@ -59,6 +59,11 @@ func TestHandleError(t *testing.T) {
 			out:  ErrReceiptIsForProduction,
 		},
 		{
+			name: "status 21009",
+			in:   21009,
+			out:  ErrInternalDataAccessError,
+		},
+		{
 			name: "status 21010",
 			in:   21010,
 			out:  ErrReceiptUnauthorized,

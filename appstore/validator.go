@@ -70,6 +70,8 @@ func HandleError(status int) error {
 		e = ErrReceiptIsForTest
 	case 21008:
 		e = ErrReceiptIsForProduction
+	case 21009:
+		e = ErrInternalDataAccessError
 	case 21010:
 		e = ErrReceiptUnauthorized
 	default:
