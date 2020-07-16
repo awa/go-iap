@@ -21,6 +21,8 @@ const (
 	NotificationTypeDidChangeRenewalStatus NotificationType = "DID_CHANGE_RENEWAL_STATUS"
 	// Subscription failed to renew due to a billing issue.
 	NotificationTypeDidFailToRenew NotificationType = "DID_FAIL_TO_RENEW"
+	// AppleCare successfully refunded the transaction for a consumable, non-consumable, or a non-renewing subscription
+	NotificationTypeRefund NotificationType = "REFUND"
 )
 
 type NotificationEnvironment string
@@ -98,7 +100,7 @@ type SubscriptionNotification struct {
 	// In the new notifications above properties latest_receipt, latest_receipt_info are moved under this one
 	UnifiedReceipt NotificationUnifiedReceipt `json:"unified_receipt"`
 
-	// Posted only if the notification_type is RENEWAL or CANCEL or if renewal failed and subscription expired.
+	// Posted only if the notification_type is CANCEL or DID_FAIL_TO_RENEW or if renewal failed and subscription expired.
 	// Deprecated: see details: https://developer.apple.com/documentation/appstoreservernotifications/ .
 	LatestExpiredReceipt string `json:"latest_expired_receipt"`
 	// Deprecated: see details: https://developer.apple.com/documentation/appstoreservernotifications/ .
