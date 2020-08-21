@@ -91,7 +91,7 @@ func New() *Client {
 		ProductionURL: ProductionURL,
 		SandboxURL:    SandboxURL,
 		httpCli: &http.Client{
-			Timeout: 10 * time.Second,
+			Timeout: 30 * time.Second,
 		},
 	}
 	return client
