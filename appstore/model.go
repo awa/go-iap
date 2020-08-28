@@ -140,7 +140,7 @@ type (
 		Status             int                  `json:"status"`
 		Environment        Environment          `json:"environment"`
 		Receipt            Receipt              `json:"receipt"`
-		LatestReceiptInfo  []InApp              `json:"latest_receipt_info,omitempty"`
+		LatestReceiptInfo  InApp              `json:"latest_receipt_info,omitempty"`
 		LatestReceipt      string               `json:"latest_receipt,omitempty"`
 		PendingRenewalInfo []PendingRenewalInfo `json:"pending_renewal_info,omitempty"`
 		IsRetryable        bool                 `json:"is-retryable,omitempty"`
