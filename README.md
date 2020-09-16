@@ -12,6 +12,7 @@ Current API Documents:
 * AppStore: [![GoDoc](https://godoc.org/github.com/awa/go-iap/appstore?status.svg)](https://godoc.org/github.com/awa/go-iap/appstore)
 * GooglePlay: [![GoDoc](https://godoc.org/github.com/awa/go-iap/playstore?status.svg)](https://godoc.org/github.com/awa/go-iap/playstore)
 * Amazon AppStore: [![GoDoc](https://godoc.org/github.com/awa/go-iap/amazon?status.svg)](https://godoc.org/github.com/awa/go-iap/amazon)
+* Huawei HMS: [![GoDoc](https://godoc.org/github.com/awa/go-iap/hms?status.svg)](https://godoc.org/github.com/awa/go-iap/hms)
 
 
 # Installation
@@ -19,6 +20,7 @@ Current API Documents:
 go get github.com/awa/go-iap/appstore
 go get github.com/awa/go-iap/playstore
 go get github.com/awa/go-iap/amazon
+go get github.com/awa/go-iap/hms
 ```
 
 
@@ -78,6 +80,23 @@ func main() {
 }
 ```
 
+### In App Purchase (via Huawei Mobile Services)
+
+```
+import(
+    "github.com/awa/go-iap/hms"
+)
+
+func main() {
+	// If "orderSiteURL" and/or "subscriptionSiteURL" are empty,
+	// they will be default to AppTouch German.
+	// Please refer to https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/api-common-statement-0000001050986127-V5 for details.
+	client := hms.New("clientID", "clientSecret", "orderSiteURL", "subscriptionSiteURL")
+	ctx := context.Background()
+	resp, err := client.VerifySubscription(ctx, "purchaseToken", "subscriptionID", 1)
+}
+```
+
 # ToDo
 - [x] Validator for In App Purchase Receipt (AppStore)
 - [x] Validator for Subscription token (GooglePlay)
@@ -95,6 +114,9 @@ This validator uses [Version 3 API](http://developer.android.com/google/play/bil
 
 ### In App Purchase (Amazon)
 This validator uses [RVS for IAP v2.0](https://developer.amazon.com/public/apis/earn/in-app-purchasing/docs-v2/verifying-receipts-in-iap-2.0).
+
+### In App Purchase (HMS)
+This validator uses [Version 2 API](https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/api-common-statement-0000001050986127-V5).
 
 
 # License
