@@ -136,9 +136,9 @@ func (c *Client) AcknowledgeProduct(ctx context.Context, packageName, productID,
 }
 
 // CancelSubscription cancels a user's subscription purchase.
-func (c *Client) CancelSubscription(ctx context.Context, packageName string, subscriptionID string, token string) error {
+func (c *Client) CancelSubscription(ctx context.Context, packageName string, _ string, token string) error {
 	ps := androidpublisher.NewPurchasesSubscriptionsService(c.service)
-	err := ps.Cancel(packageName, subscriptionID, token).Context(ctx).Do()
+	err := ps.Cancel(packageName, token).Context(ctx).Do()
 
 	return err
 }
