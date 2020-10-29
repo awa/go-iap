@@ -81,7 +81,7 @@ type SubscriptionNotification struct {
 
 	// This is the same as the Subscription Expiration Intent in the receipt.
 	// Posted only if notification_type is RENEWAL or INTERACTIVE_RENEWAL.
-	ExpirationIntent string `json:"expiration_intent"`
+	ExpirationIntent numericString `json:"expiration_intent"`
 
 	// Auto renew info
 	AutoRenewStatus    string `json:"auto_renew_status"` // false or true
