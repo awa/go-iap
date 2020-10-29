@@ -95,7 +95,7 @@ type (
 
 		IsTrialPeriod        string `json:"is_trial_period"`
 		IsInIntroOfferPeriod string `json:"is_in_intro_offer_period,omitempty"`
-		IsUpgraded           string `json:"is_upgraded"`
+		IsUpgraded           string `json:"is_upgraded,omitempty"`
 
 		ExpiresDate
 
@@ -158,14 +158,16 @@ type (
 
 	// IAPResponseForIOS6 is iOS 6 style receipt schema.
 	IAPResponseForIOS6 struct {
-		AutoRenewProductID     string         `json:"auto_renew_product_id"`
-		AutoRenewStatus        int            `json:"auto_renew_status"`
-		CancellationReason     string         `json:"cancellation_reason,omitempty"`
-		ExpirationIntent       string         `json:"expiration_intent,omitempty"`
-		IsInBillingRetryPeriod string         `json:"is_in_billing_retry_period,omitempty"`
-		LatestReceiptInfo      ReceiptForIOS6 `json:"latest_expired_receipt_info"`
-		Receipt                ReceiptForIOS6 `json:"receipt"`
-		Status                 int            `json:"status"`
+		AutoRenewProductID       string         `json:"auto_renew_product_id"`
+		AutoRenewStatus          int            `json:"auto_renew_status"`
+		CancellationReason       string         `json:"cancellation_reason,omitempty"`
+		ExpirationIntent         string         `json:"expiration_intent,omitempty"`
+		IsInBillingRetryPeriod   string         `json:"is_in_billing_retry_period,omitempty"`
+		Receipt                  ReceiptForIOS6 `json:"receipt"`
+		LatestExpiredReceiptInfo ReceiptForIOS6 `json:"latest_expired_receipt_info"`
+		LatestReceipt            string         `json:"latest_receipt"`
+		LatestReceiptInfo        ReceiptForIOS6 `json:"latest_receipt_info"`
+		Status                   int            `json:"status"`
 	}
 
 	ReceiptForIOS6 struct {

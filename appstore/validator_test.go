@@ -26,52 +26,57 @@ func TestHandleError(t *testing.T) {
 		{
 			name: "status 21000",
 			in:   21000,
-			out:  errors.New("The App Store could not read the JSON object you provided."),
+			out:  ErrInvalidJSON,
 		},
 		{
 			name: "status 21002",
 			in:   21002,
-			out:  errors.New("The data in the receipt-data property was malformed or missing."),
+			out:  ErrInvalidReceiptData,
 		},
 		{
 			name: "status 21003",
 			in:   21003,
-			out:  errors.New("The receipt could not be authenticated."),
+			out:  ErrReceiptUnauthenticated,
 		},
 		{
 			name: "status 21004",
 			in:   21004,
-			out:  errors.New("The shared secret you provided does not match the shared secret on file for your account."),
+			out:  ErrInvalidSharedSecret,
 		},
 		{
 			name: "status 21005",
 			in:   21005,
-			out:  errors.New("The receipt server is not currently available."),
+			out:  ErrServerUnavailable,
 		},
 		{
 			name: "status 21007",
 			in:   21007,
-			out:  errors.New("This receipt is from the test environment, but it was sent to the production environment for verification. Send it to the test environment instead."),
+			out:  ErrReceiptIsForTest,
 		},
 		{
 			name: "status 21008",
 			in:   21008,
-			out:  errors.New("This receipt is from the production environment, but it was sent to the test environment for verification. Send it to the production environment instead."),
+			out:  ErrReceiptIsForProduction,
+		},
+		{
+			name: "status 21009",
+			in:   21009,
+			out:  ErrInternalDataAccessError,
 		},
 		{
 			name: "status 21010",
 			in:   21010,
-			out:  errors.New("This receipt could not be authorized. Treat this the same as if a purchase was never made."),
+			out:  ErrReceiptUnauthorized,
 		},
 		{
 			name: "status 21100 ~ 21199",
 			in:   21100,
-			out:  errors.New("Internal data access error."),
+			out:  ErrInternalDataAccessError,
 		},
 		{
 			name: "status unknown",
 			in:   100,
-			out:  errors.New("An unknown error occurred"),
+			out:  ErrUnknown,
 		},
 	}
 
@@ -79,7 +84,7 @@ func TestHandleError(t *testing.T) {
 		t.Run(v.name, func(t *testing.T) {
 			out := HandleError(v.in)
 
-			if !reflect.DeepEqual(out, v.out) {
+			if !errors.Is(out, v.out) {
 				t.Errorf("input: %d\ngot: %v\nwant: %v\n", v.in, out, v.out)
 			}
 		})
@@ -180,29 +185,30 @@ func TestResponses(t *testing.T) {
 	result := &IAPResponse{}
 
 	type testCase struct {
+		name        string
 		testServer  *httptest.Server
 		sandboxServ *httptest.Server
 		expected    *IAPResponse
 	}
 
 	testCases := []testCase{
-		// VerifySandboxReceipt
 		{
+			name:        "VerifySandboxReceipt",
 			testServer:  httptest.NewServer(serverWithResponse(http.StatusOK, `{"status": 21007}`)),
 			sandboxServ: httptest.NewServer(serverWithResponse(http.StatusOK, `{"status": 0}`)),
 			expected: &IAPResponse{
 				Status: 0,
 			},
 		},
-		// VerifyBadPayload
 		{
+			name:       "VerifyBadPayload",
 			testServer: httptest.NewServer(serverWithResponse(http.StatusOK, `{"status": 21002}`)),
 			expected: &IAPResponse{
 				Status: 21002,
 			},
 		},
-		// SuccessPayload
 		{
+			name:       "SuccessPayload",
 			testServer: httptest.NewServer(serverWithResponse(http.StatusBadRequest, `{"status": 0}`)),
 			expected: &IAPResponse{
 				Status: 0,
@@ -213,57 +219,65 @@ func TestResponses(t *testing.T) {
 	client := New()
 	client.SandboxURL = "localhost"
 
-	for i, tc := range testCases {
-		defer tc.testServer.Close()
-		client.ProductionURL = tc.testServer.URL
-		if tc.sandboxServ != nil {
-			client.SandboxURL = tc.sandboxServ.URL
-		}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			defer tc.testServer.Close()
+			client.ProductionURL = tc.testServer.URL
+			if tc.sandboxServ != nil {
+				client.SandboxURL = tc.sandboxServ.URL
+			}
 
-		ctx := context.Background()
-		err := client.Verify(ctx, req, result)
-		if err != nil {
-			t.Errorf("Test case %d - %s", i, err.Error())
-		}
-		if !reflect.DeepEqual(result, tc.expected) {
-			t.Errorf("Test case %d - got %v\nwant %v", i, result, tc.expected)
-		}
+			ctx := context.Background()
+			err := client.Verify(ctx, req, result)
+			if err != nil {
+				t.Errorf("%s", err)
+			}
+			if !reflect.DeepEqual(result, tc.expected) {
+				t.Errorf("got %v\nwant %v", result, tc.expected)
+			}
+		})
 	}
 }
 
-func TestErrors(t *testing.T) {
+func TestHttpStatusErrors(t *testing.T) {
 	req := IAPRequest{
 		ReceiptData: "dummy data",
 	}
 	result := &IAPResponse{}
 
 	type testCase struct {
+		name       string
 		testServer *httptest.Server
+		err        error
 	}
 
 	testCases := []testCase{
-		// VerifySandboxReceiptFailure
 		{
-			testServer: httptest.NewServer(serverWithResponse(http.StatusOK, `{"status": 21007}`)),
+			name:       "status 200",
+			testServer: httptest.NewServer(serverWithResponse(http.StatusOK, `{"status": 21000}`)),
+			err:        nil,
 		},
-		// VerifyBadResponse
 		{
+			name:       "status 500",
 			testServer: httptest.NewServer(serverWithResponse(http.StatusInternalServerError, `qwerty!@#$%^`)),
+			err:        ErrAppStoreServer,
 		},
 	}
 
 	client := New()
 	client.SandboxURL = "localhost"
 
-	for i, tc := range testCases {
-		defer tc.testServer.Close()
-		client.ProductionURL = tc.testServer.URL
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			defer tc.testServer.Close()
+			client.ProductionURL = tc.testServer.URL
 
-		ctx := context.Background()
-		err := client.Verify(ctx, req, result)
-		if err == nil {
-			t.Errorf("Test case %d - expected error to be not nil since the sandbox is not responding", i)
-		}
+			ctx := context.Background()
+			err := client.Verify(ctx, req, result)
+			if !errors.Is(err, tc.err) {
+				t.Errorf("expected error to be not nil since the sandbox is not responding")
+			}
+		})
 	}
 }
 
@@ -297,12 +311,10 @@ func serverWithResponse(statusCode int, response string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if "POST" == r.Method {
 			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(statusCode)
 			w.Write([]byte(response))
-			return
 		} else {
 			w.Write([]byte(`unsupported request`))
 		}
-
-		w.WriteHeader(statusCode)
 	})
 }

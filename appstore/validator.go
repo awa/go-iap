@@ -5,10 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
 )
+
+//go:generate mockgen  -destination=mocks/appstore.go -package=mocks github.com/awa/go-iap/appstore IAPClient
 
 const (
 	// SandboxURL is the endpoint for sandbox environment.
@@ -31,47 +34,55 @@ type Client struct {
 	httpCli       *http.Client
 }
 
+var (
+	ErrAppStoreServer = errors.New("AppStore server error")
+
+	ErrInvalidJSON            = errors.New("The App Store could not read the JSON object you provided.")
+	ErrInvalidReceiptData     = errors.New("The data in the receipt-data property was malformed or missing.")
+	ErrReceiptUnauthenticated = errors.New("The receipt could not be authenticated.")
+	ErrInvalidSharedSecret    = errors.New("The shared secret you provided does not match the shared secret on file for your account.")
+	ErrServerUnavailable      = errors.New("The receipt server is not currently available.")
+	ErrReceiptIsForTest       = errors.New("This receipt is from the test environment, but it was sent to the production environment for verification. Send it to the test environment instead.")
+	ErrReceiptIsForProduction = errors.New("This receipt is from the production environment, but it was sent to the test environment for verification. Send it to the production environment instead.")
+	ErrReceiptUnauthorized    = errors.New("This receipt could not be authorized. Treat this the same as if a purchase was never made.")
+
+	ErrInternalDataAccessError = errors.New("Internal data access error.")
+	ErrUnknown                 = errors.New("An unknown error occurred")
+)
+
 // HandleError returns error message by status code
 func HandleError(status int) error {
-	var message string
-
+	var e error
 	switch status {
 	case 0:
 		return nil
-
 	case 21000:
-		message = "The App Store could not read the JSON object you provided."
-
+		e = ErrInvalidJSON
 	case 21002:
-		message = "The data in the receipt-data property was malformed or missing."
-
+		e = ErrInvalidReceiptData
 	case 21003:
-		message = "The receipt could not be authenticated."
-
+		e = ErrReceiptUnauthenticated
 	case 21004:
-		message = "The shared secret you provided does not match the shared secret on file for your account."
-
+		e = ErrInvalidSharedSecret
 	case 21005:
-		message = "The receipt server is not currently available."
-
+		e = ErrServerUnavailable
 	case 21007:
-		message = "This receipt is from the test environment, but it was sent to the production environment for verification. Send it to the test environment instead."
-
+		e = ErrReceiptIsForTest
 	case 21008:
-		message = "This receipt is from the production environment, but it was sent to the test environment for verification. Send it to the production environment instead."
-
+		e = ErrReceiptIsForProduction
+	case 21009:
+		e = ErrInternalDataAccessError
 	case 21010:
-		message = "This receipt could not be authorized. Treat this the same as if a purchase was never made."
-
+		e = ErrReceiptUnauthorized
 	default:
 		if status >= 21100 && status <= 21199 {
-			message = "Internal data access error."
+			e = ErrInternalDataAccessError
 		} else {
-			message = "An unknown error occurred"
+			e = ErrUnknown
 		}
 	}
 
-	return errors.New(message)
+	return fmt.Errorf("status %d: %w", status, e)
 }
 
 // New creates a client object
@@ -113,6 +124,9 @@ func (c *Client) Verify(ctx context.Context, reqBody IAPRequest, result interfac
 		return err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode >= 500 {
+		return fmt.Errorf("Received http status code %d from the App Store: %w", resp.StatusCode, ErrAppStoreServer)
+	}
 	return c.parseResponse(resp, result, ctx, reqBody)
 }
 
@@ -151,6 +165,9 @@ func (c *Client) parseResponse(resp *http.Response, result interface{}, ctx cont
 			return err
 		}
 		defer resp.Body.Close()
+		if resp.StatusCode >= 500 {
+			return fmt.Errorf("Received http status code %d from the App Store Sandbox: %w", resp.StatusCode, ErrAppStoreServer)
+		}
 
 		return json.NewDecoder(resp.Body).Decode(result)
 	}
