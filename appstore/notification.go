@@ -23,6 +23,10 @@ const (
 	NotificationTypeDidFailToRenew NotificationType = "DID_FAIL_TO_RENEW"
 	// AppleCare successfully refunded the transaction for a consumable, non-consumable, or a non-renewing subscription
 	NotificationTypeRefund NotificationType = "REFUND"
+	// App Store has started asking the customer to consent to your app’s subscription price increase
+	NotificationTypePriceIncreaseConsent NotificationType = "PRICE_INCREASE_CONSENT"
+	// Customer’s subscription has successfully auto-renewed for a new transaction period.
+	NotificationTypeDidRenew NotificationType = "DID_RENEW"
 )
 
 type NotificationEnvironment string
