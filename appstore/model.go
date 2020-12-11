@@ -92,6 +92,7 @@ type (
 		WebOrderLineItemID          string `json:"web_order_line_item_id,omitempty"`
 		PromotionalOfferID          string `json:"promotional_offer_id"`
 		SubscriptionGroupIdentifier string `json:"subscription_group_identifier"`
+		OfferCodeRefName            string `json:"offer_code_ref_name,omitempty"`
 
 		IsTrialPeriod        string `json:"is_trial_period"`
 		IsInIntroOfferPeriod string `json:"is_in_intro_offer_period,omitempty"`
@@ -131,6 +132,7 @@ type (
 		SubscriptionPriceConsentStatus string `json:"price_consent_status"`
 		ProductID                      string `json:"product_id"`
 		OriginalTransactionID          string `json:"original_transaction_id"`
+		OfferCodeRefName               string `json:"offer_code_ref_name,omitempty"`
 
 		GracePeriodDate
 	}
