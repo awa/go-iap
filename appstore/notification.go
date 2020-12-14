@@ -1,8 +1,11 @@
 package appstore
 
+// NotificationType is type
+// https://developer.apple.com/documentation/appstoreservernotifications/notification_type
 // https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/StoreKitGuide/Chapters/Subscriptions.html#//apple_ref/doc/uid/TP40008267-CH7-SW16
 type NotificationType string
 
+// list of NotificationType
 const (
 	// Initial purchase of the subscription.
 	NotificationTypeInitialBuy NotificationType = "INITIAL_BUY"
@@ -29,8 +32,10 @@ const (
 	NotificationTypeDidRenew NotificationType = "DID_RENEW"
 )
 
+// NotificationEnvironment is type
 type NotificationEnvironment string
 
+// list of NotificationEnvironment
 const (
 	NotificationSandbox    NotificationEnvironment = "Sandbox"
 	NotificationProduction NotificationEnvironment = "PROD"
@@ -72,6 +77,8 @@ type NotificationUnifiedReceipt struct {
 	PendingRenewalInfo []PendingRenewalInfo `json:"pending_renewal_info,omitempty"`
 }
 
+// SubscriptionNotification is struct for
+// https://developer.apple.com/documentation/appstoreservernotifications/responsebody
 type SubscriptionNotification struct {
 	Environment      NotificationEnvironment `json:"environment"`
 	NotificationType NotificationType        `json:"notification_type"`
@@ -109,6 +116,11 @@ type SubscriptionNotification struct {
 	LatestExpiredReceipt string `json:"latest_expired_receipt"`
 	// Deprecated: see details: https://developer.apple.com/documentation/appstoreservernotifications/ .
 	LatestExpiredReceiptInfo NotificationReceipt `json:"latest_expired_receipt_info"`
+
+	// BID is the app bundle ID
+	BID string `json:"bid,omitempty"`
+	// BVRS is the app bundle version
+	BVRS string `json:"bvrs,omitempty"`
 
 	// Posted only if the notification_type is CANCEL.
 	CancellationDate
