@@ -30,6 +30,8 @@ const (
 	NotificationTypePriceIncreaseConsent NotificationType = "PRICE_INCREASE_CONSENT"
 	// Customer’s subscription has successfully auto-renewed for a new transaction period.
 	NotificationTypeDidRenew NotificationType = "DID_RENEW"
+	// Customer's in-app purchase through Family Sharing is no longer available through sharing.
+	NotificationTypeDidRevoke NotificationType = "REVOKE"
 )
 
 // NotificationEnvironment is type
