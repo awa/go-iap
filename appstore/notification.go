@@ -101,6 +101,7 @@ type SubscriptionNotification struct {
 	// Auto renew info
 	AutoRenewStatus    string `json:"auto_renew_status"` // false or true
 	AutoRenewProductID string `json:"auto_renew_product_id"`
+	AutoRenewStatusChangeDate
 
 	// Posted if the notification_type is RENEWAL or INTERACTIVE_RENEWAL, and only if the renewal is successful.
 	// Posted also if the notification_type is INITIAL_BUY.
