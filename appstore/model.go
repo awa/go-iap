@@ -83,6 +83,13 @@ type (
 		GracePeriodDatePST string `json:"grace_period_expires_date_pst,omitempty"`
 	}
 
+	// AutoRenewStatusChangeDate type indicates the auto renew status change date
+	AutoRenewStatusChangeDate struct {
+		AutoRenewStatusChangeDate    string `json:"auto_renew_status_change_date"`
+		AutoRenewStatusChangeDateMS  string `json:"auto_renew_status_change_date_ms"`
+		AutoRenewStatusChangeDatePST string `json:"auto_renew_status_change_date_pst"`
+	}
+
 	// The InApp type has the receipt attributes
 	InApp struct {
 		Quantity                    string `json:"quantity"`
