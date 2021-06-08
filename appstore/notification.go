@@ -32,6 +32,8 @@ const (
 	NotificationTypeDidRenew NotificationType = "DID_RENEW"
 	// Customer's in-app purchase through Family Sharing is no longer available through sharing.
 	NotificationTypeDidRevoke NotificationType = "REVOKE"
+	// Indicates that the customer initiated a refund request for a consumable in-app purchase, and the App Store is requesting that you provide consumption data.
+	NotificationTypeConsumptionRequest NotificationType = "CONSUMPTION_REQUEST"
 )
 
 // NotificationEnvironment is type
