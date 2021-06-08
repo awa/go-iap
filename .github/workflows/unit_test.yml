@@ -1,8 +1,10 @@
 on:
   push:
-    branches: [ $default-branch ]
+    branches:
+      - master
   pull_request:
-    branches: [ $default-branch ]
+    branches:
+      - master
 name: unit test
 jobs:
   test:
