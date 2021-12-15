@@ -60,6 +60,13 @@ type (
 		OriginalPurchaseDatePST string `json:"original_purchase_date_pst"`
 	}
 
+	// The PreorderDate type indicates the date and time that the pre-order
+	PreorderDate struct {
+		PreorderDate    string `json:"preorder_date"`
+		PreorderDateMS  string `json:"preorder_date_ms"`
+		PreorderDatePST string `json:"preorder_date_pst"`
+	}
+
 	// The ExpiresDate type indicates the expiration date for the subscription
 	ExpiresDate struct {
 		ExpiresDate             string `json:"expires_date,omitempty"`
@@ -128,6 +135,7 @@ type (
 		ReceiptCreationDate
 		RequestDate
 		OriginalPurchaseDate
+		PreorderDate
 	}
 
 	// A pending renewal may refer to a renewal that is scheduled in the future or a renewal that failed in the past for some reason.
