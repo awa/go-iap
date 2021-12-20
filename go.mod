@@ -1,8 +1,9 @@
-module github.com/awa/go-iap
+module github.com/mc2soft/go-iap
 
 go 1.15
 
 require (
+	github.com/awa/go-iap v1.3.10
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/mock v1.5.0
 	golang.org/x/net v0.0.0-20210525063256-abc453219eb5 // indirect
