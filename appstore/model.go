@@ -112,6 +112,8 @@ type (
 
 		CancellationDate
 		CancellationReason string `json:"cancellation_reason,omitempty"`
+
+		InAppOwnershipType string `json:"in_app_ownership_type,omitempty"`
 	}
 
 	// The Receipt type has whole data of receipt
