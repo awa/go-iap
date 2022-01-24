@@ -34,6 +34,7 @@ type Client struct {
 	httpCli       *http.Client
 }
 
+// list of errore
 var (
 	ErrAppStoreServer = errors.New("AppStore server error")
 

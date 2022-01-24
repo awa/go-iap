@@ -25,7 +25,7 @@ generate:
 update: update_all tidy
 
 tidy:
-	GO111MODULE=on GOPRIVATE="github.com/awa/*" go mod tidy
+	GO111MODULE=on go mod tidy
 
 update_all:
-	GO111MODULE=on GOPRIVATE="github.com/awa/*" go get -v all
+	GO111MODULE=on go get -v -u ./...
