@@ -13,14 +13,17 @@ func (n *numericString) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// Environment is alias
 type Environment string
 
+// list of Environment
 const (
 	Sandbox    Environment = "Sandbox"
 	Production Environment = "Production"
 )
 
 type (
+	// IAPRequest is struct
 	// https://developer.apple.com/library/content/releasenotes/General/ValidateAppStoreReceipt/Chapters/ValidateRemotely.html
 	// The IAPRequest type has the request parameter
 	IAPRequest struct {
@@ -140,6 +143,7 @@ type (
 		PreorderDate
 	}
 
+	// PendingRenewalInfo is struct
 	// A pending renewal may refer to a renewal that is scheduled in the future or a renewal that failed in the past for some reason.
 	PendingRenewalInfo struct {
 		SubscriptionExpirationIntent   string `json:"expiration_intent"`
@@ -169,6 +173,7 @@ type (
 		IsRetryable        bool                 `json:"is-retryable,omitempty"`
 	}
 
+	// StatusResponse is struct
 	// The HttpStatusResponse struct contains the status code returned by the store
 	// Used as a workaround to detect when to hit the production appstore or sandbox appstore regardless of receipt type
 	StatusResponse struct {
@@ -189,6 +194,7 @@ type (
 		Status                   int            `json:"status"`
 	}
 
+	// ReceiptForIOS6 is struct
 	ReceiptForIOS6 struct {
 		AppItemID numericString `json:"app_item_id"`
 		BID       string        `json:"bid"`

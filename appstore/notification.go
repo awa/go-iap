@@ -45,12 +45,14 @@ const (
 	NotificationProduction NotificationEnvironment = "PROD"
 )
 
+// NotificationExpiresDate is struct
 type NotificationExpiresDate struct {
 	ExpiresDateMS  string `json:"expires_date"`
 	ExpiresDateUTC string `json:"expires_date_formatted"`
 	ExpiresDatePST string `json:"expires_date_formatted_pst"`
 }
 
+// NotificationReceipt is struct
 type NotificationReceipt struct {
 	UniqueIdentifier          string `json:"unique_identifier"`
 	AppItemID                 string `json:"app_item_id"`
@@ -73,6 +75,7 @@ type NotificationReceipt struct {
 	CancellationDate
 }
 
+// NotificationUnifiedReceipt is struct
 type NotificationUnifiedReceipt struct {
 	Status             int                  `json:"status"`
 	Environment        Environment          `json:"environment"`
@@ -82,7 +85,7 @@ type NotificationUnifiedReceipt struct {
 }
 
 // SubscriptionNotification is struct for
-// https://developer.apple.com/documentation/appstoreservernotifications/responsebody
+// https://developer.apple.com/documentation/appstoreservernotifications/responsebodyv1
 type SubscriptionNotification struct {
 	Environment      NotificationEnvironment `json:"environment"`
 	NotificationType NotificationType        `json:"notification_type"`
