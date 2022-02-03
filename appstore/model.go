@@ -105,7 +105,7 @@ type (
 		Quantity                    string `json:"quantity"`
 		ProductID                   string `json:"product_id"`
 		TransactionID               string `json:"transaction_id"`
-		OriginalTransactionID       string `json:"original_transaction_id"`
+		OriginalTransactionID       int64  `json:"original_transaction_id"`
 		WebOrderLineItemID          string `json:"web_order_line_item_id,omitempty"`
 		PromotionalOfferID          string `json:"promotional_offer_id"`
 		SubscriptionGroupIdentifier string `json:"subscription_group_identifier"`
@@ -152,7 +152,7 @@ type (
 		SubscriptionAutoRenewStatus    string `json:"auto_renew_status"`
 		SubscriptionPriceConsentStatus string `json:"price_consent_status"`
 		ProductID                      string `json:"product_id"`
-		OriginalTransactionID          string `json:"original_transaction_id"`
+		OriginalTransactionID          int64  `json:"original_transaction_id"`
 		OfferCodeRefName               string `json:"offer_code_ref_name,omitempty"`
 
 		GracePeriodDate
@@ -206,7 +206,7 @@ type (
 		ItemID               string `json:"item_id"`
 		ProductID            string `json:"product_id"`
 		PurchaseDate
-		OriginalTransactionID string `json:"original_transaction_id"`
+		OriginalTransactionID int64 `json:"original_transaction_id"`
 		OriginalPurchaseDate
 		Quantity                  string        `json:"quantity"`
 		TransactionID             string        `json:"transaction_id"`
