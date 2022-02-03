@@ -65,7 +65,7 @@ type NotificationReceipt struct {
 	BID                       string `json:"bid"`
 	BVRS                      string `json:"bvrs"`
 	TransactionID             string `json:"transaction_id"`
-	OriginalTransactionID     string `json:"original_transaction_id"`
+	OriginalTransactionID     int64  `json:"original_transaction_id"`
 	IsTrialPeriod             string `json:"is_trial_period"`
 	IsInIntroOfferPeriod      string `json:"is_in_intro_offer_period"`
 
@@ -92,7 +92,7 @@ type SubscriptionNotification struct {
 
 	// Not show in raw notify body
 	Password              string `json:"password"`
-	OriginalTransactionID string `json:"original_transaction_id"`
+	OriginalTransactionID int64  `json:"original_transaction_id"`
 	AutoRenewAdamID       string `json:"auto_renew_adam_id"`
 
 	// The primary key for identifying a subscription purchase.
