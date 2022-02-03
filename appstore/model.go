@@ -105,7 +105,7 @@ type (
 		Quantity                    string `json:"quantity"`
 		ProductID                   string `json:"product_id"`
 		TransactionID               string `json:"transaction_id"`
-		OriginalTransactionID       int64  `json:"original_transaction_id"`
+		OriginalTransactionID       string `json:"original_transaction_id"` // this field is string
 		WebOrderLineItemID          string `json:"web_order_line_item_id,omitempty"`
 		PromotionalOfferID          string `json:"promotional_offer_id"`
 		SubscriptionGroupIdentifier string `json:"subscription_group_identifier"`
