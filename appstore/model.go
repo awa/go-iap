@@ -145,6 +145,7 @@ type (
 
 	// PendingRenewalInfo is struct
 	// A pending renewal may refer to a renewal that is scheduled in the future or a renewal that failed in the past for some reason.
+	// https://developer.apple.com/documentation/appstoreservernotifications/unified_receipt/pending_renewal_info
 	PendingRenewalInfo struct {
 		SubscriptionExpirationIntent   string `json:"expiration_intent"`
 		SubscriptionAutoRenewProductID string `json:"auto_renew_product_id"`
@@ -152,7 +153,7 @@ type (
 		SubscriptionAutoRenewStatus    string `json:"auto_renew_status"`
 		SubscriptionPriceConsentStatus string `json:"price_consent_status"`
 		ProductID                      string `json:"product_id"`
-		OriginalTransactionID          int64  `json:"original_transaction_id"`
+		OriginalTransactionID          string `json:"original_transaction_id"`
 		OfferCodeRefName               string `json:"offer_code_ref_name,omitempty"`
 
 		GracePeriodDate
