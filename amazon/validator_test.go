@@ -16,8 +16,6 @@ import (
 func TestHandle497Error(t *testing.T) {
 	t.Parallel()
 	var expected, actual error
-	client := New("developerSecret")
-
 	server, client := testTools(
 		497,
 		"{\"message\":\"Purchase token/app user mismatch\",\"status\":false}",
@@ -39,7 +37,6 @@ func TestHandle497Error(t *testing.T) {
 func TestHandle400Error(t *testing.T) {
 	t.Parallel()
 	var expected, actual error
-	client := New("developerSecret")
 
 	server, client := testTools(
 		400,

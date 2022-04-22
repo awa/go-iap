@@ -234,9 +234,11 @@ func (c *Client) GetCanceledOrRefundedPurchases(
 	}
 
 	url := c.getRootOrderURLByFlag(accountFlag) + "/applications/v2/purchases/cancelledList"
-	bodyBytes, err := c.sendJSONRequest(ctx, url, bodyMap)
+	var bodyBytes []byte
+	bodyBytes, err = c.sendJSONRequest(ctx, url, bodyMap)
 	if err != nil {
 		// log.Printf("GetCanceledOrRefundedPurchases(): Encounter error: %s", err)
+		return
 	}
 
 	var cpl CanceledPurchaseList // temporary variable to store api query result
