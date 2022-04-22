@@ -73,8 +73,8 @@ func (c *Client) RevokeSubscription(ctx context.Context, purchaseToken, subscrip
 // ModifySubscriptionResponse JSON response from {rootUrl}/sub/applications/v2/purchases/stop|delay|returnFee|withdrawal
 type ModifySubscriptionResponse struct {
 	ResponseCode      string `json:"responseCode"`
-	ResponseMessage   string `json:"responseMessage;omitempty"`
-	NewExpirationTime int64  `json:"newExpirationTime;omitempty"`
+	ResponseMessage   string `json:"responseMessage,omitempty"`
+	NewExpirationTime int64  `json:"newExpirationTime,omitempty"`
 }
 
 // public method to query {rootUrl}/sub/applications/v2/purchases/stop|delay|returnFee|withdrawal
