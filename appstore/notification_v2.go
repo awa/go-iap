@@ -43,6 +43,53 @@ const (
 	SubTypeV2Accepted          = "ACCEPTED"
 )
 
+type AutoRenewStatus int
+
+const (
+	Off RevocationReason = iota
+	On
+)
+
+type ExpirationIntent int
+
+const (
+	CustomerCancelled ExpirationIntent = iota + 1
+	BillingError
+	NoPriceChangeConsent
+	ProductUnavailable
+)
+
+type OfferType int
+
+const (
+	IntroductoryOffer OfferType = iota + 1
+	PromotionalOffer
+	SubscriptionOfferCode
+)
+
+type PriceIncreaseStatus int
+
+const (
+	CustomerNotYetConsented PriceIncreaseStatus = iota
+	CustomerConsented
+)
+
+type RevocationReason int
+
+const (
+	OtherReason RevocationReason = iota
+	AppIssue
+)
+
+type IAPType string
+
+const (
+	AutoRenewable IAPType = "Auto-Renewable Subscription"
+	NonConsumable IAPType = "Non-Consumable"
+	Consumable    IAPType = "Consumable"
+	NonRenewable  IAPType = "Non-Renewing Subscription"
+)
+
 type (
 	// SubscriptionNotificationV2 is struct for
 	// https://developer.apple.com/documentation/appstoreservernotifications/responsebodyv2
@@ -69,12 +116,12 @@ type (
 	// SubscriptionNotificationV2Data is struct
 	// https://developer.apple.com/documentation/appstoreservernotifications/data
 	SubscriptionNotificationV2Data struct {
-		AppAppleID            int    `json:"appAppleId"`
-		BundleID              string `json:"bundleId"`
-		BundleVersion         string `json:"bundleVersion"`
-		Environment           string `json:"environment"`
-		SignedRenewalInfo     string `json:"signedRenewalInfo"`
-		SignedTransactionInfo string `json:"signedTransactionInfo"`
+		AppAppleID            int            `json:"appAppleId"`
+		BundleID              string         `json:"bundleId"`
+		BundleVersion         string         `json:"bundleVersion"`
+		Environment           string         `json:"environment"`
+		SignedRenewalInfo     JWSRenewalInfo `json:"signedRenewalInfo"`
+		SignedTransactionInfo JWSTransaction `json:"signedTransactionInfo"`
 	}
 
 	// SubscriptionNotificationV2JWSDecodedHeader is struct
@@ -82,5 +129,55 @@ type (
 		Alg string   `json:"alg"`
 		Kid string   `json:"kid"`
 		X5c []string `json:"x5c"`
+	}
+
+	// JWSRenewalInfo contains the Base64 encoded signed JWS payload of the renewal information
+	// https://developer.apple.com/documentation/appstoreservernotifications/jwsrenewalinfo
+	JWSRenewalInfo string
+
+	// JWSTransaction contains the Base64 encoded signed JWS payload of the transaction
+	// https://developer.apple.com/documentation/appstoreservernotifications/jwstransaction
+	JWSTransaction string
+
+	// JWSRenewalInfoDecodedPayload contains the decoded renewal information
+	// https://developer.apple.com/documentation/appstoreservernotifications/jwsrenewalinfodecodedpayload
+	JWSRenewalInfoDecodedPayload struct {
+		AutoRenewProductId     string              `json:"autoRenewProductId"`
+		AutoRenewStatus        AutoRenewStatus     `json:"autoRenewStatus"`
+		Environment            Environment         `json:"environment"`
+		ExpirationIntent       ExpirationIntent    `json:"expirationIntent"`
+		GracePeriodExpiresDate int64               `json:"gracePeriodExpiresDate"`
+		IsInBillingRetryPeriod bool                `json:"isInBillingRetryPeriod"`
+		OfferIdentifier        string              `json:"offerIdentifier"`
+		OfferType              OfferType           `json:"offerType"`
+		OriginalTransactionId  string              `json:"originalTransactionId"`
+		PriceIncreaseStatus    PriceIncreaseStatus `json:"priceIncreaseStatus"`
+		ProductId              string              `json:"productId"`
+		SignedDate             int64               `json:"signedDate"`
+	}
+
+	// JWSTransactionDecodedPayload contains the decoded transaction information
+	// https://developer.apple.com/documentation/appstoreservernotifications/jwstransactiondecodedpayload
+	JWSTransactionDecodedPayload struct {
+		AppAccountToken             string           `json:"appAccountToken"`
+		BundleId                    string           `json:"bundleId"`
+		Environment                 Environment      `json:"environment"`
+		ExpiresDate                 int64            `json:"expiresDate"`
+		InAppOwnershipType          string           `json:"inAppOwnershipType"`
+		IsUpgraded                  bool             `json:"isUpgraded"`
+		OfferIdentifier             string           `json:"offerIdentifier"`
+		OfferType                   OfferType        `json:"offerType"`
+		OriginalPurchaseDate        int64            `json:"originalPurchaseDate"`
+		OriginalTransactionId       string           `json:"originalTransactionId"`
+		ProductId                   string           `json:"productId"`
+		PurchaseDate                int64            `json:"purchaseDate"`
+		Quantity                    int64            `json:"quantity"`
+		RevocationDate              int64            `json:"revocationDate"`
+		RevocationReason            RevocationReason `json:"revocationReason"`
+		SignedDate                  int64            `json:"signedDate"`
+		SubscriptionGroupIdentifier string           `json:"subscriptionGroupIdentifier"`
+		TransactionId               string           `json:"transactionId"`
+		IAPtype                     IAPType          `json:"type"`
+		WebOrderLineItemId          string           `json:"webOrderLineItemId"`
 	}
 )
