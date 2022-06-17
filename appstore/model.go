@@ -110,6 +110,7 @@ type (
 		PromotionalOfferID          string `json:"promotional_offer_id"`
 		SubscriptionGroupIdentifier string `json:"subscription_group_identifier"`
 		OfferCodeRefName            string `json:"offer_code_ref_name,omitempty"`
+		AppAccountToken             string `json:"app_account_token,omitempty"`
 
 		IsTrialPeriod        string `json:"is_trial_period"`
 		IsInIntroOfferPeriod string `json:"is_in_intro_offer_period,omitempty"`
