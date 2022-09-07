@@ -109,7 +109,8 @@ type (
 		NotificationType    NotificationTypeV2             `json:"notificationType"`
 		Subtype             SubtypeV2                      `json:"subtype"`
 		NotificationUUID    string                         `json:"notificationUUID"`
-		NotificationVersion string                         `json:"notificationVersion"`
+		NotificationVersion string                         `json:"version"`
+		SignedDate          int64                          `json:"signedDate"`
 		Data                SubscriptionNotificationV2Data `json:"data"`
 	}
 
