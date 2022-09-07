@@ -143,18 +143,19 @@ type (
 	// JWSRenewalInfoDecodedPayload contains the decoded renewal information
 	// https://developer.apple.com/documentation/appstoreservernotifications/jwsrenewalinfodecodedpayload
 	JWSRenewalInfoDecodedPayload struct {
-		AutoRenewProductId     string              `json:"autoRenewProductId"`
-		AutoRenewStatus        AutoRenewStatus     `json:"autoRenewStatus"`
-		Environment            Environment         `json:"environment"`
-		ExpirationIntent       ExpirationIntent    `json:"expirationIntent"`
-		GracePeriodExpiresDate int64               `json:"gracePeriodExpiresDate"`
-		IsInBillingRetryPeriod bool                `json:"isInBillingRetryPeriod"`
-		OfferIdentifier        string              `json:"offerIdentifier"`
-		OfferType              OfferType           `json:"offerType"`
-		OriginalTransactionId  string              `json:"originalTransactionId"`
-		PriceIncreaseStatus    PriceIncreaseStatus `json:"priceIncreaseStatus"`
-		ProductId              string              `json:"productId"`
-		SignedDate             int64               `json:"signedDate"`
+		AutoRenewProductId          string              `json:"autoRenewProductId"`
+		AutoRenewStatus             AutoRenewStatus     `json:"autoRenewStatus"`
+		Environment                 Environment         `json:"environment"`
+		ExpirationIntent            ExpirationIntent    `json:"expirationIntent"`
+		GracePeriodExpiresDate      int64               `json:"gracePeriodExpiresDate"`
+		IsInBillingRetryPeriod      bool                `json:"isInBillingRetryPeriod"`
+		OfferIdentifier             string              `json:"offerIdentifier"`
+		OfferType                   OfferType           `json:"offerType"`
+		OriginalTransactionId       string              `json:"originalTransactionId"`
+		PriceIncreaseStatus         PriceIncreaseStatus `json:"priceIncreaseStatus"`
+		ProductId                   string              `json:"productId"`
+		RecentSubscriptionStartDate int64               `json:"recentSubscriptionStartDate"`
+		SignedDate                  int64               `json:"signedDate"`
 	}
 
 	// JWSTransactionDecodedPayload contains the decoded transaction information
