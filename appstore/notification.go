@@ -43,20 +43,20 @@ type NotificationExpiresDate struct {
 }
 
 type NotificationReceipt struct {
-	UniqueIdentifier          string `json:"unique_identifier"`
-	AppItemID                 string `json:"app_item_id"`
-	Quantity                  string `json:"quantity"`
-	VersionExternalIdentifier string `json:"version_external_identifier"`
-	UniqueVendorIdentifier    string `json:"unique_vendor_identifier"`
-	WebOrderLineItemID        string `json:"web_order_line_item_id"`
-	ItemID                    string `json:"item_id"`
-	ProductID                 string `json:"product_id"`
-	BID                       string `json:"bid"`
-	BVRS                      string `json:"bvrs"`
-	TransactionID             string `json:"transaction_id"`
-	OriginalTransactionID     string `json:"original_transaction_id"`
-	IsTrialPeriod             string `json:"is_trial_period"`
-	IsInIntroOfferPeriod      string `json:"is_in_intro_offer_period"`
+	UniqueIdentifier          string        `json:"unique_identifier"`
+	AppItemID                 string        `json:"app_item_id"`
+	Quantity                  string        `json:"quantity"`
+	VersionExternalIdentifier string        `json:"version_external_identifier"`
+	UniqueVendorIdentifier    string        `json:"unique_vendor_identifier"`
+	WebOrderLineItemID        string        `json:"web_order_line_item_id"`
+	ItemID                    string        `json:"item_id"`
+	ProductID                 string        `json:"product_id"`
+	BID                       string        `json:"bid"`
+	BVRS                      string        `json:"bvrs"`
+	TransactionID             string        `json:"transaction_id"`
+	OriginalTransactionID     numericString `json:"original_transaction_id"`
+	IsTrialPeriod             string        `json:"is_trial_period"`
+	IsInIntroOfferPeriod      string        `json:"is_in_intro_offer_period"`
 
 	PurchaseDate
 	OriginalPurchaseDate
@@ -77,9 +77,9 @@ type SubscriptionNotification struct {
 	NotificationType NotificationType        `json:"notification_type"`
 
 	// Not show in raw notify body
-	Password              string `json:"password"`
-	OriginalTransactionID string `json:"original_transaction_id"`
-	AutoRenewAdamID       string `json:"auto_renew_adam_id"`
+	Password              string        `json:"password"`
+	OriginalTransactionID numericString `json:"original_transaction_id"`
+	AutoRenewAdamID       string        `json:"auto_renew_adam_id"`
 
 	// The primary key for identifying a subscription purchase.
 	// Posted only if the notification_type is CANCEL.
