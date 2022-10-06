@@ -181,7 +181,7 @@ type (
 		ItemID               string `json:"item_id"`
 		ProductID            string `json:"product_id"`
 		PurchaseDate
-		OriginalTransactionID string `json:"original_transaction_id"`
+		OriginalTransactionID numericString `json:"original_transaction_id"`
 		OriginalPurchaseDate
 		Quantity                  string        `json:"quantity"`
 		TransactionID             string        `json:"transaction_id"`
