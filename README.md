@@ -97,6 +97,27 @@ func main() {
 }
 ```
 
+### In App Store Server API
+
+```go
+import(
+    "github.com/awa/go-iap/appstore/api"
+)
+
+func main() {
+    // For generate key file and download it, please refer to https://developer.apple.com/documentation/appstoreserverapi/creating_api_keys_to_use_with_the_app_store_server_api
+    token := &api.Token{
+        KeyContent : "key content",                          // Loads a .p8 certificate
+        KeyID      : "2X9R4HXF34",                           // Your private key ID from App Store Connect (Ex: 2X9R4HXF34)
+        BundleID   : "com.example.testbundleid2021",         // Your app’s bundle ID
+        Issuer     : "57246542-96fe-1a63-e053-0824d011072a", // Your issuer ID from the Keys page in App Store Connect (Ex: "57246542-96fe-1a63-e053-0824d011072a")
+        Sandbox    : true,                                   // default is Production
+    }
+    client := api.NewStoreClient(token)
+    resp, err := client.GetTransactionHistory("transactionID")
+}
+```
+
 # ToDo
 - [x] Validator for In App Purchase Receipt (AppStore)
 - [x] Validator for Subscription token (GooglePlay)
@@ -118,6 +139,8 @@ This validator uses [RVS for IAP v2.0](https://developer.amazon.com/public/apis/
 ### In App Purchase (HMS)
 This validator uses [Version 2 API](https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/api-common-statement-0000001050986127-V5).
 
+### In App Store Server API
+This validator uses [Version 1.0+](https://developer.apple.com/documentation/appstoreserverapi)
 
 # License
 go-iap is licensed under the MIT.
