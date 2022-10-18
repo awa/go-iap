@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"os"
 	"reflect"
 	"testing"
@@ -169,21 +168,16 @@ func TestVerifyEntitled(t *testing.T) {
 
 func TestVerifyTimeout(t *testing.T) {
 	t.Parallel()
-	// HTTP 100 is "continue" so it will time out
-	server, client := testTools(100, "timeout response")
+	server, client := testTools(http.StatusGatewayTimeout, "{\"message\": \"timeout response\"}")
 	defer server.Close()
 
 	ctx := context.Background()
 	_, actual := client.Verify(ctx, "timeout", "timeout")
-
-	// Actual should be a "request canceled" *url.Error
-	urlErr, ok := actual.(*url.Error)
-	if !ok {
-		t.Errorf("Expected *url.Error, got %T", actual)
+	if actual == nil {
+		t.Error("expected error, got nil")
 	}
-
-	if !urlErr.Timeout() {
-		t.Errorf("got %v\nwant timeout", actual)
+	if actual.Error() != "timeout response" {
+		t.Errorf("got %v\nwant %v", actual, "timeout response")
 	}
 }
 
