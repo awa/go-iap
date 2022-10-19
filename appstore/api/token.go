@@ -36,6 +36,14 @@ type Token struct {
 	Bearer    string            // Authorized bearer token
 }
 
+func (t *Token) WithConfig(c *StoreConfig) {
+	t.KeyContent = append(t.KeyContent[:0:0], c.KeyContent...)
+	t.KeyID = c.KeyID
+	t.BundleID = c.BundleID
+	t.Issuer = c.Issuer
+	t.Sandbox = c.Sandbox
+}
+
 // GenerateIfExpired checks to see if the token is about to expire and generates a new token.
 func (t *Token) GenerateIfExpired() (string, error) {
 	t.Lock()

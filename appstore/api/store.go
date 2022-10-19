@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/golang-jwt/jwt/v4"
@@ -19,7 +20,16 @@ const (
 	PathTransactionHistory       = "/inApps/v1/history/{originalTransactionId}"
 	PathRefundHistory            = "/inApps/v2/refund/lookup/{originalTransactionId}"
 	PathGetALLSubscriptionStatus = "/inApps/v1/subscriptions/{originalTransactionId}"
+	PathConsumptionInfo          = "/inApps/v1/transactions/consumption/{originalTransactionId}"
 )
+
+type StoreConfig struct {
+	KeyContent []byte // Loads a .p8 certificate
+	KeyID      string // Your private key ID from App Store Connect (Ex: 2X9R4HXF34)
+	BundleID   string // Your app’s bundle ID
+	Issuer     string // Your issuer ID from the Keys page in App Store Connect (Ex: "57246542-96fe-1a63-e053-0824d011072a")
+	Sandbox    bool   // default is Production
+}
 
 type StoreClient struct {
 	Token *Token
@@ -27,7 +37,10 @@ type StoreClient struct {
 }
 
 // NewStoreClient create appstore server api client
-func NewStoreClient(token *Token) *StoreClient {
+func NewStoreClient(config *StoreConfig) *StoreClient {
+	token := &Token{}
+	token.WithConfig(config)
+
 	client := &StoreClient{
 		Token: token,
 		cert:  &Cert{},
@@ -41,7 +54,7 @@ func (a *StoreClient) GetALLSubscriptionStatuses(originalTransactionId string) (
 	if a.Token.Sandbox {
 		URL = HostSandBox + PathGetALLSubscriptionStatus
 	}
-	URL = strings.Replace(URL, "{orderId}", originalTransactionId, -1)
+	URL = strings.Replace(URL, "{originalTransactionId}", originalTransactionId, -1)
 	statusCode, body, err := a.Do(http.MethodGet, URL, nil)
 	if err != nil {
 		return
@@ -86,7 +99,7 @@ func (a *StoreClient) LookupOrderID(invoiceOrderId string) (rsp *OrderLookupResp
 }
 
 // GetTransactionHistory https://developer.apple.com/documentation/appstoreserverapi/get_transaction_history
-func (a *StoreClient) GetTransactionHistory(originalTransactionId string) (responses []*HistoryResponse, err error) {
+func (a *StoreClient) GetTransactionHistory(originalTransactionId string, query *url.Values) (responses []*HistoryResponse, err error) {
 	URL := HostProduction + PathTransactionHistory
 	if a.Token.Sandbox {
 		URL = HostSandBox + PathTransactionHistory
@@ -95,12 +108,14 @@ func (a *StoreClient) GetTransactionHistory(originalTransactionId string) (respo
 	rsp := HistoryResponse{}
 
 	for {
-		data := url.Values{}
+		if query == nil {
+			query = &url.Values{}
+		}
 		if rsp.HasMore && rsp.Revision != "" {
-			data.Set("revision", rsp.Revision)
+			query.Set("revision", rsp.Revision)
 		}
 
-		statusCode, body, errOmit := a.Do(http.MethodGet, URL+"?"+data.Encode(), nil)
+		statusCode, body, errOmit := a.Do(http.MethodGet, URL+"?"+query.Encode(), nil)
 		if errOmit != nil {
 			return nil, errOmit
 		}
@@ -164,6 +179,29 @@ func (a *StoreClient) GetRefundHistory(originalTransactionId string) (responses 
 	return
 }
 
+// SendConsumptionInfo https://developer.apple.com/documentation/appstoreserverapi/send_consumption_information
+func (a *StoreClient) SendConsumptionInfo(originalTransactionId string, body ConsumptionRequestBody) (statusCode int, err error) {
+	URL := HostProduction + PathConsumptionInfo
+	if a.Token.Sandbox {
+		URL = HostSandBox + PathConsumptionInfo
+	}
+	URL = strings.Replace(URL, "{originalTransactionId}", originalTransactionId, -1)
+
+	bodyBuf := new(bytes.Buffer)
+	err = json.NewEncoder(bodyBuf).Encode(body)
+	if err != nil {
+		return 0, err
+	}
+
+	statusCode, _, err = a.Do(http.MethodPut, URL, bodyBuf)
+	if err != nil {
+		return statusCode, err
+	}
+	return statusCode, nil
+}
+
+// ParseSignedTransactions parse the jws singed transactions
+// Per doc: https://datatracker.ietf.org/doc/html/rfc7515#section-4.1.6
 func (a *StoreClient) ParseSignedTransactions(transactions []string) ([]*JWSTransaction, error) {
 	result := make([]*JWSTransaction, 0)
 	for _, v := range transactions {

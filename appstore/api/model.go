@@ -43,6 +43,21 @@ type LastTransactionsItem struct {
 	SignedTransactionInfo string `json:"signedTransactionInfo"`
 }
 
+// ConsumptionRequestBody https://developer.apple.com/documentation/appstoreserverapi/consumptionrequest
+type ConsumptionRequestBody struct {
+	AccountTenure            int    `json:"accountTenure"`
+	AppAccountToken          string `json:"appAccountToken"`
+	ConsumptionStatus        int    `json:"consumptionStatus"`
+	CustomerConsented        bool   `json:"customerConsented"`
+	DeliveryStatus           int    `json:"deliveryStatus"`
+	LifetimeDollarsPurchased int    `json:"lifetimeDollarsPurchased"`
+	LifetimeDollarsRefunded  int    `json:"lifetimeDollarsRefunded"`
+	Platform                 int    `json:"platform"`
+	PlayTime                 int    `json:"playTime"`
+	SampleContentProvided    bool   `json:"sampleContentProvided"`
+	UserStatus               int    `json:"userStatus"`
+}
+
 type JWSRenewalInfoDecodedPayload struct {
 }
 
@@ -71,6 +86,9 @@ type JWSTransaction struct {
 	SignedDate                  int64  `json:"signedDate,omitempty"`
 	OfferType                   int64  `json:"offerType,omitempty"`
 	OfferIdentifier             string `json:"offerIdentifier,omitempty"`
+	RevocationDate              int64  `json:"revocationDate,omitempty"`
+	RevocationReason            int    `json:"revocationReason,omitempty"`
+	IsUpgraded                  bool   `json:"isUpgraded,omitempty"`
 }
 
 func (J JWSTransaction) Valid() error {
