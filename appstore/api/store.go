@@ -16,11 +16,13 @@ const (
 	HostSandBox    = "https://api.storekit-sandbox.itunes.apple.com"
 	HostProduction = "https://api.storekit.itunes.apple.com"
 
-	PathLookUp                   = "/inApps/v1/lookup/{orderId}"
-	PathTransactionHistory       = "/inApps/v1/history/{originalTransactionId}"
-	PathRefundHistory            = "/inApps/v2/refund/lookup/{originalTransactionId}"
-	PathGetALLSubscriptionStatus = "/inApps/v1/subscriptions/{originalTransactionId}"
-	PathConsumptionInfo          = "/inApps/v1/transactions/consumption/{originalTransactionId}"
+	PathLookUp                        = "/inApps/v1/lookup/{orderId}"
+	PathTransactionHistory            = "/inApps/v1/history/{originalTransactionId}"
+	PathRefundHistory                 = "/inApps/v2/refund/lookup/{originalTransactionId}"
+	PathGetALLSubscriptionStatus      = "/inApps/v1/subscriptions/{originalTransactionId}"
+	PathConsumptionInfo               = "/inApps/v1/transactions/consumption/{originalTransactionId}"
+	PathExtendSubscriptionRenewalDate = "/inApps/v1/subscriptions/extend/{originalTransactionId}"
+	PathGetNotificationHistory        = "/inApps/v1/notifications/history"
 )
 
 type StoreConfig struct {
@@ -61,8 +63,7 @@ func (a *StoreClient) GetALLSubscriptionStatuses(originalTransactionId string) (
 	}
 
 	if statusCode != http.StatusOK {
-		err = fmt.Errorf("GetALLSubscriptionStatuses inApps/v1/subscriptions api return status code %v", statusCode)
-		return
+		return nil, fmt.Errorf("appstore api: %v return status code %v", URL, statusCode)
 	}
 
 	err = json.Unmarshal(body, &rsp)
@@ -86,8 +87,7 @@ func (a *StoreClient) LookupOrderID(invoiceOrderId string) (rsp *OrderLookupResp
 	}
 
 	if statusCode != http.StatusOK {
-		err = fmt.Errorf("LookupOrderID inApps/v1/lookup api return status code %v", statusCode)
-		return
+		return nil, fmt.Errorf("appstore api: %v return status code %v", URL, statusCode)
 	}
 
 	err = json.Unmarshal(body, &rsp)
@@ -105,15 +105,13 @@ func (a *StoreClient) GetTransactionHistory(originalTransactionId string, query 
 		URL = HostSandBox + PathTransactionHistory
 	}
 	URL = strings.Replace(URL, "{originalTransactionId}", originalTransactionId, -1)
-	rsp := HistoryResponse{}
+
+	if query == nil {
+		query = &url.Values{}
+	}
 
 	for {
-		if query == nil {
-			query = &url.Values{}
-		}
-		if rsp.HasMore && rsp.Revision != "" {
-			query.Set("revision", rsp.Revision)
-		}
+		rsp := HistoryResponse{}
 
 		statusCode, body, errOmit := a.Do(http.MethodGet, URL+"?"+query.Encode(), nil)
 		if errOmit != nil {
@@ -134,6 +132,10 @@ func (a *StoreClient) GetTransactionHistory(originalTransactionId string, query 
 			break
 		}
 
+		if rsp.HasMore && rsp.Revision != "" {
+			query.Set("revision", rsp.Revision)
+		}
+
 		time.Sleep(10 * time.Millisecond)
 	}
 
@@ -142,20 +144,17 @@ func (a *StoreClient) GetTransactionHistory(originalTransactionId string, query 
 
 // GetRefundHistory https://developer.apple.com/documentation/appstoreserverapi/get_refund_history
 func (a *StoreClient) GetRefundHistory(originalTransactionId string) (responses []*RefundLookupResponse, err error) {
-	URL := HostProduction + PathRefundHistory
+	baseURL := HostProduction + PathRefundHistory
 	if a.Token.Sandbox {
-		URL = HostSandBox + PathRefundHistory
+		baseURL = HostSandBox + PathRefundHistory
 	}
-	URL = strings.Replace(URL, "{originalTransactionId}", originalTransactionId, -1)
-	rsp := RefundLookupResponse{}
+	baseURL = strings.Replace(baseURL, "{originalTransactionId}", originalTransactionId, -1)
 
+	URL := baseURL
 	for {
-		data := url.Values{}
-		if rsp.HasMore && rsp.Revision != "" {
-			data.Set("revision", rsp.Revision)
-		}
+		rsp := RefundLookupResponse{}
 
-		statusCode, body, errOmit := a.Do(http.MethodGet, URL+"?"+data.Encode(), nil)
+		statusCode, body, errOmit := a.Do(http.MethodGet, URL, nil)
 		if errOmit != nil {
 			return nil, errOmit
 		}
@@ -172,6 +171,12 @@ func (a *StoreClient) GetRefundHistory(originalTransactionId string) (responses 
 		responses = append(responses, &rsp)
 		if !rsp.HasMore {
 			break
+		}
+
+		data := url.Values{}
+		if rsp.HasMore && rsp.Revision != "" {
+			data.Set("revision", rsp.Revision)
+			URL = baseURL + "?" + data.Encode()
 		}
 
 		time.Sleep(10 * time.Millisecond)
@@ -198,6 +203,77 @@ func (a *StoreClient) SendConsumptionInfo(originalTransactionId string, body Con
 		return statusCode, err
 	}
 	return statusCode, nil
+}
+
+// ExtendSubscriptionRenewalDate https://developer.apple.com/documentation/appstoreserverapi/extend_a_subscription_renewal_date
+func (a *StoreClient) ExtendSubscriptionRenewalDate(originalTransactionId string, body ExtendRenewalDateRequest) (statusCode int, err error) {
+	URL := HostProduction + PathExtendSubscriptionRenewalDate
+	if a.Token.Sandbox {
+		URL = HostSandBox + PathExtendSubscriptionRenewalDate
+	}
+	URL = strings.Replace(URL, "{originalTransactionId}", originalTransactionId, -1)
+
+	bodyBuf := new(bytes.Buffer)
+	err = json.NewEncoder(bodyBuf).Encode(body)
+	if err != nil {
+		return 0, err
+	}
+
+	statusCode, _, err = a.Do(http.MethodPut, URL, bodyBuf)
+	if err != nil {
+		return statusCode, err
+	}
+	return statusCode, nil
+}
+
+// GetNotificationHistory https://developer.apple.com/documentation/appstoreserverapi/get_notification_history
+// Note: Notification history is available starting on June 6, 2022. Use a startDate of June 6, 2022 or later in your request.
+func (a *StoreClient) GetNotificationHistory(body NotificationHistoryRequest) (responses []NotificationHistoryResponseItem, err error) {
+	baseURL := HostProduction + PathGetNotificationHistory
+	if a.Token.Sandbox {
+		baseURL = HostSandBox + PathGetNotificationHistory
+	}
+
+	bodyBuf := new(bytes.Buffer)
+	err = json.NewEncoder(bodyBuf).Encode(body)
+	if err != nil {
+		return nil, err
+	}
+
+	URL := baseURL
+	for {
+		rsp := NotificationHistoryResponses{}
+		rsp.NotificationHistory = make([]NotificationHistoryResponseItem, 0)
+
+		statusCode, rspBody, errOmit := a.Do(http.MethodPost, URL, bodyBuf)
+		if errOmit != nil {
+			return nil, errOmit
+		}
+
+		if statusCode != http.StatusOK {
+			return nil, fmt.Errorf("appstore api: %v return status code %v", URL, statusCode)
+		}
+
+		err = json.Unmarshal(rspBody, &rsp)
+		if err != nil {
+			return nil, err
+		}
+
+		responses = append(responses, rsp.NotificationHistory...)
+		if !rsp.HasMore {
+			break
+		}
+
+		data := url.Values{}
+		if rsp.HasMore && rsp.PaginationToken != "" {
+			data.Set("paginationToken", rsp.PaginationToken)
+			URL = baseURL + "?" + data.Encode()
+		}
+
+		time.Sleep(10 * time.Millisecond)
+	}
+
+	return responses, nil
 }
 
 // ParseSignedTransactions parse the jws singed transactions

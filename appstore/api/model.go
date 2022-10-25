@@ -1,5 +1,7 @@
 package api
 
+import "github.com/awa/go-iap/appstore"
+
 // OrderLookupResponse https://developer.apple.com/documentation/appstoreserverapi/orderlookupresponse
 type OrderLookupResponse struct {
 	Status             int      `json:"status"`
@@ -94,3 +96,58 @@ type JWSTransaction struct {
 func (J JWSTransaction) Valid() error {
 	return nil
 }
+
+// https://developer.apple.com/documentation/appstoreserverapi/extendreasoncode
+type ExtendReasonCode int
+
+const (
+	UndeclaredExtendReasonCode = iota
+	CustomerSatisfaction
+	OtherReasons
+	ServiceIssueOrOutage
+)
+
+// ExtendRenewalDateRequest https://developer.apple.com/documentation/appstoreserverapi/extendrenewaldaterequest
+type ExtendRenewalDateRequest struct {
+	ExtendByDays      int              `json:"extendByDays"`
+	ExtendReasonCode  ExtendReasonCode `json:"extendReasonCode"`
+	RequestIdentifier string           `json:"requestIdentifier"`
+}
+
+// NotificationHistoryRequest https://developer.apple.com/documentation/appstoreserverapi/notificationhistoryrequest
+type NotificationHistoryRequest struct {
+	StartDate             int64                       `json:"startDate"`
+	EndDate               int64                       `json:"endDate"`
+	OriginalTransactionId string                      `json:"originalTransactionId,omitempty"`
+	NotificationType      appstore.NotificationTypeV2 `json:"notificationType,omitempty"`
+	NotificationSubtype   appstore.SubtypeV2          `json:"notificationSubtype,omitempty"`
+}
+
+// NotificationHistoryResponses https://developer.apple.com/documentation/appstoreserverapi/notificationhistoryresponse
+type NotificationHistoryResponses struct {
+	HasMore             bool                              `json:"hasMore"`
+	PaginationToken     string                            `json:"paginationToken"`
+	NotificationHistory []NotificationHistoryResponseItem `json:"notificationHistory"`
+}
+
+// NotificationHistoryResponseItem https://developer.apple.com/documentation/appstoreserverapi/notificationhistoryresponseitem
+type NotificationHistoryResponseItem struct {
+	SignedPayload          string                 `json:"signedPayload"`
+	FirstSendAttemptResult FirstSendAttemptResult `json:"firstSendAttemptResult"`
+}
+
+// https://developer.apple.com/documentation/appstoreserverapi/firstsendattemptresult
+type FirstSendAttemptResult string
+
+const (
+	FirstSendAttemptResultSuccess            FirstSendAttemptResult = "SUCCESS"
+	FirstSendAttemptResultCircularRedirect   FirstSendAttemptResult = "CIRCULAR_REDIRECT"
+	FirstSendAttemptResultInvalidResponse    FirstSendAttemptResult = "INVALID_RESPONSE"
+	FirstSendAttemptResultNoResponse         FirstSendAttemptResult = "NO_RESPONSE"
+	FirstSendAttemptResultOther              FirstSendAttemptResult = "OTHER"
+	FirstSendAttemptResultPrematureClose     FirstSendAttemptResult = "PREMATURE_CLOSE"
+	FirstSendAttemptResultSocketIssue        FirstSendAttemptResult = "SOCKET_ISSUE"
+	FirstSendAttemptResultTimedOut           FirstSendAttemptResult = "TIMED_OUT"
+	FirstSendAttemptResultTlsIssue           FirstSendAttemptResult = "TLS_ISSUE"
+	FirstSendAttemptResultUnsupportedCharset FirstSendAttemptResult = "UNSUPPORTED_CHARSET"
+)
