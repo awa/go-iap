@@ -28,7 +28,7 @@ go get github.com/awa/go-iap/hms
 
 ### In App Purchase (via App Store)
 
-```
+```go
 import(
     "github.com/awa/go-iap/appstore"
 )
@@ -46,7 +46,7 @@ func main() {
 
 ### In App Billing (via GooglePlay)
 
-```
+```go
 import(
     "github.com/awa/go-iap/playstore"
 )
@@ -67,7 +67,7 @@ func main() {
 
 ### In App Purchase (via Amazon App Store)
 
-```
+```go
 import(
     "github.com/awa/go-iap/amazon"
 )
@@ -82,7 +82,7 @@ func main() {
 
 ### In App Purchase (via Huawei Mobile Services)
 
-```
+```go
 import(
     "github.com/awa/go-iap/hms"
 )
