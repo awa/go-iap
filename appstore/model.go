@@ -156,6 +156,7 @@ type (
 		ProductID                      string `json:"product_id"`
 		OriginalTransactionID          string `json:"original_transaction_id"`
 		OfferCodeRefName               string `json:"offer_code_ref_name,omitempty"`
+		PromotionalOfferID             string `json:"promotional_offer_id,omitempty"`
 
 		GracePeriodDate
 	}
