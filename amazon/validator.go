@@ -25,21 +25,45 @@ func getSandboxURL() string {
 	return url
 }
 
+type PromotionType string
+
+const (
+	IntroductoryPrice PromotionType = "Introductory Price - All customers"
+	PromotionalPrice  PromotionType = "Promotional Price - Lapsed customers"
+)
+
+type PromotionStatus string
+
+const (
+	Queued     PromotionStatus = "Queued"
+	InProgress PromotionStatus = "InProgress"
+	Completed  PromotionStatus = "Completed"
+)
+
+type Promotion struct {
+	PromotionType   PromotionType   `json:"promotionType"`
+	PromotionStatus PromotionStatus `json:"promotionStatus"`
+}
+
 // The IAPResponse type has the response properties
 type IAPResponse struct {
-	ReceiptID        string `json:"receiptId"`
-	ProductType      string `json:"productType"`
-	ProductID        string `json:"productId"`
-	PurchaseDate     int64  `json:"purchaseDate"`
-	RenewalDate      int64  `json:"renewalDate"`
-	CancelDate       int64  `json:"cancelDate"`
-	TestTransaction  bool   `json:"testTransaction"`
-	BetaProduct      bool   `json:"betaProduct"`
-	ParentProductID  string `json:"parentProductId"`
-	Quantity         int64  `json:"quantity"`
-	Term             string `json:"term"`
-	TermSku          string `json:"termSku"`
-	FreeTrialEndDate int64  `json:"freeTrialEndDate"`
+	ReceiptID          string      `json:"receiptId"`
+	ProductType        string      `json:"productType"`
+	ProductID          string      `json:"productId"`
+	PurchaseDate       int64       `json:"purchaseDate"`
+	RenewalDate        int64       `json:"renewalDate"`
+	CancelDate         int64       `json:"cancelDate"`
+	TestTransaction    bool        `json:"testTransaction"`
+	BetaProduct        bool        `json:"betaProduct"`
+	ParentProductID    string      `json:"parentProductId"`
+	Quantity           int64       `json:"quantity"`
+	Term               string      `json:"term"`
+	TermSku            string      `json:"termSku"`
+	FreeTrialEndDate   int64       `json:"freeTrialEndDate"`
+	AutoRenewing       bool        `json:"autoRenewing"`
+	CancelReason       *int8       `json:"cancelReason"`
+	GracePeriodEndDate int64       `json:"gracePeriodEndDate"`
+	Promotions         []Promotion `json:"promotions"`
 }
 
 // The IAPResponseError typs has error message and status.
