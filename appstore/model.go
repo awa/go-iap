@@ -157,6 +157,7 @@ type (
 		OriginalTransactionID          string `json:"original_transaction_id"`
 		OfferCodeRefName               string `json:"offer_code_ref_name,omitempty"`
 		PromotionalOfferID             string `json:"promotional_offer_id,omitempty"`
+		PriceIncreaseStatus            string `json:"price_increase_status,omitempty"`
 
 		GracePeriodDate
 	}
