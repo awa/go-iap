@@ -119,6 +119,22 @@ func TestVerifySubscription(t *testing.T) {
 	// TODO Normal scenario
 }
 
+func TestVerifySubscriptionV2(t *testing.T) {
+	t.Parallel()
+	// Exception scenario
+	expected := "googleapi: Error 400: Invalid Value, invalid"
+
+	client, _ := New(jsonKey)
+	ctx := context.Background()
+	_, err := client.VerifySubscriptionV2(ctx, "package", "purchaseToken")
+
+	if err == nil || err.Error() != expected {
+		t.Errorf("got %v\nwant %v", err, expected)
+	}
+
+	// TODO Normal scenario
+}
+
 func TestVerifyProduct(t *testing.T) {
 	t.Parallel()
 	// Exception scenario

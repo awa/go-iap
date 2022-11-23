@@ -114,6 +114,18 @@ func (c *Client) VerifySubscription(
 	return result, err
 }
 
+// VerifySubscriptionV2 verifies subscription status
+func (c *Client) VerifySubscriptionV2(
+	ctx context.Context,
+	packageName string,
+	token string,
+) (*androidpublisher.SubscriptionPurchaseV2, error) {
+	ps := androidpublisher.NewPurchasesSubscriptionsv2Service(c.service)
+	result, err := ps.Get(packageName, token).Context(ctx).Do()
+
+	return result, err
+}
+
 // VerifyProduct verifies product status
 func (c *Client) VerifyProduct(
 	ctx context.Context,
