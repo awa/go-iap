@@ -9,7 +9,7 @@ import (
 
 func TestNumericString_UnmarshalJSON(t *testing.T) {
 	type foo struct {
-		ID numericString
+		ID NumericString
 	}
 
 	tests := []struct {
