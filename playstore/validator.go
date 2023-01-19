@@ -87,6 +87,21 @@ func NewWithClient(jsonKey []byte, cli *http.Client) (*Client, error) {
 	return &Client{service}, err
 }
 
+// NewDefaultTokenSourceClient returns a client that authenticates using Google Application Default Credentials.
+// See https://pkg.go.dev/golang.org/x/oauth2/google#DefaultTokenSource
+func NewDefaultTokenSourceClient() (*Client, error) {
+	ctx := context.Background()
+	httpClient, err := google.DefaultClient(ctx, androidpublisher.AndroidpublisherScope)
+	if err != nil {
+		return nil, err
+	}
+	service, err := androidpublisher.NewService(ctx, option.WithHTTPClient(httpClient))
+	if err != nil {
+		return nil, err
+	}
+	return &Client{service}, nil
+}
+
 // AcknowledgeSubscription acknowledges a subscription purchase.
 func (c *Client) AcknowledgeSubscription(
 	ctx context.Context,
