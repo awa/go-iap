@@ -3,6 +3,8 @@ package api
 import (
 	"bytes"
 	"context"
+	"crypto/ecdsa"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"github.com/golang-jwt/jwt/v4"
@@ -334,20 +336,43 @@ func (a *StoreClient) ParseSignedTransactions(transactions []string) ([]*JWSTran
 func (a *StoreClient) parseSignedTransaction(transaction string) (*JWSTransaction, error) {
 	tran := &JWSTransaction{}
 
-	rootCertStr, err := a.cert.extractCertByIndex(transaction, 2)
+	rootCertBytes, err := a.cert.extractCertByIndex(transaction, 2)
 	if err != nil {
 		return nil, err
 	}
-	intermediaCertStr, err := a.cert.extractCertByIndex(transaction, 1)
+	rootCert, err := x509.ParseCertificate(rootCertBytes)
+	if err != nil {
+		return nil, fmt.Errorf("appstore failed to parse root certificate")
+	}
+
+	intermediaCertBytes, err := a.cert.extractCertByIndex(transaction, 1)
 	if err != nil {
 		return nil, err
 	}
-	if err = a.cert.verifyCert(rootCertStr, intermediaCertStr); err != nil {
+	intermediaCert, err := x509.ParseCertificate(intermediaCertBytes)
+	if err != nil {
+		return nil, fmt.Errorf("appstore failed to parse intermediate certificate")
+	}
+
+	leafCertBytes, err := a.cert.extractCertByIndex(transaction, 0)
+	if err != nil {
+		return nil, err
+	}
+	leafCert, err := x509.ParseCertificate(leafCertBytes)
+	if err != nil {
+		return nil, fmt.Errorf("appstore failed to parse leaf certificate")
+	}
+	if err = a.cert.verifyCert(rootCert, intermediaCert, leafCert); err != nil {
 		return nil, err
 	}
 
+	pk, ok := leafCert.PublicKey.(*ecdsa.PublicKey)
+	if !ok {
+		return nil, fmt.Errorf("appstore public key must be of type ecdsa.PublicKey")
+	}
+
 	_, err = jwt.ParseWithClaims(transaction, tran, func(token *jwt.Token) (interface{}, error) {
-		return a.cert.extractPublicKeyFromToken(transaction)
+		return pk, nil
 	})
 	if err != nil {
 		return nil, err
