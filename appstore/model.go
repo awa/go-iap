@@ -175,7 +175,7 @@ type (
 		LatestReceiptInfo  []InApp              `json:"latest_receipt_info,omitempty"`
 		LatestReceipt      string               `json:"latest_receipt,omitempty"`
 		PendingRenewalInfo []PendingRenewalInfo `json:"pending_renewal_info,omitempty"`
-		IsRetryable        bool                 `json:"is-retryable,omitempty"`
+		IsRetryable        bool                 `json:"is_retryable,omitempty"`
 	}
 
 	// StatusResponse is struct
