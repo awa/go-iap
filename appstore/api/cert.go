@@ -1,7 +1,6 @@
 package api
 
 import (
-	"crypto/ecdsa"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
@@ -29,26 +28,6 @@ at+qIxUCMG1mihDK1A3UT82NQz60imOlM27jbdoXt2QfyFMm+YhidDkLF1vLUagM
 `
 
 type Cert struct {
-}
-
-// Per doc: https://datatracker.ietf.org/doc/html/rfc7515#section-4.1.6
-func (c *Cert) extractPublicKeyFromToken(tokenStr string) (*ecdsa.PublicKey, error) {
-	certStr, err := c.extractCertByIndex(tokenStr, 0)
-	if err != nil {
-		return nil, err
-	}
-
-	cert, err := x509.ParseCertificate(certStr)
-	if err != nil {
-		return nil, err
-	}
-
-	switch pk := cert.PublicKey.(type) {
-	case *ecdsa.PublicKey:
-		return pk, nil
-	default:
-		return nil, errors.New("appstore public key must be of type ecdsa.PublicKey")
-	}
 }
 
 func (c *Cert) extractCertByIndex(tokenStr string, index int) ([]byte, error) {
@@ -80,41 +59,29 @@ func (c *Cert) extractCertByIndex(tokenStr string, index int) ([]byte, error) {
 	return certByte, nil
 }
 
-func (c *Cert) verifyCert(certByte, intermediaCertStr []byte) error {
+func (c *Cert) verifyCert(rootCert, intermediaCert, leafCert *x509.Certificate) error {
 	roots := x509.NewCertPool()
 	ok := roots.AppendCertsFromPEM([]byte(rootPEM))
 	if !ok {
 		return errors.New("failed to parse root certificate")
 	}
 
-	interCert, err := x509.ParseCertificate(intermediaCertStr)
-	if err != nil {
-		return errors.New("failed to parse intermedia certificate")
-	}
 	intermedia := x509.NewCertPool()
-	intermedia.AddCert(interCert)
-
-	cert, err := x509.ParseCertificate(certByte)
-	if err != nil {
-		return err
-	}
+	intermedia.AddCert(intermediaCert)
 
 	opts := x509.VerifyOptions{
 		Roots:         roots,
 		Intermediates: intermedia,
 	}
-
-	_, err = cert.Verify(opts)
+	_, err := rootCert.Verify(opts)
 	if err != nil {
 		return err
 	}
 
-	// TODO: maybe we need the chains info later
-	//for _, ch := range chains {
-	//	for _, c := range ch {
-	//		fmt.Printf("%+v, %s, %+v \n", c.AuthorityKeyId, c.Subject.Organization, c.ExtKeyUsage)
-	//	}
-	//}
+	_, err = leafCert.Verify(opts)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

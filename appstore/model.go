@@ -142,6 +142,7 @@ type (
 		RequestDate
 		OriginalPurchaseDate
 		PreorderDate
+		ExpiresDate
 	}
 
 	// PendingRenewalInfo is struct
