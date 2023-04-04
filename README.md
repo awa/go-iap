@@ -2,10 +2,9 @@ go-iap
 ======
 
 ![](https://img.shields.io/badge/golang-1.18+-blue.svg?style=flat)
-[![Build Status](https://travis-ci.org/awa/go-iap.svg?branch=master)](https://travis-ci.org/awa/go-iap)
-[![codecov.io](https://codecov.io/github/awa/go-iap/coverage.svg?branch=master)](https://codecov.io/github/awa/go-iap?branch=master)
+[![unit test](https://github.com/awa/go-iap/actions/workflows/unit_test.yml/badge.svg)](https://github.com/awa/go-iap/actions/workflows/unit_test.yml)
 
-go-iap verifies the purchase receipt via AppStore, GooglePlayStore or Amazon AppStore.
+>go-iap verifies the purchase receipt via AppStore, GooglePlayStore or Amazon AppStore.
 
 Current API Documents:
 

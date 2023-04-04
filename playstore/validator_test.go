@@ -85,7 +85,6 @@ func TestNewWithClientErrors(t *testing.T) {
 }
 
 func TestNewDefaultTokenSourceClient(t *testing.T) {
-	t.Parallel()
 	t.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "testdata/test_key.json")
 
 	_, err := NewDefaultTokenSourceClient()
