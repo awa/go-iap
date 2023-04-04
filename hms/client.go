@@ -107,7 +107,10 @@ func (c *Client) GetApplicationAccessTokenHeader() (string, error) {
 		return "", err
 	}
 	var atResponse ApplicationAccessToken
-	json.Unmarshal(bodyBytes, &atResponse)
+	err = json.Unmarshal(bodyBytes, &atResponse)
+	if err != nil {
+		return "", err
+	}
 	if atResponse.AccessToken != "" {
 		// update expire time
 		atResponse.ExpiredAt = atResponse.ExpiresIn + time.Now().Unix() - accessTokenExpiresGracePeriod
