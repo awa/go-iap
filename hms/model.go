@@ -264,6 +264,9 @@ type InAppPurchaseData struct {
 
 	// When the value of surveyReason is 0, this parameter is used to collect the cancellation reason entered by users.
 	SurveyDetails string `json:"surveyDetails,omitempty"`
+
+	// UTC timestamp (in milliseconds) when the grace period of a subscription ends.
+	GraceExpirationTime int64 `json:"graceExpirationTime,omitempty"`
 }
 
 // CanceledPurchaseList response from query canceled or refunded purchase list
