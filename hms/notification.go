@@ -14,6 +14,12 @@ type SubscriptionNotification struct {
 	//
 	// For details about how to obtain the public key, please refer to https://developer.huawei.com/consumer/en/doc/HMSCore-Guides-V5/query-payment-info-0000001050166299-V5
 	NotifycationSignature string `json:"notifycationSignature"`
+
+	// Notification service version, which is set to v2.
+	Version string `json:"version,omitempty"`
+
+	// Signature algorithm
+	SignatureAlgorithm string `json:"signatureAlgorithm,omitempty"`
 }
 
 // StatusUpdateNotification JSON content when unmarshal NotificationRequest.StatusUpdateNotification
@@ -29,6 +35,9 @@ type StatusUpdateNotification struct {
 
 	// Subscription ID
 	SubscriptionID string `json:"subscriptionId"`
+
+	// Subscription token, which matches a unique subscription ID.
+	PurchaseToken string `json:"purchaseToken"`
 
 	// Timestamp, which is passed only when notificationType is CANCEL(1).
 	CancellationDate int64 `json:"cancellationDate,omitempty"`
@@ -64,6 +73,9 @@ type StatusUpdateNotification struct {
 	//
 	// For details about how to obtain the public key, please refer to https://developer.huawei.com/consumer/en/doc/HMSCore-Guides-V5/query-payment-info-0000001050166299-V5
 	LatestExpiredReceiptInfoSignature string `json:"latestExpiredReceiptInfoSignature,omitempty"`
+
+	// Signature algorithm
+	SignatureAlgorithm string `json:"signatureAlgorithm,omitempty"`
 
 	// Renewal status. Value could be one of either:
 	//    1: The subscription renewal is normal.
