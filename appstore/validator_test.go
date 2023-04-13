@@ -286,7 +286,7 @@ func TestCannotReadBody(t *testing.T) {
 	testResponse := http.Response{Body: ioutil.NopCloser(errReader(0))}
 
 	ctx := context.Background()
-	if client.parseResponse(&testResponse, IAPResponse{}, ctx, IAPRequest{}) == nil {
+	if _, err := client.parseResponse(&testResponse, IAPResponse{}, ctx, IAPRequest{}); err == nil {
 		t.Errorf("expected redirectToSandbox to fail to read the body")
 	}
 }
@@ -296,7 +296,7 @@ func TestCannotUnmarshalBody(t *testing.T) {
 	testResponse := http.Response{Body: ioutil.NopCloser(strings.NewReader(`{"status": true}`))}
 
 	ctx := context.Background()
-	if client.parseResponse(&testResponse, StatusResponse{}, ctx, IAPRequest{}) == nil {
+	if _, err := client.parseResponse(&testResponse, StatusResponse{}, ctx, IAPRequest{}); err == nil {
 		t.Errorf("expected redirectToSandbox to fail to unmarshal the data")
 	}
 }
