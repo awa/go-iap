@@ -24,7 +24,7 @@ const (
 
 // IAPClient is an interface to call validation API in App Store
 type IAPClient interface {
-	Verify(ctx context.Context, reqBody IAPRequest, resp interface{}) error
+	Verify(ctx context.Context, reqBody IAPRequest, resp interface{}) (int, error)
 }
 
 // Client implements IAPClient
@@ -108,74 +108,70 @@ func NewWithClient(client *http.Client) *Client {
 }
 
 // Verify sends receipts and gets validation result
-func (c *Client) Verify(ctx context.Context, reqBody IAPRequest, result interface{}) error {
+func (c *Client) Verify(ctx context.Context, reqBody IAPRequest, result interface{}) (int, error) {
 	b := new(bytes.Buffer)
 	if err := json.NewEncoder(b).Encode(reqBody); err != nil {
-		return err
+		return 0, err
 	}
 
 	req, err := http.NewRequest("POST", c.ProductionURL, b)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	req.Header.Set("Content-Type", ContentType)
 	req = req.WithContext(ctx)
 	resp, err := c.httpCli.Do(req)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= 500 {
-		return fmt.Errorf("Received http status code %d from the App Store: %w", resp.StatusCode, ErrAppStoreServer)
+		return 0, fmt.Errorf("Received http status code %d from the App Store: %w", resp.StatusCode, ErrAppStoreServer)
 	}
 	return c.parseResponse(resp, result, ctx, reqBody)
 }
 
-func (c *Client) parseResponse(resp *http.Response, result interface{}, ctx context.Context, reqBody IAPRequest) error {
+func (c *Client) parseResponse(resp *http.Response, result interface{}, ctx context.Context, reqBody IAPRequest) (int, error) {
 	// Read the body now so that we can unmarshal it twice
 	buf, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	err = json.Unmarshal(buf, &result)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	// https://developer.apple.com/library/content/technotes/tn2413/_index.html#//apple_ref/doc/uid/DTS40016228-CH1-RECEIPTURL
 	var r StatusResponse
 	err = json.Unmarshal(buf, &r)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	if r.Status == 21007 {
 		b := new(bytes.Buffer)
 		if err := json.NewEncoder(b).Encode(reqBody); err != nil {
-			return err
+			return 0, err
 		}
 
 		req, err := http.NewRequest("POST", c.SandboxURL, b)
 		if err != nil {
-			return err
+			return 0, err
 		}
 		req.Header.Set("Content-Type", ContentType)
 		req = req.WithContext(ctx)
 		resp, err := c.httpCli.Do(req)
 		if err != nil {
-			return err
+			return 0, err
 		}
 		defer resp.Body.Close()
 		if resp.StatusCode >= 500 {
-			return fmt.Errorf("Received http status code %d from the App Store Sandbox: %w", resp.StatusCode, ErrAppStoreServer)
+			return resp.StatusCode, fmt.Errorf("Received http status code %d from the App Store Sandbox: %w", resp.StatusCode, ErrAppStoreServer)
 		}
 
-		err = json.NewDecoder(resp.Body).Decode(result)
-		if err != nil {
-			return err
-		}
-		return ErrReceiptIsForTest
+		return r.Status, json.NewDecoder(resp.Body).Decode(result)
 	}
 
-	return nil
+	return r.Status, nil
 }
