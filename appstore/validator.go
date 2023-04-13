@@ -24,7 +24,8 @@ const (
 
 // IAPClient is an interface to call validation API in App Store
 type IAPClient interface {
-	Verify(ctx context.Context, reqBody IAPRequest, resp interface{}) (int, error)
+	Verify(ctx context.Context, reqBody IAPRequest, resp interface{}) error
+	VerifyWithStatus(ctx context.Context, reqBody IAPRequest, resp interface{}) (int, error)
 }
 
 // Client implements IAPClient
@@ -108,7 +109,17 @@ func NewWithClient(client *http.Client) *Client {
 }
 
 // Verify sends receipts and gets validation result
-func (c *Client) Verify(ctx context.Context, reqBody IAPRequest, result interface{}) (int, error) {
+func (c *Client) Verify(ctx context.Context, reqBody IAPRequest, result interface{}) error {
+	_, err := c.verify(ctx, reqBody, result)
+	return err
+}
+
+// VerifyWithStatus sends receipts and gets validation result with status code
+func (c *Client) VerifyWithStatus(ctx context.Context, reqBody IAPRequest, result interface{}) (int, error) {
+	return c.verify(ctx, reqBody, result)
+}
+
+func (c *Client) verify(ctx context.Context, reqBody IAPRequest, result interface{}) (int, error) {
 	b := new(bytes.Buffer)
 	if err := json.NewEncoder(b).Encode(reqBody); err != nil {
 		return 0, err
