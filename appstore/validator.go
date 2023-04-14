@@ -115,6 +115,7 @@ func (c *Client) Verify(ctx context.Context, reqBody IAPRequest, result interfac
 }
 
 // VerifyWithStatus sends receipts and gets validation result with status code
+// If the Apple verification receipt server is unhealthy and responds with an HTTP status code in the 5xx range, that status code will be returned.
 func (c *Client) VerifyWithStatus(ctx context.Context, reqBody IAPRequest, result interface{}) (int, error) {
 	return c.verify(ctx, reqBody, result)
 }
@@ -137,7 +138,7 @@ func (c *Client) verify(ctx context.Context, reqBody IAPRequest, result interfac
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= 500 {
-		return 0, fmt.Errorf("Received http status code %d from the App Store: %w", resp.StatusCode, ErrAppStoreServer)
+		return resp.StatusCode, fmt.Errorf("Received http status code %d from the App Store: %w", resp.StatusCode, ErrAppStoreServer)
 	}
 	return c.parseResponse(resp, result, ctx, reqBody)
 }
