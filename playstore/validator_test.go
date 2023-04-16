@@ -176,6 +176,22 @@ func TestAcknowledgeProduct(t *testing.T) {
 	// TODO Normal scenario
 }
 
+func TestConsumeProduct(t *testing.T) {
+	t.Parallel()
+	// Exception scenario
+	expected := "googleapi: Error 400: Invalid Value, invalid"
+
+	client, _ := New(jsonKey)
+	ctx := context.Background()
+	err := client.ConsumeProduct(ctx, "package", "productID", "purchaseToken")
+
+	if err == nil || err.Error() != expected {
+		t.Errorf("got %v", err)
+	}
+
+	// TODO Normal scenario
+}
+
 func TestCancelSubscription(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()

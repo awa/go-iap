@@ -6,35 +6,36 @@ package mocks
 
 import (
 	context "context"
-	gomock "github.com/golang/mock/gomock"
-	v3 "google.golang.org/api/androidpublisher/v3"
 	reflect "reflect"
+
+	gomock "github.com/golang/mock/gomock"
+	androidpublisher "google.golang.org/api/androidpublisher/v3"
 )
 
-// MockIABProduct is a mock of IABProduct interface
+// MockIABProduct is a mock of IABProduct interface.
 type MockIABProduct struct {
 	ctrl     *gomock.Controller
 	recorder *MockIABProductMockRecorder
 }
 
-// MockIABProductMockRecorder is the mock recorder for MockIABProduct
+// MockIABProductMockRecorder is the mock recorder for MockIABProduct.
 type MockIABProductMockRecorder struct {
 	mock *MockIABProduct
 }
 
-// NewMockIABProduct creates a new mock instance
+// NewMockIABProduct creates a new mock instance.
 func NewMockIABProduct(ctrl *gomock.Controller) *MockIABProduct {
 	mock := &MockIABProduct{ctrl: ctrl}
 	mock.recorder = &MockIABProductMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockIABProduct) EXPECT() *MockIABProductMockRecorder {
 	return m.recorder
 }
 
-// AcknowledgeProduct mocks base method
+// AcknowledgeProduct mocks base method.
 func (m *MockIABProduct) AcknowledgeProduct(arg0 context.Context, arg1, arg2, arg3, arg4 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AcknowledgeProduct", arg0, arg1, arg2, arg3, arg4)
@@ -42,65 +43,79 @@ func (m *MockIABProduct) AcknowledgeProduct(arg0 context.Context, arg1, arg2, ar
 	return ret0
 }
 
-// AcknowledgeProduct indicates an expected call of AcknowledgeProduct
+// AcknowledgeProduct indicates an expected call of AcknowledgeProduct.
 func (mr *MockIABProductMockRecorder) AcknowledgeProduct(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AcknowledgeProduct", reflect.TypeOf((*MockIABProduct)(nil).AcknowledgeProduct), arg0, arg1, arg2, arg3, arg4)
 }
 
-// VerifyProduct mocks base method
-func (m *MockIABProduct) VerifyProduct(arg0 context.Context, arg1, arg2, arg3 string) (*v3.ProductPurchase, error) {
+// ConsumeProduct mocks base method.
+func (m *MockIABProduct) ConsumeProduct(arg0 context.Context, arg1, arg2, arg3 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ConsumeProduct", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ConsumeProduct indicates an expected call of ConsumeProduct.
+func (mr *MockIABProductMockRecorder) ConsumeProduct(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConsumeProduct", reflect.TypeOf((*MockIABProduct)(nil).ConsumeProduct), arg0, arg1, arg2, arg3)
+}
+
+// VerifyProduct mocks base method.
+func (m *MockIABProduct) VerifyProduct(arg0 context.Context, arg1, arg2, arg3 string) (*androidpublisher.ProductPurchase, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "VerifyProduct", arg0, arg1, arg2, arg3)
-	ret0, _ := ret[0].(*v3.ProductPurchase)
+	ret0, _ := ret[0].(*androidpublisher.ProductPurchase)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// VerifyProduct indicates an expected call of VerifyProduct
+// VerifyProduct indicates an expected call of VerifyProduct.
 func (mr *MockIABProductMockRecorder) VerifyProduct(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyProduct", reflect.TypeOf((*MockIABProduct)(nil).VerifyProduct), arg0, arg1, arg2, arg3)
 }
 
-// MockIABSubscription is a mock of IABSubscription interface
+// MockIABSubscription is a mock of IABSubscription interface.
 type MockIABSubscription struct {
 	ctrl     *gomock.Controller
 	recorder *MockIABSubscriptionMockRecorder
 }
 
-// MockIABSubscriptionMockRecorder is the mock recorder for MockIABSubscription
+// MockIABSubscriptionMockRecorder is the mock recorder for MockIABSubscription.
 type MockIABSubscriptionMockRecorder struct {
 	mock *MockIABSubscription
 }
 
-// NewMockIABSubscription creates a new mock instance
+// NewMockIABSubscription creates a new mock instance.
 func NewMockIABSubscription(ctrl *gomock.Controller) *MockIABSubscription {
 	mock := &MockIABSubscription{ctrl: ctrl}
 	mock.recorder = &MockIABSubscriptionMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockIABSubscription) EXPECT() *MockIABSubscriptionMockRecorder {
 	return m.recorder
 }
 
-// AcknowledgeSubscription mocks base method
-func (m *MockIABSubscription) AcknowledgeSubscription(arg0 context.Context, arg1, arg2, arg3 string, arg4 *v3.SubscriptionPurchasesAcknowledgeRequest) error {
+// AcknowledgeSubscription mocks base method.
+func (m *MockIABSubscription) AcknowledgeSubscription(arg0 context.Context, arg1, arg2, arg3 string, arg4 *androidpublisher.SubscriptionPurchasesAcknowledgeRequest) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AcknowledgeSubscription", arg0, arg1, arg2, arg3, arg4)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// AcknowledgeSubscription indicates an expected call of AcknowledgeSubscription
+// AcknowledgeSubscription indicates an expected call of AcknowledgeSubscription.
 func (mr *MockIABSubscriptionMockRecorder) AcknowledgeSubscription(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AcknowledgeSubscription", reflect.TypeOf((*MockIABSubscription)(nil).AcknowledgeSubscription), arg0, arg1, arg2, arg3, arg4)
 }
 
-// CancelSubscription mocks base method
+// CancelSubscription mocks base method.
 func (m *MockIABSubscription) CancelSubscription(arg0 context.Context, arg1, arg2, arg3 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CancelSubscription", arg0, arg1, arg2, arg3)
@@ -108,13 +123,13 @@ func (m *MockIABSubscription) CancelSubscription(arg0 context.Context, arg1, arg
 	return ret0
 }
 
-// CancelSubscription indicates an expected call of CancelSubscription
+// CancelSubscription indicates an expected call of CancelSubscription.
 func (mr *MockIABSubscriptionMockRecorder) CancelSubscription(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelSubscription", reflect.TypeOf((*MockIABSubscription)(nil).CancelSubscription), arg0, arg1, arg2, arg3)
 }
 
-// RefundSubscription mocks base method
+// RefundSubscription mocks base method.
 func (m *MockIABSubscription) RefundSubscription(arg0 context.Context, arg1, arg2, arg3 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RefundSubscription", arg0, arg1, arg2, arg3)
@@ -122,13 +137,13 @@ func (m *MockIABSubscription) RefundSubscription(arg0 context.Context, arg1, arg
 	return ret0
 }
 
-// RefundSubscription indicates an expected call of RefundSubscription
+// RefundSubscription indicates an expected call of RefundSubscription.
 func (mr *MockIABSubscriptionMockRecorder) RefundSubscription(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RefundSubscription", reflect.TypeOf((*MockIABSubscription)(nil).RefundSubscription), arg0, arg1, arg2, arg3)
 }
 
-// RevokeSubscription mocks base method
+// RevokeSubscription mocks base method.
 func (m *MockIABSubscription) RevokeSubscription(arg0 context.Context, arg1, arg2, arg3 string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RevokeSubscription", arg0, arg1, arg2, arg3)
@@ -136,22 +151,22 @@ func (m *MockIABSubscription) RevokeSubscription(arg0 context.Context, arg1, arg
 	return ret0
 }
 
-// RevokeSubscription indicates an expected call of RevokeSubscription
+// RevokeSubscription indicates an expected call of RevokeSubscription.
 func (mr *MockIABSubscriptionMockRecorder) RevokeSubscription(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RevokeSubscription", reflect.TypeOf((*MockIABSubscription)(nil).RevokeSubscription), arg0, arg1, arg2, arg3)
 }
 
-// VerifySubscription mocks base method
-func (m *MockIABSubscription) VerifySubscription(arg0 context.Context, arg1, arg2, arg3 string) (*v3.SubscriptionPurchase, error) {
+// VerifySubscription mocks base method.
+func (m *MockIABSubscription) VerifySubscription(arg0 context.Context, arg1, arg2, arg3 string) (*androidpublisher.SubscriptionPurchase, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "VerifySubscription", arg0, arg1, arg2, arg3)
-	ret0, _ := ret[0].(*v3.SubscriptionPurchase)
+	ret0, _ := ret[0].(*androidpublisher.SubscriptionPurchase)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// VerifySubscription indicates an expected call of VerifySubscription
+// VerifySubscription indicates an expected call of VerifySubscription.
 func (mr *MockIABSubscriptionMockRecorder) VerifySubscription(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifySubscription", reflect.TypeOf((*MockIABSubscription)(nil).VerifySubscription), arg0, arg1, arg2, arg3)
