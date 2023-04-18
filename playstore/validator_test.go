@@ -192,6 +192,22 @@ func TestConsumeProduct(t *testing.T) {
 	// TODO Normal scenario
 }
 
+func TestVoidedPurchases(t *testing.T) {
+	t.Parallel()
+	// Exception scenario
+	expected := "googleapi: Error 403: The current user has insufficient permissions to perform the requested operation., forbidden"
+
+	client, _ := New(jsonKey)
+	ctx := context.Background()
+	_, err := client.VoidedPurchases(ctx, "package", 0, 0, 3, "token", 0, VoidedPurchaseTypeWithoutSubscription)
+
+	if err == nil || err.Error() != expected {
+		t.Errorf("got %v", err)
+	}
+
+	// TODO Normal scenario
+}
+
 func TestCancelSubscription(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()

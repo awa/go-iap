@@ -196,6 +196,41 @@ func (c *Client) RevokeSubscription(ctx context.Context, packageName string, sub
 	return err
 }
 
+type VoidedPurchaseType int64
+
+const (
+	VoidedPurchaseTypeWithoutSubscription VoidedPurchaseType = 0
+	VoidedPurchaseTypeWithSubscription    VoidedPurchaseType = 1
+)
+
+// VoidedPurchases list of orders that are associated with purchases that a user has voided
+// Quotas:
+// 1. 6000 queries per day. (The day begins and ends at midnight Pacific Time.)
+// 2. 30 queries during any 30-second period.
+func (c *Client) VoidedPurchases(
+	ctx context.Context,
+	packageName string,
+	startTime int64,
+	endTime int64,
+	maxResult int64,
+	token string,
+	startIndex int64,
+	productType VoidedPurchaseType,
+) (*androidpublisher.VoidedPurchasesListResponse, error) {
+	ps := androidpublisher.NewPurchasesVoidedpurchasesService(c.service)
+
+	call := ps.List(packageName).StartTime(startTime).EndTime(endTime).Type(int64(productType)).MaxResults(maxResult).Context(ctx)
+	if token == "" && startIndex == 0 {
+		return call.Do()
+	} else if token != "" && startIndex == 0 {
+		return call.Token(token).Do()
+	} else if token != "" && startIndex != 0 {
+		return call.StartIndex(startIndex).Token(token).Do()
+	} else {
+		return call.StartIndex(startIndex).Do()
+	}
+}
+
 // VerifySignature verifies in app billing signature.
 // You need to prepare a public key for your Android app's in app billing
 // at https://play.google.com/apps/publish/
