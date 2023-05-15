@@ -9,6 +9,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/golang-jwt/jwt/v4"
 )
 
 //go:generate mockgen  -destination=mocks/appstore.go -package=mocks github.com/awa/go-iap/appstore IAPClient
@@ -26,6 +28,7 @@ const (
 type IAPClient interface {
 	Verify(ctx context.Context, reqBody IAPRequest, resp interface{}) error
 	VerifyWithStatus(ctx context.Context, reqBody IAPRequest, resp interface{}) (int, error)
+	ParseNotificationV2(tokenStr string, result *jwt.Token) error
 }
 
 // Client implements IAPClient
@@ -186,4 +189,18 @@ func (c *Client) parseResponse(resp *http.Response, result interface{}, ctx cont
 	}
 
 	return r.Status, nil
+}
+
+// ParseNotificationV2 parse notification from App Store Server
+func (c *Client) ParseNotificationV2(tokenStr string, result *jwt.Token) error {
+	cert := Cert{}
+
+	result, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		return cert.ExtractPublicKeyFromToken(tokenStr)
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
