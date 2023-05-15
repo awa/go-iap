@@ -96,7 +96,7 @@ func TestNewDefaultTokenSourceClient(t *testing.T) {
 func TestAcknowledgeSubscription(t *testing.T) {
 	t.Parallel()
 	// Exception scenario
-	expected := "googleapi: Error 400: Invalid Value, invalid"
+	expected := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
 
 	client, _ := New(jsonKey)
 	ctx := context.Background()
@@ -115,7 +115,7 @@ func TestAcknowledgeSubscription(t *testing.T) {
 func TestVerifySubscription(t *testing.T) {
 	t.Parallel()
 	// Exception scenario
-	expected := "googleapi: Error 400: Invalid Value, invalid"
+	expected := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
 
 	client, _ := New(jsonKey)
 	ctx := context.Background()
@@ -131,7 +131,7 @@ func TestVerifySubscription(t *testing.T) {
 func TestVerifySubscriptionV2(t *testing.T) {
 	t.Parallel()
 	// Exception scenario
-	expected := "googleapi: Error 400: Invalid Value, invalid"
+	expected := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
 
 	client, _ := New(jsonKey)
 	ctx := context.Background()
@@ -147,7 +147,7 @@ func TestVerifySubscriptionV2(t *testing.T) {
 func TestVerifyProduct(t *testing.T) {
 	t.Parallel()
 	// Exception scenario
-	expected := "googleapi: Error 400: Invalid Value, invalid"
+	expected := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
 
 	client, _ := New(jsonKey)
 	ctx := context.Background()
@@ -163,7 +163,7 @@ func TestVerifyProduct(t *testing.T) {
 func TestAcknowledgeProduct(t *testing.T) {
 	t.Parallel()
 	// Exception scenario
-	expected := "googleapi: Error 400: Invalid Value, invalid"
+	expected := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
 
 	client, _ := New(jsonKey)
 	ctx := context.Background()
@@ -179,7 +179,7 @@ func TestAcknowledgeProduct(t *testing.T) {
 func TestConsumeProduct(t *testing.T) {
 	t.Parallel()
 	// Exception scenario
-	expected := "googleapi: Error 400: Invalid Value, invalid"
+	expected := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
 
 	client, _ := New(jsonKey)
 	ctx := context.Background()
@@ -212,7 +212,7 @@ func TestCancelSubscription(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 	client, _ := New(jsonKey)
-	expectedStr := "googleapi: Error 400: Invalid Value, invalid"
+	expectedStr := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
 	actual := client.CancelSubscription(ctx, "package", "productID", "purchaseToken")
 
 	if actual == nil || actual.Error() != expectedStr {
