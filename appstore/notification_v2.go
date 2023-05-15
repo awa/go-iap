@@ -106,12 +106,26 @@ type (
 	// SubscriptionNotificationV2DecodedPayload is struct
 	// https://developer.apple.com/documentation/appstoreservernotifications/responsebodyv2decodedpayload
 	SubscriptionNotificationV2DecodedPayload struct {
-		NotificationType    NotificationTypeV2             `json:"notificationType"`
-		Subtype             SubtypeV2                      `json:"subtype"`
-		NotificationUUID    string                         `json:"notificationUUID"`
-		NotificationVersion string                         `json:"version"`
-		SignedDate          int64                          `json:"signedDate"`
-		Data                SubscriptionNotificationV2Data `json:"data"`
+		NotificationType    NotificationTypeV2                `json:"notificationType"`
+		Subtype             SubtypeV2                         `json:"subtype"`
+		NotificationUUID    string                            `json:"notificationUUID"`
+		NotificationVersion string                            `json:"version"`
+		SignedDate          int64                             `json:"signedDate"`
+		Data                SubscriptionNotificationV2Data    `json:"data,omitempty"`
+		Summary             SubscriptionNotificationV2Summary `json:"summary,omitempty"`
+	}
+
+	// SubscriptionNotificationV2Summary is struct
+	// https://developer.apple.com/documentation/appstoreservernotifications/summary
+	SubscriptionNotificationV2Summary struct {
+		RequestIdentifier      string `json:"requestIdentifier"`
+		Environment            string `json:"environment"`
+		AppAppleId             int64  `json:"appAppleId"`
+		BundleID               string `json:"bundleId"`
+		ProductID              string `json:"productId"`
+		StorefrontCountryCodes string `json:"storefrontCountryCodes"`
+		FailedCount            int64  `json:"failedCount"`
+		SucceededCount         int64  `json:"succeededCount"`
 	}
 
 	// SubscriptionNotificationV2Data is struct
