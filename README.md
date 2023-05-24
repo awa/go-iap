@@ -131,6 +131,26 @@ func main() {
 }
 ```
 
+### Parse Notification from App Store
+
+```go
+import (
+	"github.com/awa/go-iap/appstore"
+	"github.com/golang-jwt/jwt/v4"
+)
+
+func main() {
+	tokenStr := "SignedRenewalInfo Encode String" // or SignedTransactionInfo string
+	token := jwt.Token{}
+	client := appstore.New()
+	err := client.ParseNotificationV2(tokenStr, &token)
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	for key, val := range claims {
+		fmt.Printf("Key: %v, value: %v\n", key, val) // key value of SignedRenewalInfo
+	}
+```
+
 # ToDo
 - [x] Validator for In App Purchase Receipt (AppStore)
 - [x] Validator for Subscription token (GooglePlay)
