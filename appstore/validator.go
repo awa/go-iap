@@ -195,12 +195,12 @@ func (c *Client) parseResponse(resp *http.Response, result interface{}, ctx cont
 func (c *Client) ParseNotificationV2(tokenStr string, result *jwt.Token) error {
 	cert := Cert{}
 
-	result, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		return cert.ExtractPublicKeyFromToken(tokenStr)
 	})
 	if err != nil {
 		return err
 	}
-
+	*result = *token
 	return nil
 }
