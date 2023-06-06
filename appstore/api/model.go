@@ -18,6 +18,11 @@ type HistoryResponse struct {
 	SignedTransactions []string `json:"signedTransactions"`
 }
 
+// TransactionInfoResponse https://developer.apple.com/documentation/appstoreserverapi/transactioninforesponse
+type TransactionInfoResponse struct {
+	SignedTransactionInfo string `json:"signedTransactionInfo"`
+}
+
 // RefundLookupResponse https://developer.apple.com/documentation/appstoreserverapi/refundlookupresponse
 type RefundLookupResponse struct {
 	HasMore            bool     `json:"hasMore"`

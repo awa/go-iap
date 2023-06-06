@@ -7,12 +7,13 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
-	"github.com/golang-jwt/jwt/v4"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/golang-jwt/jwt/v4"
 )
 
 const (
@@ -21,6 +22,7 @@ const (
 
 	PathLookUp                        = "/inApps/v1/lookup/{orderId}"
 	PathTransactionHistory            = "/inApps/v1/history/{originalTransactionId}"
+	PathTransactionInfo               = "/inApps/v1/transactions/{transactionId}"
 	PathRefundHistory                 = "/inApps/v2/refund/lookup/{originalTransactionId}"
 	PathGetALLSubscriptionStatus      = "/inApps/v1/subscriptions/{originalTransactionId}"
 	PathConsumptionInfo               = "/inApps/v1/transactions/consumption/{originalTransactionId}"
@@ -159,6 +161,31 @@ func (a *StoreClient) GetTransactionHistory(ctx context.Context, originalTransac
 		}
 
 		time.Sleep(10 * time.Millisecond)
+	}
+
+	return
+}
+
+// GetTransactionInfo https://developer.apple.com/documentation/appstoreserverapi/get_transaction_info
+func (a *StoreClient) GetTransactionInfo(ctx context.Context, transactionId string) (rsp *TransactionInfoResponse, err error) {
+	URL := HostProduction + PathTransactionInfo
+	if a.Token.Sandbox {
+		URL = HostSandBox + PathTransactionInfo
+	}
+	URL = strings.Replace(URL, "{transactionId}", transactionId, -1)
+
+	statusCode, body, err := a.Do(ctx, http.MethodGet, URL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if statusCode != http.StatusOK {
+		return nil, fmt.Errorf("appstore api: %v return status code %v", URL, statusCode)
+	}
+
+	err = json.Unmarshal(body, &rsp)
+	if err != nil {
+		return nil, err
 	}
 
 	return
