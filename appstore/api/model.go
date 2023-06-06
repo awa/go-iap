@@ -50,6 +50,15 @@ type LastTransactionsItem struct {
 	SignedTransactionInfo string `json:"signedTransactionInfo"`
 }
 
+// MassExtendRenewalDateRequest https://developer.apple.com/documentation/appstoreserverapi/massextendrenewaldaterequest
+type MassExtendRenewalDateRequest struct {
+	RequestIdentifier      string   `json:"requestIdentifier"`
+	ExtendByDays           int      `json:"extendByDays"`
+	ExtendReasonCode       int      `json:"extendReasonCode"`
+	ProductId              string   `json:"productId"`
+	StorefrontCountryCodes []string `json:"storefrontCountryCodes"`
+}
+
 // ConsumptionRequestBody https://developer.apple.com/documentation/appstoreserverapi/consumptionrequest
 type ConsumptionRequestBody struct {
 	AccountTenure            int    `json:"accountTenure"`
