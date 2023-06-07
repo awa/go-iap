@@ -472,5 +472,12 @@ func (a *StoreClient) Do(ctx context.Context, method string, url string, body io
 		return resp.StatusCode, nil, fmt.Errorf("appstore read http body err %w", err)
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		// try to extract detailed error.
+		if rErr, ok := newErrorFromJSON(bytes); ok {
+			return resp.StatusCode, bytes, rErr
+		}
+	}
+
 	return resp.StatusCode, bytes, err
 }
