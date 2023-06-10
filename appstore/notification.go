@@ -3,6 +3,7 @@ package appstore
 // NotificationType is type
 // https://developer.apple.com/documentation/appstoreservernotifications/notification_type
 // https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/StoreKitGuide/Chapters/Subscriptions.html#//apple_ref/doc/uid/TP40008267-CH7-SW16
+// Deprecated
 type NotificationType string
 
 // list of NotificationType
@@ -86,6 +87,7 @@ type NotificationUnifiedReceipt struct {
 
 // SubscriptionNotification is struct for
 // https://developer.apple.com/documentation/appstoreservernotifications/responsebodyv1
+// Deprecated
 type SubscriptionNotification struct {
 	Environment      NotificationEnvironment `json:"environment"`
 	NotificationType NotificationType        `json:"notification_type"`
