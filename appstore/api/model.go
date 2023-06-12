@@ -84,27 +84,49 @@ type JWSDecodedHeader struct {
 	X5C []string `json:"x5c,omitempty"`
 }
 
+// TransactionReason indicates the cause of a purchase transaction,
+// https://developer.apple.com/documentation/appstoreservernotifications/transactionreason
+type TransactionReason string
+
+const (
+	TransactionReasonPurchase = "PURCHASE"
+	TransactionReasonRenewal  = "RENEWAL"
+)
+
+// IAPType https://developer.apple.com/documentation/appstoreserverapi/type
+type IAPType string
+
+const (
+	AutoRenewable IAPType = "Auto-Renewable Subscription"
+	NonConsumable IAPType = "Non-Consumable"
+	Consumable    IAPType = "Consumable"
+	NonRenewable  IAPType = "Non-Renewing Subscription"
+)
+
 // JWSTransaction https://developer.apple.com/documentation/appstoreserverapi/jwstransaction
 type JWSTransaction struct {
-	TransactionID               string `json:"transactionId,omitempty"`
-	OriginalTransactionId       string `json:"originalTransactionId,omitempty"`
-	WebOrderLineItemId          string `json:"webOrderLineItemId,omitempty"`
-	BundleID                    string `json:"bundleId,omitempty"`
-	ProductID                   string `json:"productId,omitempty"`
-	SubscriptionGroupIdentifier string `json:"subscriptionGroupIdentifier,omitempty"`
-	PurchaseDate                int64  `json:"purchaseDate,omitempty"`
-	OriginalPurchaseDate        int64  `json:"originalPurchaseDate,omitempty"`
-	ExpiresDate                 int64  `json:"expiresDate,omitempty"`
-	Quantity                    int64  `json:"quantity,omitempty"`
-	Type                        string `json:"type,omitempty"`
-	AppAccountToken             string `json:"appAccountToken,omitempty"`
-	InAppOwnershipType          string `json:"inAppOwnershipType,omitempty"`
-	SignedDate                  int64  `json:"signedDate,omitempty"`
-	OfferType                   int64  `json:"offerType,omitempty"`
-	OfferIdentifier             string `json:"offerIdentifier,omitempty"`
-	RevocationDate              int64  `json:"revocationDate,omitempty"`
-	RevocationReason            int    `json:"revocationReason,omitempty"`
-	IsUpgraded                  bool   `json:"isUpgraded,omitempty"`
+	TransactionID               string            `json:"transactionId,omitempty"`
+	OriginalTransactionId       string            `json:"originalTransactionId,omitempty"`
+	WebOrderLineItemId          string            `json:"webOrderLineItemId,omitempty"`
+	BundleID                    string            `json:"bundleId,omitempty"`
+	ProductID                   string            `json:"productId,omitempty"`
+	SubscriptionGroupIdentifier string            `json:"subscriptionGroupIdentifier,omitempty"`
+	PurchaseDate                int64             `json:"purchaseDate,omitempty"`
+	OriginalPurchaseDate        int64             `json:"originalPurchaseDate,omitempty"`
+	ExpiresDate                 int64             `json:"expiresDate,omitempty"`
+	Quantity                    int64             `json:"quantity,omitempty"`
+	Type                        IAPType           `json:"type,omitempty"`
+	AppAccountToken             string            `json:"appAccountToken,omitempty"`
+	InAppOwnershipType          string            `json:"inAppOwnershipType,omitempty"`
+	SignedDate                  int64             `json:"signedDate,omitempty"`
+	OfferType                   int64             `json:"offerType,omitempty"`
+	OfferIdentifier             string            `json:"offerIdentifier,omitempty"`
+	RevocationDate              int64             `json:"revocationDate,omitempty"`
+	RevocationReason            int               `json:"revocationReason,omitempty"`
+	IsUpgraded                  bool              `json:"isUpgraded,omitempty"`
+	Storefront                  string            `json:"storefront"`
+	StorefrontId                string            `json:"storefrontId"`
+	TransactionReason           TransactionReason `json:"transactionReason"`
 }
 
 func (J JWSTransaction) Valid() error {
