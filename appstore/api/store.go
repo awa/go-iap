@@ -63,7 +63,7 @@ func NewStoreClient(config *StoreConfig) *StoreClient {
 	return client
 }
 
-// NewWithClient creates a appstore server api client with a custom http client.
+// NewStoreClientWithHTTPClient NewWithClient creates an App Store server api client with a custom http client.
 func NewStoreClientWithHTTPClient(config *StoreConfig, httpClient *http.Client) *StoreClient {
 	token := &Token{}
 	token.WithConfig(config)
@@ -387,7 +387,7 @@ func (a *StoreClient) GetTestNotificationStatus(ctx context.Context, testNotific
 func (a *StoreClient) ParseSignedTransactions(transactions []string) ([]*JWSTransaction, error) {
 	result := make([]*JWSTransaction, 0)
 	for _, v := range transactions {
-		trans, err := a.parseSignedTransaction(v)
+		trans, err := a.ParseSignedTransaction(v)
 		if err == nil && trans != nil {
 			result = append(result, trans)
 		}
@@ -396,7 +396,8 @@ func (a *StoreClient) ParseSignedTransactions(transactions []string) ([]*JWSTran
 	return result, nil
 }
 
-func (a *StoreClient) parseSignedTransaction(transaction string) (*JWSTransaction, error) {
+// ParseSignedTransaction parse one jws singed transaction for API like GetTransactionInfo
+func (a *StoreClient) ParseSignedTransaction(transaction string) (*JWSTransaction, error) {
 	tran := &JWSTransaction{}
 
 	rootCertBytes, err := a.cert.extractCertByIndex(transaction, 2)
@@ -444,7 +445,7 @@ func (a *StoreClient) parseSignedTransaction(transaction string) (*JWSTransactio
 	return tran, nil
 }
 
-// Per doc: https://developer.apple.com/documentation/appstoreserverapi#topics
+// Do Per doc: https://developer.apple.com/documentation/appstoreserverapi#topics
 func (a *StoreClient) Do(ctx context.Context, method string, url string, body io.Reader) (int, []byte, error) {
 	authToken, err := a.Token.GenerateIfExpired()
 	if err != nil {
@@ -467,17 +468,17 @@ func (a *StoreClient) Do(ctx context.Context, method string, url string, body io
 	}
 	defer resp.Body.Close()
 
-	bytes, err := io.ReadAll(resp.Body)
+	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return resp.StatusCode, nil, fmt.Errorf("appstore read http body err %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
 		// try to extract detailed error.
-		if rErr, ok := newErrorFromJSON(bytes); ok {
-			return resp.StatusCode, bytes, rErr
+		if rErr, ok := newErrorFromJSON(bodyBytes); ok {
+			return resp.StatusCode, bodyBytes, rErr
 		}
 	}
 
-	return resp.StatusCode, bytes, err
+	return resp.StatusCode, bodyBytes, err
 }
