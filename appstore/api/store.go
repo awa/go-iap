@@ -77,12 +77,15 @@ func NewStoreClientWithHTTPClient(config *StoreConfig, httpClient *http.Client) 
 }
 
 // GetALLSubscriptionStatuses https://developer.apple.com/documentation/appstoreserverapi/get_all_subscription_statuses
-func (a *StoreClient) GetALLSubscriptionStatuses(ctx context.Context, originalTransactionId string) (rsp *StatusResponse, err error) {
+func (a *StoreClient) GetALLSubscriptionStatuses(ctx context.Context, originalTransactionId string, query *url.Values) (rsp *StatusResponse, err error) {
 	URL := HostProduction + PathGetALLSubscriptionStatus
 	if a.Token.Sandbox {
 		URL = HostSandBox + PathGetALLSubscriptionStatus
 	}
 	URL = strings.Replace(URL, "{originalTransactionId}", originalTransactionId, -1)
+	if query != nil {
+		URL = URL + "?" + query.Encode()
+	}
 	statusCode, body, err := a.Do(ctx, http.MethodGet, URL, nil)
 	if err != nil {
 		return
