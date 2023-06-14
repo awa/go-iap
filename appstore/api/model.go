@@ -157,6 +157,8 @@ type NotificationHistoryRequest struct {
 	OriginalTransactionId string                      `json:"originalTransactionId,omitempty"`
 	NotificationType      appstore.NotificationTypeV2 `json:"notificationType,omitempty"`
 	NotificationSubtype   appstore.SubtypeV2          `json:"notificationSubtype,omitempty"`
+	OnlyFailures          bool                        `json:"onlyFailures"`
+	TransactionId         string                      `json:"transactionId"`
 }
 
 // NotificationHistoryResponses https://developer.apple.com/documentation/appstoreserverapi/notificationhistoryresponse
@@ -170,22 +172,30 @@ type NotificationHistoryResponses struct {
 type NotificationHistoryResponseItem struct {
 	SignedPayload          string                 `json:"signedPayload"`
 	FirstSendAttemptResult FirstSendAttemptResult `json:"firstSendAttemptResult"`
+	SendAttempts           []SendAttemptItem      `json:"sendAttempts"`
+}
+
+// SendAttemptItem https://developer.apple.com/documentation/appstoreserverapi/sendattemptitem
+type SendAttemptItem struct {
+	AttemptDate       int64                  `json:"attemptDate"`
+	SendAttemptResult FirstSendAttemptResult `json:"sendAttemptResult"`
 }
 
 // https://developer.apple.com/documentation/appstoreserverapi/firstsendattemptresult
 type FirstSendAttemptResult string
 
 const (
-	FirstSendAttemptResultSuccess            FirstSendAttemptResult = "SUCCESS"
-	FirstSendAttemptResultCircularRedirect   FirstSendAttemptResult = "CIRCULAR_REDIRECT"
-	FirstSendAttemptResultInvalidResponse    FirstSendAttemptResult = "INVALID_RESPONSE"
-	FirstSendAttemptResultNoResponse         FirstSendAttemptResult = "NO_RESPONSE"
-	FirstSendAttemptResultOther              FirstSendAttemptResult = "OTHER"
-	FirstSendAttemptResultPrematureClose     FirstSendAttemptResult = "PREMATURE_CLOSE"
-	FirstSendAttemptResultSocketIssue        FirstSendAttemptResult = "SOCKET_ISSUE"
-	FirstSendAttemptResultTimedOut           FirstSendAttemptResult = "TIMED_OUT"
-	FirstSendAttemptResultTlsIssue           FirstSendAttemptResult = "TLS_ISSUE"
-	FirstSendAttemptResultUnsupportedCharset FirstSendAttemptResult = "UNSUPPORTED_CHARSET"
+	FirstSendAttemptResultSuccess                     FirstSendAttemptResult = "SUCCESS"
+	FirstSendAttemptResultCircularRedirect            FirstSendAttemptResult = "CIRCULAR_REDIRECT"
+	FirstSendAttemptResultInvalidResponse             FirstSendAttemptResult = "INVALID_RESPONSE"
+	FirstSendAttemptResultNoResponse                  FirstSendAttemptResult = "NO_RESPONSE"
+	FirstSendAttemptResultOther                       FirstSendAttemptResult = "OTHER"
+	FirstSendAttemptResultPrematureClose              FirstSendAttemptResult = "PREMATURE_CLOSE"
+	FirstSendAttemptResultSocketIssue                 FirstSendAttemptResult = "SOCKET_ISSUE"
+	FirstSendAttemptResultTimedOut                    FirstSendAttemptResult = "TIMED_OUT"
+	FirstSendAttemptResultTlsIssue                    FirstSendAttemptResult = "TLS_ISSUE"
+	FirstSendAttemptResultUnsupportedCharset          FirstSendAttemptResult = "UNSUPPORTED_CHARSET"
+	FirstSendAttemptResultUnsupportedHTTPRESPONSECODE FirstSendAttemptResult = "UNSUCCESSFUL_HTTP_RESPONSE_CODE"
 )
 
 // SendTestNotificationResponse https://developer.apple.com/documentation/appstoreserverapi/sendtestnotificationresponse
