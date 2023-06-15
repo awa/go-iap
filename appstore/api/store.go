@@ -301,7 +301,7 @@ func (a *StoreClient) ExtendSubscriptionRenewalDateForAll(ctx context.Context, b
 }
 
 // GetSubscriptionRenewalDataStatus https://developer.apple.com/documentation/appstoreserverapi/get_status_of_subscription_renewal_date_extensions
-func (a *StoreClient) GetSubscriptionRenewalDataStatus(ctx context.Context, productId, requestIdentifier string) (statusCode int, err error) {
+func (a *StoreClient) GetSubscriptionRenewalDataStatus(ctx context.Context, productId, requestIdentifier string) (rsp *MassExtendRenewalDateStatusResponse, err error) {
 	URL := HostProduction + PathGetStatusOfSubscriptionRenewalDate
 	if a.Token.Sandbox {
 		URL = HostSandBox + PathGetStatusOfSubscriptionRenewalDate
@@ -309,9 +309,17 @@ func (a *StoreClient) GetSubscriptionRenewalDataStatus(ctx context.Context, prod
 	URL = strings.Replace(URL, "{productId}", productId, -1)
 	URL = strings.Replace(URL, "{requestIdentifier}", requestIdentifier, -1)
 
-	statusCode, _, err = a.Do(ctx, http.MethodGet, URL, nil)
+	statusCode, body, err := a.Do(ctx, http.MethodGet, URL, nil)
+	if statusCode != http.StatusOK {
+		return nil, fmt.Errorf("appstore api: %v return status code %v", URL, statusCode)
+	}
 
-	return statusCode, nil
+	err = json.Unmarshal(body, &rsp)
+	if err != nil {
+		return nil, err
+	}
+
+	return rsp, nil
 }
 
 // GetNotificationHistory https://developer.apple.com/documentation/appstoreserverapi/get_notification_history
