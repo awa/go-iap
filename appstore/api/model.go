@@ -8,14 +8,22 @@ type OrderLookupResponse struct {
 	SignedTransactions []string `json:"signedTransactions"`
 }
 
+type Environment string
+
+// Environment https://developer.apple.com/documentation/appstoreserverapi/environment
+const (
+	Sandbox    Environment = "Sandbox"
+	Production Environment = "Production"
+)
+
 // HistoryResponse https://developer.apple.com/documentation/appstoreserverapi/historyresponse
 type HistoryResponse struct {
-	AppAppleId         int      `json:"appAppleId"`
-	BundleId           string   `json:"bundleId"`
-	Environment        string   `json:"environment"`
-	HasMore            bool     `json:"hasMore"`
-	Revision           string   `json:"revision"`
-	SignedTransactions []string `json:"signedTransactions"`
+	AppAppleId         int64       `json:"appAppleId"`
+	BundleId           string      `json:"bundleId"`
+	Environment        Environment `json:"environment"`
+	HasMore            bool        `json:"hasMore"`
+	Revision           string      `json:"revision"`
+	SignedTransactions []string    `json:"signedTransactions"`
 }
 
 // TransactionInfoResponse https://developer.apple.com/documentation/appstoreserverapi/transactioninforesponse
@@ -23,7 +31,7 @@ type TransactionInfoResponse struct {
 	SignedTransactionInfo string `json:"signedTransactionInfo"`
 }
 
-// RefundLookupResponse https://developer.apple.com/documentation/appstoreserverapi/refundlookupresponse
+// RefundLookupResponse same as the RefundHistoryResponse https://developer.apple.com/documentation/appstoreserverapi/refundhistoryresponse
 type RefundLookupResponse struct {
 	HasMore            bool     `json:"hasMore"`
 	Revision           string   `json:"revision"`
@@ -32,8 +40,8 @@ type RefundLookupResponse struct {
 
 // StatusResponse https://developer.apple.com/documentation/appstoreserverapi/get_all_subscription_statuses
 type StatusResponse struct {
-	Environment string                            `json:"environment"`
-	AppAppleId  int                               `json:"appAppleId"`
+	Environment Environment                       `json:"environment"`
+	AppAppleId  int64                             `json:"appAppleId"`
 	BundleId    string                            `json:"bundleId"`
 	Data        []SubscriptionGroupIdentifierItem `json:"data"`
 }
@@ -45,7 +53,7 @@ type SubscriptionGroupIdentifierItem struct {
 
 type LastTransactionsItem struct {
 	OriginalTransactionId string `json:"originalTransactionId"`
-	Status                int    `json:"status"`
+	Status                int32  `json:"status"`
 	SignedRenewalInfo     string `json:"signedRenewalInfo"`
 	SignedTransactionInfo string `json:"signedTransactionInfo"`
 }
@@ -53,28 +61,43 @@ type LastTransactionsItem struct {
 // MassExtendRenewalDateRequest https://developer.apple.com/documentation/appstoreserverapi/massextendrenewaldaterequest
 type MassExtendRenewalDateRequest struct {
 	RequestIdentifier      string   `json:"requestIdentifier"`
-	ExtendByDays           int      `json:"extendByDays"`
-	ExtendReasonCode       int      `json:"extendReasonCode"`
+	ExtendByDays           int32    `json:"extendByDays"`
+	ExtendReasonCode       int32    `json:"extendReasonCode"`
 	ProductId              string   `json:"productId"`
 	StorefrontCountryCodes []string `json:"storefrontCountryCodes"`
 }
 
 // ConsumptionRequestBody https://developer.apple.com/documentation/appstoreserverapi/consumptionrequest
 type ConsumptionRequestBody struct {
-	AccountTenure            int    `json:"accountTenure"`
+	AccountTenure            int32  `json:"accountTenure"`
 	AppAccountToken          string `json:"appAccountToken"`
-	ConsumptionStatus        int    `json:"consumptionStatus"`
+	ConsumptionStatus        int32  `json:"consumptionStatus"`
 	CustomerConsented        bool   `json:"customerConsented"`
-	DeliveryStatus           int    `json:"deliveryStatus"`
-	LifetimeDollarsPurchased int    `json:"lifetimeDollarsPurchased"`
-	LifetimeDollarsRefunded  int    `json:"lifetimeDollarsRefunded"`
-	Platform                 int    `json:"platform"`
-	PlayTime                 int    `json:"playTime"`
+	DeliveryStatus           int32  `json:"deliveryStatus"`
+	LifetimeDollarsPurchased int32  `json:"lifetimeDollarsPurchased"`
+	LifetimeDollarsRefunded  int32  `json:"lifetimeDollarsRefunded"`
+	Platform                 int32  `json:"platform"`
+	PlayTime                 int32  `json:"playTime"`
 	SampleContentProvided    bool   `json:"sampleContentProvided"`
-	UserStatus               int    `json:"userStatus"`
+	UserStatus               int32  `json:"userStatus"`
 }
 
+// JWSRenewalInfoDecodedPayload https://developer.apple.com/documentation/appstoreserverapi/jwsrenewalinfodecodedpayload
 type JWSRenewalInfoDecodedPayload struct {
+	AutoRenewProductId          string      `json:"autoRenewProductId"`
+	AutoRenewStatus             int32       `json:"autoRenewStatus"`
+	Environment                 Environment `json:"environment"`
+	ExpirationIntent            int32       `json:"expirationIntent"`
+	GracePeriodExpiresDate      int64       `json:"gracePeriodExpiresDate"`
+	IsInBillingRetryPeriod      bool        `json:"isInBillingRetryPeriod"`
+	OfferIdentifier             string      `json:"offerIdentifier"`
+	OfferType                   string      `json:"offerType"`
+	OriginalTransactionId       string      `json:"originalTransactionId"`
+	PriceIncreaseStatus         int32       `json:"priceIncreaseStatus"`
+	ProductId                   string      `json:"productId"`
+	RecentSubscriptionStartDate int64       `json:"recentSubscriptionStartDate"`
+	RenewalDate                 int64       `json:"renewalDate"`
+	SignedDate                  int64       `json:"signedDate"`
 }
 
 // JWSDecodedHeader https://developer.apple.com/documentation/appstoreserverapi/jwsdecodedheader
@@ -114,19 +137,20 @@ type JWSTransaction struct {
 	PurchaseDate                int64             `json:"purchaseDate,omitempty"`
 	OriginalPurchaseDate        int64             `json:"originalPurchaseDate,omitempty"`
 	ExpiresDate                 int64             `json:"expiresDate,omitempty"`
-	Quantity                    int64             `json:"quantity,omitempty"`
+	Quantity                    int32             `json:"quantity,omitempty"`
 	Type                        IAPType           `json:"type,omitempty"`
 	AppAccountToken             string            `json:"appAccountToken,omitempty"`
 	InAppOwnershipType          string            `json:"inAppOwnershipType,omitempty"`
 	SignedDate                  int64             `json:"signedDate,omitempty"`
-	OfferType                   int64             `json:"offerType,omitempty"`
+	OfferType                   int32             `json:"offerType,omitempty"`
 	OfferIdentifier             string            `json:"offerIdentifier,omitempty"`
 	RevocationDate              int64             `json:"revocationDate,omitempty"`
-	RevocationReason            int               `json:"revocationReason,omitempty"`
+	RevocationReason            int32             `json:"revocationReason,omitempty"`
 	IsUpgraded                  bool              `json:"isUpgraded,omitempty"`
-	Storefront                  string            `json:"storefront"`
-	StorefrontId                string            `json:"storefrontId"`
-	TransactionReason           TransactionReason `json:"transactionReason"`
+	Storefront                  string            `json:"storefront,omitempty"`
+	StorefrontId                string            `json:"storefrontId,omitempty"`
+	TransactionReason           TransactionReason `json:"transactionReason,omitempty"`
+	Environment                 Environment       `json:"environment,omitempty"`
 }
 
 func (J JWSTransaction) Valid() error {
@@ -134,7 +158,7 @@ func (J JWSTransaction) Valid() error {
 }
 
 // https://developer.apple.com/documentation/appstoreserverapi/extendreasoncode
-type ExtendReasonCode int
+type ExtendReasonCode int32
 
 const (
 	UndeclaredExtendReasonCode = iota
@@ -145,9 +169,18 @@ const (
 
 // ExtendRenewalDateRequest https://developer.apple.com/documentation/appstoreserverapi/extendrenewaldaterequest
 type ExtendRenewalDateRequest struct {
-	ExtendByDays      int              `json:"extendByDays"`
+	ExtendByDays      int32            `json:"extendByDays"`
 	ExtendReasonCode  ExtendReasonCode `json:"extendReasonCode"`
 	RequestIdentifier string           `json:"requestIdentifier"`
+}
+
+// MassExtendRenewalDateStatusResponse https://developer.apple.com/documentation/appstoreserverapi/massextendrenewaldatestatusresponse
+type MassExtendRenewalDateStatusResponse struct {
+	RequestIdentifier string `json:"requestIdentifier"`
+	Complete          bool   `json:"complete"`
+	CompleteDate      int64  `json:"completeDate,omitempty"`
+	FailedCount       int64  `json:"failedCount,omitempty"`
+	SucceededCount    int64  `json:"succeededCount,omitempty"`
 }
 
 // NotificationHistoryRequest https://developer.apple.com/documentation/appstoreserverapi/notificationhistoryrequest
