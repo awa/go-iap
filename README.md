@@ -9,6 +9,7 @@ go-iap
 Current API Documents:
 
 * AppStore: [![GoDoc](https://godoc.org/github.com/awa/go-iap/appstore?status.svg)](https://godoc.org/github.com/awa/go-iap/appstore)
+* AppStore Server API: [![GoDoc](https://godoc.org/github.com/awa/go-iap/appstore?status.svg)](https://godoc.org/github.com/awa/go-iap/appstore/api)
 * GooglePlay: [![GoDoc](https://godoc.org/github.com/awa/go-iap/playstore?status.svg)](https://godoc.org/github.com/awa/go-iap/playstore)
 * Amazon AppStore: [![GoDoc](https://godoc.org/github.com/awa/go-iap/amazon?status.svg)](https://godoc.org/github.com/awa/go-iap/amazon)
 * Huawei HMS: [![GoDoc](https://godoc.org/github.com/awa/go-iap/hms?status.svg)](https://godoc.org/github.com/awa/go-iap/hms)
@@ -42,6 +43,8 @@ func main() {
 	err := client.Verify(ctx, req, resp)
 }
 ```
+
+**Note**: The [verifyReceipt](https://developer.apple.com/documentation/appstorereceipts/verifyreceipt) API has been deprecated as of `5 Jun 2023`. Please use [App Store Server API](#in-app-store-server-api) instead.
 
 ### In App Billing (via GooglePlay)
 
@@ -149,6 +152,7 @@ func main() {
 	for key, val := range claims {
 		fmt.Printf("Key: %v, value: %v\n", key, val) // key value of SignedRenewalInfo
 	}
+}
 ```
 
 # ToDo
