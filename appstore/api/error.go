@@ -29,7 +29,7 @@ type appStoreAPIErrorResp struct {
 	ErrorMessage string `json:"errorMessage"`
 }
 
-func newAppStoreAPIError(b []byte, reqHeader http.Header) (*Error, bool) {
+func newAppStoreAPIError(b []byte, hd http.Header) (*Error, bool) {
 	if len(b) == 0 {
 		return nil, false
 	}
@@ -41,7 +41,7 @@ func newAppStoreAPIError(b []byte, reqHeader http.Header) (*Error, bool) {
 		return nil, false
 	}
 	if rErr.ErrorCode == 4290000 {
-		retryAfter, err := strconv.ParseInt(reqHeader.Get("Retry-After"), 10, 64)
+		retryAfter, err := strconv.ParseInt(hd.Get("Retry-After"), 10, 64)
 		if err == nil {
 			return &Error{errorCode: rErr.ErrorCode, errorMessage: rErr.ErrorMessage, retryAfter: retryAfter}, true
 		}
