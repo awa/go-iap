@@ -3,12 +3,18 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strconv"
 )
 
 type Error struct {
 	// Only errorCode and errorMessage are returned by App Store Server API.
 	errorCode    int
 	errorMessage string
+
+	// retryAfter is the number of seconds after which the client can retry the request.
+	// This field is only set to the `Retry-After` header if you receive the HTTP 429 error, that informs you when you can next send a request.
+	retryAfter int64
 }
 
 func newError(errorCode int, errorMessage string) *Error {
@@ -21,6 +27,26 @@ func newError(errorCode int, errorMessage string) *Error {
 type appStoreAPIErrorResp struct {
 	ErrorCode    int    `json:"errorCode"`
 	ErrorMessage string `json:"errorMessage"`
+}
+
+func newAppStoreAPIError(b []byte, reqHeader http.Header) (*Error, bool) {
+	if len(b) == 0 {
+		return nil, false
+	}
+	var rErr appStoreAPIErrorResp
+	if err := json.Unmarshal(b, &rErr); err != nil {
+		return nil, false
+	}
+	if rErr.ErrorCode == 0 {
+		return nil, false
+	}
+	if rErr.ErrorCode == 4290000 {
+		retryAfter, err := strconv.ParseInt(reqHeader.Get("Retry-After"), 10, 64)
+		if err == nil {
+			return &Error{errorCode: rErr.ErrorCode, errorMessage: rErr.ErrorMessage, retryAfter: retryAfter}, true
+		}
+	}
+	return &Error{errorCode: rErr.ErrorCode, errorMessage: rErr.ErrorMessage}, true
 }
 
 func newErrorFromJSON(b []byte) (*Error, bool) {

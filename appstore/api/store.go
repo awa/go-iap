@@ -485,8 +485,7 @@ func (a *StoreClient) Do(ctx context.Context, method string, url string, body io
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		// try to extract detailed error.
-		if rErr, ok := newErrorFromJSON(bodyBytes); ok {
+		if rErr, ok := newAppStoreAPIError(bodyBytes, resp.Header); ok {
 			return resp.StatusCode, bodyBytes, rErr
 		}
 	}
