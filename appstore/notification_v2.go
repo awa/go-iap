@@ -17,7 +17,7 @@ const (
 	NotificationTypeV2PriceIncrease          NotificationTypeV2 = "PRICE_INCREASE"
 	NotificationTypeV2Refund                 NotificationTypeV2 = "REFUND"
 	NotificationTypeV2RefundDeclined         NotificationTypeV2 = "REFUND_DECLINED"
-	NotificationTyp2V2RefundReversed         NotificationTypeV2 = "REFUND_REVERSED"
+	NotificationTypeV2RefundReversed         NotificationTypeV2 = "REFUND_REVERSED"
 	NotificationTypeV2RenewalExtended        NotificationTypeV2 = "RENEWAL_EXTENDED"
 	NotificationTypeV2RenewalExtension       NotificationTypeV2 = "RENEWAL_EXTENSION"
 	NotificationTypeV2Revoke                 NotificationTypeV2 = "REVOKE"
