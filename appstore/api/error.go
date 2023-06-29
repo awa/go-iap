@@ -90,6 +90,10 @@ func (e *Error) ErrorMessage() string {
 	return e.errorMessage
 }
 
+func (e *Error) RetryAfter() int64 {
+	return e.retryAfter
+}
+
 func (e *Error) Retryable() bool {
 	// NOTE:
 	// RateLimitExceededError[1] could also be considered as a retryable error.
