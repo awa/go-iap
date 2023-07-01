@@ -120,6 +120,38 @@ func main() {
 		Issuer:     "xxxxx-xx-xx-xx-xxxxxxxxxx",// Your issuer ID from the Keys page in App Store Connect (Ex: "57246542-96fe-1a63-e053-0824d011072a")
 		Sandbox:    false,                      // default is Production
 	}
+	transactionId := "FAKETRANSACTIONID"
+	a := api.NewStoreClient(c)
+	ctx := context.Background()
+	response, err := a.GetTransactionInfo(ctx, transactionId)
+
+	transantion, err := a.ParseSignedTransaction(response.SignedTransactionInfo)
+
+	if transaction.TransactionId == transactionId {
+		// the transaction is valid
+	}
+}
+```
+
+```go
+import(
+	"github.com/awa/go-iap/appstore/api"
+)
+
+//  For generate key file and download it, please refer to https://developer.apple.com/documentation/appstoreserverapi/creating_api_keys_to_use_with_the_app_store_server_api
+const ACCOUNTPRIVATEKEY = `
+    -----BEGIN PRIVATE KEY-----
+    FAKEACCOUNTKEYBASE64FORMAT
+    -----END PRIVATE KEY-----
+    `
+func main() {
+	c := &api.StoreConfig{
+		KeyContent: []byte(ACCOUNTPRIVATEKEY),  // Loads a .p8 certificate
+		KeyID:      "FAKEKEYID",                // Your private key ID from App Store Connect (Ex: 2X9R4HXF34)
+		BundleID:   "fake.bundle.id",           // Your app’s bundle ID
+		Issuer:     "xxxxx-xx-xx-xx-xxxxxxxxxx",// Your issuer ID from the Keys page in App Store Connect (Ex: "57246542-96fe-1a63-e053-0824d011072a")
+		Sandbox:    false,                      // default is Production
+	}
 	originalTransactionId := "FAKETRANSACTIONID"
 	a := api.NewStoreClient(c)
 	query := &url.Values{}
