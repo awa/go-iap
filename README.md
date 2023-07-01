@@ -101,6 +101,8 @@ func main() {
 
 ### In App Store Server API
 
+- GetTransactionInfo
+
 ```go
 import(
 	"github.com/awa/go-iap/appstore/api"
@@ -132,6 +134,8 @@ func main() {
 	}
 }
 ```
+
+- GetTransactionHistory
 
 ```go
 import(
