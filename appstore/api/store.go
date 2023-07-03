@@ -322,12 +322,42 @@ func (a *StoreClient) GetSubscriptionRenewalDataStatus(ctx context.Context, prod
 	return statusCode, rsp, nil
 }
 
+// GetAllNotificationHistory returns all the NotificationHistoryResponseItem using the paginationToken on behalf of you.
+func (a *StoreClient) GetAllNotificationHistory(ctx context.Context, body NotificationHistoryRequest, duration time.Duration) (responses []NotificationHistoryResponseItem, err error) {
+	paginationToken := ""
+	for {
+		rsp, err := a.GetNotificationHistory(ctx, body, paginationToken)
+		if err != nil {
+			return nil, err
+		}
+
+		responses = append(responses, rsp.NotificationHistory...)
+
+		if rsp.HasMore {
+			paginationToken = rsp.PaginationToken
+		} else {
+			break
+		}
+
+		time.Sleep(duration)
+	}
+
+	return responses, nil
+}
+
 // GetNotificationHistory https://developer.apple.com/documentation/appstoreserverapi/get_notification_history
 // Note: Notification history is available starting on June 6, 2022. Use a startDate of June 6, 2022 or later in your request.
-func (a *StoreClient) GetNotificationHistory(ctx context.Context, body NotificationHistoryRequest) (responses []NotificationHistoryResponseItem, err error) {
+func (a *StoreClient) GetNotificationHistory(ctx context.Context, body NotificationHistoryRequest, paginationToken string) (rsp *NotificationHistoryResponses, err error) {
 	baseURL := HostProduction + PathGetNotificationHistory
 	if a.Token.Sandbox {
 		baseURL = HostSandBox + PathGetNotificationHistory
+	}
+
+	URL := baseURL
+	if paginationToken != "" {
+		query := url.Values{}
+		query.Set("paginationToken", paginationToken)
+		URL += "?" + query.Encode()
 	}
 
 	bodyBuf := new(bytes.Buffer)
@@ -336,40 +366,20 @@ func (a *StoreClient) GetNotificationHistory(ctx context.Context, body Notificat
 		return nil, err
 	}
 
-	URL := baseURL
-	for {
-		rsp := NotificationHistoryResponses{}
-		rsp.NotificationHistory = make([]NotificationHistoryResponseItem, 0)
-
-		statusCode, rspBody, errOmit := a.Do(ctx, http.MethodPost, URL, bodyBuf)
-		if errOmit != nil {
-			return nil, errOmit
-		}
-
-		if statusCode != http.StatusOK {
-			return nil, fmt.Errorf("appstore api: %v return status code %v", URL, statusCode)
-		}
-
-		err = json.Unmarshal(rspBody, &rsp)
-		if err != nil {
-			return nil, err
-		}
-
-		responses = append(responses, rsp.NotificationHistory...)
-		if !rsp.HasMore {
-			break
-		}
-
-		data := url.Values{}
-		if rsp.HasMore && rsp.PaginationToken != "" {
-			data.Set("paginationToken", rsp.PaginationToken)
-			URL = baseURL + "?" + data.Encode()
-		}
-
-		time.Sleep(10 * time.Millisecond)
+	statusCode, rspBody, err := a.Do(ctx, http.MethodPost, URL, bodyBuf)
+	if err != nil {
+		return nil, err
 	}
 
-	return responses, nil
+	if statusCode != http.StatusOK {
+		return nil, fmt.Errorf("appstore api: %v return status code %v", URL, statusCode)
+	}
+
+	if err = json.Unmarshal(rspBody, &rsp); err != nil {
+		return nil, err
+	}
+
+	return rsp, nil
 }
 
 // SendRequestTestNotification https://developer.apple.com/documentation/appstoreserverapi/request_a_test_notification
