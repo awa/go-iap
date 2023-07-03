@@ -310,6 +310,10 @@ func (a *StoreClient) GetSubscriptionRenewalDataStatus(ctx context.Context, prod
 	URL = strings.Replace(URL, "{requestIdentifier}", requestIdentifier, -1)
 
 	statusCode, body, err := a.Do(ctx, http.MethodGet, URL, nil)
+	if err != nil {
+		return statusCode, nil, err
+	}
+
 	if statusCode != http.StatusOK {
 		return statusCode, nil, fmt.Errorf("appstore api: %v return status code %v", URL, statusCode)
 	}
