@@ -128,6 +128,9 @@ func main() {
 	response, err := a.GetTransactionInfo(ctx, transactionId)
 
 	transantion, err := a.ParseSignedTransaction(response.SignedTransactionInfo)
+	if err != nil {
+	    // error handling
+	}
 
 	if transaction.TransactionId == transactionId {
 		// the transaction is valid
@@ -169,6 +172,10 @@ func main() {
 	}
 }
 ```
+- Error handling
+  - handler error per [apple store server api error](https://developer.apple.com/documentation/appstoreserverapi/error_codes) document
+  - [error definition](./appstore/api/error.go)
+
 
 ### Parse Notification from App Store
 
