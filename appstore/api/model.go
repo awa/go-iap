@@ -100,6 +100,10 @@ type JWSRenewalInfoDecodedPayload struct {
 	SignedDate                  int64       `json:"signedDate"`
 }
 
+func (J JWSRenewalInfoDecodedPayload) Valid() error {
+	return nil
+}
+
 // JWSDecodedHeader https://developer.apple.com/documentation/appstoreserverapi/jwsdecodedheader
 type JWSDecodedHeader struct {
 	Alg string   `json:"alg,omitempty"`
