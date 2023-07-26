@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -421,48 +422,78 @@ func (a *StoreClient) ParseSignedTransactions(transactions []string) ([]*JWSTran
 	return result, nil
 }
 
-// ParseSignedTransaction parse one jws singed transaction for API like GetTransactionInfo
-func (a *StoreClient) ParseSignedTransaction(transaction string) (*JWSTransaction, error) {
-	tran := &JWSTransaction{}
+// ParseJWSEncodeString parse the jws encode string, such as JWSTransaction and JWSRenewalInfoDecodedPayload
+func (a *StoreClient) ParseJWSEncodeString(jwsEncode string) (interface{}, error) {
+	// Split the JWS format string into its three parts
+	parts := strings.Split(jwsEncode, ".")
 
-	rootCertBytes, err := a.cert.extractCertByIndex(transaction, 2)
+	// Decode the payload part of the JWS format string
+	payload, err := base64.RawURLEncoding.DecodeString(parts[1])
 	if err != nil {
 		return nil, err
+	}
+
+	// Determine which struct to use based on the payload contents
+	if strings.Contains(string(payload), "transactionId") {
+		transaction := &JWSTransaction{}
+		err = a.parseJWS(jwsEncode, transaction)
+		return transaction, err
+	} else if strings.Contains(string(payload), "renewalDate") {
+		renewalInfo := &JWSRenewalInfoDecodedPayload{}
+		err = a.parseJWS(jwsEncode, renewalInfo)
+		return renewalInfo, err
+	}
+
+	return nil, nil
+}
+
+func (a *StoreClient) parseJWS(jwsEncode string, claims jwt.Claims) error {
+	rootCertBytes, err := a.cert.extractCertByIndex(jwsEncode, 2)
+	if err != nil {
+		return err
 	}
 	rootCert, err := x509.ParseCertificate(rootCertBytes)
 	if err != nil {
-		return nil, fmt.Errorf("appstore failed to parse root certificate")
+		return fmt.Errorf("appstore failed to parse root certificate")
 	}
 
-	intermediaCertBytes, err := a.cert.extractCertByIndex(transaction, 1)
+	intermediaCertBytes, err := a.cert.extractCertByIndex(jwsEncode, 1)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	intermediaCert, err := x509.ParseCertificate(intermediaCertBytes)
 	if err != nil {
-		return nil, fmt.Errorf("appstore failed to parse intermediate certificate")
+		return fmt.Errorf("appstore failed to parse intermediate certificate")
 	}
 
-	leafCertBytes, err := a.cert.extractCertByIndex(transaction, 0)
+	leafCertBytes, err := a.cert.extractCertByIndex(jwsEncode, 0)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	leafCert, err := x509.ParseCertificate(leafCertBytes)
 	if err != nil {
-		return nil, fmt.Errorf("appstore failed to parse leaf certificate")
+		return fmt.Errorf("appstore failed to parse leaf certificate")
 	}
 	if err = a.cert.verifyCert(rootCert, intermediaCert, leafCert); err != nil {
-		return nil, err
+		return err
 	}
 
 	pk, ok := leafCert.PublicKey.(*ecdsa.PublicKey)
 	if !ok {
-		return nil, fmt.Errorf("appstore public key must be of type ecdsa.PublicKey")
+		return fmt.Errorf("appstore public key must be of type ecdsa.PublicKey")
 	}
 
-	_, err = jwt.ParseWithClaims(transaction, tran, func(token *jwt.Token) (interface{}, error) {
+	_, err = jwt.ParseWithClaims(jwsEncode, claims, func(token *jwt.Token) (interface{}, error) {
 		return pk, nil
 	})
+	return err
+}
+
+// ParseSignedTransaction parse one jws singed transaction for API like GetTransactionInfo
+func (a *StoreClient) ParseSignedTransaction(transaction string) (*JWSTransaction, error) {
+	tran := &JWSTransaction{}
+
+	err := a.parseJWS(transaction, tran)
 	if err != nil {
 		return nil, err
 	}
