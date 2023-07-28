@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	// SandboxURL is the endpoint for local environment.
-	SandboxURL string = "http://localhost:8080/RVSSandbox"
+	// SandboxURL is the endpoint for amazon appstore RVS Cloud Sandbox environment.
+	SandboxURL string = "https://appstore-sdk.amazon.com/sandbox"
 	// ProductionURL is the endpoint for production environment.
 	ProductionURL string = "https://appstore-sdk.amazon.com"
 )
