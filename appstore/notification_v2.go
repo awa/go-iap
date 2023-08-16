@@ -22,7 +22,7 @@ const (
 	NotificationTypeV2RenewalExtension       NotificationTypeV2 = "RENEWAL_EXTENSION"
 	NotificationTypeV2Revoke                 NotificationTypeV2 = "REVOKE"
 	NotificationTypeV2Subscribed             NotificationTypeV2 = "SUBSCRIBED"
-	NotificationTyp2V2Test                   NotificationTypeV2 = "TEST"
+	NotificationTypeV2Test                   NotificationTypeV2 = "TEST"
 )
 
 // SubtypeV2 is type
