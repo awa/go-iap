@@ -89,11 +89,11 @@ type JWSRenewalInfoDecodedPayload struct {
 	Environment                 Environment `json:"environment"`
 	ExpirationIntent            int32       `json:"expirationIntent"`
 	GracePeriodExpiresDate      int64       `json:"gracePeriodExpiresDate"`
-	IsInBillingRetryPeriod      bool        `json:"isInBillingRetryPeriod"`
+	IsInBillingRetryPeriod      *bool       `json:"isInBillingRetryPeriod"`
 	OfferIdentifier             string      `json:"offerIdentifier"`
 	OfferType                   string      `json:"offerType"`
 	OriginalTransactionId       string      `json:"originalTransactionId"`
-	PriceIncreaseStatus         int32       `json:"priceIncreaseStatus"`
+	PriceIncreaseStatus         *int32      `json:"priceIncreaseStatus"`
 	ProductId                   string      `json:"productId"`
 	RecentSubscriptionStartDate int64       `json:"recentSubscriptionStartDate"`
 	RenewalDate                 int64       `json:"renewalDate"`
@@ -149,7 +149,7 @@ type JWSTransaction struct {
 	OfferType                   int32             `json:"offerType,omitempty"`
 	OfferIdentifier             string            `json:"offerIdentifier,omitempty"`
 	RevocationDate              int64             `json:"revocationDate,omitempty"`
-	RevocationReason            int32             `json:"revocationReason,omitempty"`
+	RevocationReason            *int32            `json:"revocationReason,omitempty"`
 	IsUpgraded                  bool              `json:"isUpgraded,omitempty"`
 	Storefront                  string            `json:"storefront,omitempty"`
 	StorefrontId                string            `json:"storefrontId,omitempty"`
