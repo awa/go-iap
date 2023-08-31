@@ -52,10 +52,10 @@ type SubscriptionGroupIdentifierItem struct {
 }
 
 type LastTransactionsItem struct {
-	OriginalTransactionId string `json:"originalTransactionId"`
-	Status                int32  `json:"status"`
-	SignedRenewalInfo     string `json:"signedRenewalInfo"`
-	SignedTransactionInfo string `json:"signedTransactionInfo"`
+	OriginalTransactionId string                      `json:"originalTransactionId"`
+	Status                AutoRenewSubscriptionStatus `json:"status"`
+	SignedRenewalInfo     string                      `json:"signedRenewalInfo"`
+	SignedTransactionInfo string                      `json:"signedTransactionInfo"`
 }
 
 // MassExtendRenewalDateRequest https://developer.apple.com/documentation/appstoreserverapi/massextendrenewaldaterequest
@@ -84,20 +84,20 @@ type ConsumptionRequestBody struct {
 
 // JWSRenewalInfoDecodedPayload https://developer.apple.com/documentation/appstoreserverapi/jwsrenewalinfodecodedpayload
 type JWSRenewalInfoDecodedPayload struct {
-	AutoRenewProductId          string      `json:"autoRenewProductId"`
-	AutoRenewStatus             int32       `json:"autoRenewStatus"`
-	Environment                 Environment `json:"environment"`
-	ExpirationIntent            int32       `json:"expirationIntent"`
-	GracePeriodExpiresDate      int64       `json:"gracePeriodExpiresDate"`
-	IsInBillingRetryPeriod      *bool       `json:"isInBillingRetryPeriod"`
-	OfferIdentifier             string      `json:"offerIdentifier"`
-	OfferType                   string      `json:"offerType"`
-	OriginalTransactionId       string      `json:"originalTransactionId"`
-	PriceIncreaseStatus         *int32      `json:"priceIncreaseStatus"`
-	ProductId                   string      `json:"productId"`
-	RecentSubscriptionStartDate int64       `json:"recentSubscriptionStartDate"`
-	RenewalDate                 int64       `json:"renewalDate"`
-	SignedDate                  int64       `json:"signedDate"`
+	AutoRenewProductId          string          `json:"autoRenewProductId"`
+	AutoRenewStatus             AutoRenewStatus `json:"autoRenewStatus"`
+	Environment                 Environment     `json:"environment"`
+	ExpirationIntent            int32           `json:"expirationIntent"`
+	GracePeriodExpiresDate      int64           `json:"gracePeriodExpiresDate"`
+	IsInBillingRetryPeriod      *bool           `json:"isInBillingRetryPeriod"`
+	OfferIdentifier             string          `json:"offerIdentifier"`
+	OfferType                   string          `json:"offerType"`
+	OriginalTransactionId       string          `json:"originalTransactionId"`
+	PriceIncreaseStatus         *int32          `json:"priceIncreaseStatus"`
+	ProductId                   string          `json:"productId"`
+	RecentSubscriptionStartDate int64           `json:"recentSubscriptionStartDate"`
+	RenewalDate                 int64           `json:"renewalDate"`
+	SignedDate                  int64           `json:"signedDate"`
 }
 
 func (J JWSRenewalInfoDecodedPayload) Valid() error {
@@ -241,3 +241,17 @@ const (
 type SendTestNotificationResponse struct {
 	TestNotificationToken string `json:"testNotificationToken"`
 }
+
+type AutoRenewSubscriptionStatus int32
+type AutoRenewStatus int32
+
+const (
+	SubscriptionActive      AutoRenewSubscriptionStatus = 1
+	SubscriptionExpired     AutoRenewSubscriptionStatus = 2
+	SubscriptionRetryPeriod AutoRenewSubscriptionStatus = 3
+	SubscriptionGracePeriod AutoRenewSubscriptionStatus = 4
+	SubscriptionRevoked     AutoRenewSubscriptionStatus = 5
+
+	AutoRenewStatusOff AutoRenewStatus = 0
+	AutoRenewStatusOn  AutoRenewStatus = 1
+)
