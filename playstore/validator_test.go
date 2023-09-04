@@ -252,6 +252,22 @@ func TestRevokeSubscription(t *testing.T) {
 	// TODO Normal scenario
 }
 
+func TestGetSubscriptionOffer(t *testing.T) {
+	t.Parallel()
+	// Exception scenario
+	expected := "googleapi: Error 404: Package not found: package., notFound"
+
+	client, _ := New(jsonKey)
+	ctx := context.Background()
+	_, err := client.GetSubscriptionOffer(ctx, "package", "productID", "basePlanID", "offerID")
+
+	if err == nil || err.Error() != expected {
+		t.Errorf("got %v", err)
+	}
+
+	// TODO Normal scenario
+}
+
 func TestVerifySignature(t *testing.T) {
 	t.Parallel()
 	receipt := []byte(`{"orderId":"GPA.xxxx-xxxx-xxxx-xxxxx","packageName":"my.package","productId":"myproduct","purchaseTime":1437564796303,"purchaseState":0,"developerPayload":"user001","purchaseToken":"some-token"}`)
