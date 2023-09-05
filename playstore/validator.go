@@ -18,7 +18,7 @@ import (
 	androidpublisher "google.golang.org/api/androidpublisher/v3"
 )
 
-//go:generate mockgen  -destination=mocks/playstore.go -package=mocks github.com/awa/go-iap/playstore IABProduct,IABSubscription
+//go:generate mockgen  -destination=mocks/playstore.go -package=mocks github.com/awa/go-iap/playstore IABProduct,IABSubscription,IABMonetization
 
 // The IABProduct type is an interface for product service
 type IABProduct interface {
@@ -34,6 +34,10 @@ type IABSubscription interface {
 	CancelSubscription(context.Context, string, string, string) error
 	RefundSubscription(context.Context, string, string, string) error
 	RevokeSubscription(context.Context, string, string, string) error
+}
+
+// The IABMonetization type is an interface for monetization service
+type IABMonetization interface {
 	GetSubscriptionOffer(context.Context, string, string, string, string) (*androidpublisher.SubscriptionOffer, error)
 }
 
@@ -197,7 +201,7 @@ func (c *Client) RevokeSubscription(ctx context.Context, packageName string, sub
 	return err
 }
 
-// GetSubscriptionOffer returns the subscriptions offer.
+// GetSubscriptionOffer reads a single subscription offer.
 func (c *Client) GetSubscriptionOffer(ctx context.Context,
 	packageName string,
 	productID string,
