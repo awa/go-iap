@@ -1,3 +1,5 @@
+//go:generate mockgen -destination=../mocks/store.go -package=mocks github.com/awa/go-iap/appstore/api StoreAPIClient
+
 package api
 
 import (
@@ -42,6 +44,52 @@ type StoreConfig struct {
 	Issuer     string // Your issuer ID from the Keys page in App Store Connect (Ex: "57246542-96fe-1a63-e053-0824d011072a")
 	Sandbox    bool   // default is Production
 }
+
+type (
+	StoreAPIClient interface {
+		SubscriptionGetter
+		SubscriptionExtender
+		TransactionParser
+		NotificationGetter
+		NotificationSender
+		ConsumptionSender
+		Do(ctx context.Context, method string, url string, body io.Reader) (int, []byte, error)
+	}
+
+	SubscriptionGetter interface {
+		GetALLSubscriptionStatuses(ctx context.Context, originalTransactionId string, query *url.Values) (rsp *StatusResponse, err error)
+		GetRefundHistory(ctx context.Context, originalTransactionId string) (responses []*RefundLookupResponse, err error)
+		GetSubscriptionRenewalDataStatus(ctx context.Context, productId, requestIdentifier string) (statusCode int, rsp *MassExtendRenewalDateStatusResponse, err error)
+		GetTransactionHistory(ctx context.Context, originalTransactionId string, query *url.Values) (responses []*HistoryResponse, err error)
+		GetTransactionInfo(ctx context.Context, transactionId string) (rsp *TransactionInfoResponse, err error)
+		LookupOrderID(ctx context.Context, orderId string) (rsp *OrderLookupResponse, err error)
+	}
+
+	SubscriptionExtender interface {
+		ExtendSubscriptionRenewalDate(ctx context.Context, originalTransactionId string, body ExtendRenewalDateRequest) (statusCode int, err error)
+		ExtendSubscriptionRenewalDateForAll(ctx context.Context, body MassExtendRenewalDateRequest) (statusCode int, err error)
+	}
+
+	TransactionParser interface {
+		ParseSignedTransactions(transactions []string) ([]*JWSTransaction, error)
+		ParseJWSEncodeString(jwsEncode string) (interface{}, error)
+		ParseSignedTransaction(transaction string) (*JWSTransaction, error)
+	}
+
+	NotificationGetter interface {
+		GetAllNotificationHistory(ctx context.Context, body NotificationHistoryRequest, duration time.Duration) (responses []NotificationHistoryResponseItem, err error)
+		GetNotificationHistory(ctx context.Context, body NotificationHistoryRequest, paginationToken string) (rsp *NotificationHistoryResponses, err error)
+		GetTestNotificationStatus(ctx context.Context, testNotificationToken string) (int, []byte, error)
+	}
+
+	NotificationSender interface {
+		SendRequestTestNotification(ctx context.Context) (int, []byte, error)
+	}
+
+	ConsumptionSender interface {
+		SendConsumptionInfo(ctx context.Context, originalTransactionId string, body ConsumptionRequestBody) (statusCode int, err error)
+	}
+)
 
 type StoreClient struct {
 	Token   *Token

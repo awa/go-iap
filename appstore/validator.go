@@ -1,3 +1,5 @@
+//go:generate mockgen  -destination=mocks/appstore.go -package=mocks github.com/awa/go-iap/appstore IAPClient
+
 package appstore
 
 import (
@@ -12,8 +14,6 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 )
-
-//go:generate mockgen  -destination=mocks/appstore.go -package=mocks github.com/awa/go-iap/appstore IAPClient
 
 const (
 	// SandboxURL is the endpoint for sandbox environment.
