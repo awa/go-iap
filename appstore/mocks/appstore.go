@@ -54,6 +54,20 @@ func (mr *MockIAPClientMockRecorder) ParseNotificationV2(arg0, arg1 any) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseNotificationV2", reflect.TypeOf((*MockIAPClient)(nil).ParseNotificationV2), arg0, arg1)
 }
 
+// ParseNotificationV2WithClaim mocks base method.
+func (m *MockIAPClient) ParseNotificationV2WithClaim(arg0 string, arg1 jwt.Claims) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ParseNotificationV2WithClaim", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ParseNotificationV2WithClaim indicates an expected call of ParseNotificationV2WithClaim.
+func (mr *MockIAPClientMockRecorder) ParseNotificationV2WithClaim(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseNotificationV2WithClaim", reflect.TypeOf((*MockIAPClient)(nil).ParseNotificationV2WithClaim), arg0, arg1)
+}
+
 // Verify mocks base method.
 func (m *MockIAPClient) Verify(arg0 context.Context, arg1 appstore.IAPRequest, arg2 any) error {
 	m.ctrl.T.Helper()
