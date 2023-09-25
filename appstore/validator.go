@@ -199,11 +199,8 @@ func (c *Client) ParseNotificationV2(tokenStr string, result *jwt.Token) error {
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		return cert.ExtractPublicKeyFromToken(tokenStr)
 	})
-	if err != nil {
-		return err
-	}
 	*result = *token
-	return nil
+	return err
 }
 
 // ParseNotificationV2WithClaim parse notification from App Store Server
