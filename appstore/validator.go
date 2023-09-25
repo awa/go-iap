@@ -29,6 +29,7 @@ type IAPClient interface {
 	Verify(ctx context.Context, reqBody IAPRequest, resp interface{}) error
 	VerifyWithStatus(ctx context.Context, reqBody IAPRequest, resp interface{}) (int, error)
 	ParseNotificationV2(tokenStr string, result *jwt.Token) error
+	ParseNotificationV2WithClaim(tokenStr string, result jwt.Claims) error
 }
 
 // Client implements IAPClient
@@ -203,4 +204,14 @@ func (c *Client) ParseNotificationV2(tokenStr string, result *jwt.Token) error {
 	}
 	*result = *token
 	return nil
+}
+
+// ParseNotificationV2WithClaim parse notification from App Store Server
+func (c *Client) ParseNotificationV2WithClaim(tokenStr string, result jwt.Claims) error {
+	cert := Cert{}
+
+	_, err := jwt.ParseWithClaims(tokenStr, result, func(token *jwt.Token) (interface{}, error) {
+		return cert.ExtractPublicKeyFromToken(tokenStr)
+	})
+	return err
 }
