@@ -1,5 +1,7 @@
 package appstore
 
+import "github.com/golang-jwt/jwt/v4"
+
 // NotificationTypeV2 is type
 type NotificationTypeV2 string
 
@@ -141,6 +143,7 @@ type (
 		SignedDate          int64                             `json:"signedDate"`
 		Data                SubscriptionNotificationV2Data    `json:"data,omitempty"`
 		Summary             SubscriptionNotificationV2Summary `json:"summary,omitempty"`
+		jwt.RegisteredClaims
 	}
 
 	// SubscriptionNotificationV2Summary is struct
@@ -200,6 +203,7 @@ type (
 		RecentSubscriptionStartDate int64               `json:"recentSubscriptionStartDate"`
 		RenewalDate                 int64               `json:"renewalDate"`
 		SignedDate                  int64               `json:"signedDate"`
+		jwt.RegisteredClaims
 	}
 
 	// JWSTransactionDecodedPayload contains the decoded transaction information
@@ -228,5 +232,6 @@ type (
 		TransactionReason           TransactionReason `json:"transactionReason"`
 		IAPtype                     IAPType           `json:"type"`
 		WebOrderLineItemId          string            `json:"webOrderLineItemId"`
+		jwt.RegisteredClaims
 	}
 )
