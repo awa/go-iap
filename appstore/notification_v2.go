@@ -54,7 +54,7 @@ const (
 type AutoRenewStatus int
 
 const (
-	Off RevocationReason = iota
+	Off AutoRenewStatus = iota
 	On
 )
 
