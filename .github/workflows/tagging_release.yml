@@ -1,0 +1,53 @@
+name: Bump version and Create release.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  tagging-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          release_branches: master
+          tag_prefix: "v"
+
+      - name: Get latest release
+        uses: actions/github-script@v6
+        id: latest_release
+        with:
+          result-encoding: string
+          retries: 3
+          script: |
+            const res = await github.rest.repos.getLatestRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+            return res.data.tag_name;
+
+      - name: Generate release note and Create release
+        uses: actions/github-script@v6
+        with:
+          retries: 3
+          script: |
+            const note = await github.rest.repos.generateReleaseNotes({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: "${{ steps.tag_version.outputs.new_tag }}",
+              previous_tag_name: "${{ steps.latest_release.outputs.result }}"
+            })
+
+            const res = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: "${{ steps.tag_version.outputs.new_tag }}",
+              name: note.data.name,
+              body: note.data.body
+            })
+            return res.data;
