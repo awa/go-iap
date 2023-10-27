@@ -33,7 +33,7 @@ const (
 type DeveloperNotification struct {
 	Version                    string                     `json:"version"`
 	PackageName                string                     `json:"packageName"`
-	EventTimeMillis            string                     `json:"eventTimeMillis"`
+	EventTimeMillis            int64                      `json:"eventTimeMillis"`
 	SubscriptionNotification   SubscriptionNotification   `json:"subscriptionNotification,omitempty"`
 	OneTimeProductNotification OneTimeProductNotification `json:"oneTimeProductNotification,omitempty"`
 	TestNotification           TestNotification           `json:"testNotification,omitempty"`
