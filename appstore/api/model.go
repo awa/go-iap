@@ -130,6 +130,14 @@ const (
 	NonRenewable  IAPType = "Non-Renewing Subscription"
 )
 
+type OfferDiscountType string
+
+const (
+	OfferDiscountTypeFreeTrial  OfferDiscountType = "FREE_TRIAL"
+	OfferDiscountTypePayAsYouGo OfferDiscountType = "PAY_AS_YOU_GO"
+	OfferDiscountTypePayUpFront OfferDiscountType = "PAY_UP_FRONT"
+)
+
 // JWSTransaction https://developer.apple.com/documentation/appstoreserverapi/jwstransaction
 type JWSTransaction struct {
 	TransactionID               string            `json:"transactionId,omitempty"`
@@ -155,6 +163,9 @@ type JWSTransaction struct {
 	StorefrontId                string            `json:"storefrontId,omitempty"`
 	TransactionReason           TransactionReason `json:"transactionReason,omitempty"`
 	Environment                 Environment       `json:"environment,omitempty"`
+	Price                       int32             `json:"price,omitempty"`
+	Currency                    string            `json:"currency,omitempty"`
+	OfferDiscountType           OfferDiscountType `json:"offerDiscountType,omitempty"`
 }
 
 func (J JWSTransaction) Valid() error {
