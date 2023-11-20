@@ -6,6 +6,7 @@ import (
 	"errors"
 	"reflect"
 	"testing"
+	"time"
 
 	"google.golang.org/api/androidpublisher/v3"
 	"google.golang.org/appengine/urlfetch"
@@ -195,11 +196,15 @@ func TestConsumeProduct(t *testing.T) {
 func TestVoidedPurchases(t *testing.T) {
 	t.Parallel()
 	// Exception scenario
-	expected := "googleapi: Error 403: The current user has insufficient permissions to perform the requested operation., forbidden"
+	expected := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
 
 	client, _ := New(jsonKey)
 	ctx := context.Background()
-	_, err := client.VoidedPurchases(ctx, "package", 0, 0, 3, "token", 0, VoidedPurchaseTypeWithoutSubscription)
+
+	endTime := time.Now()
+	startTime := endTime.Add(-29 * 24 * time.Hour)
+
+	_, err := client.VoidedPurchases(ctx, "package", startTime.UnixMilli(), endTime.UnixMilli(), 3, "", 0, VoidedPurchaseTypeWithoutSubscription)
 
 	if err == nil || err.Error() != expected {
 		t.Errorf("got %v", err)
