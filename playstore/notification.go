@@ -39,13 +39,13 @@ const (
 // Detailed description is following.
 // https://developer.android.com/google/play/billing/rtdn-reference#json_specification
 type DeveloperNotification struct {
-	Version                    string                      `json:"version"`
-	PackageName                string                      `json:"packageName"`
-	EventTimeMillis            string                      `json:"eventTimeMillis"`
-	SubscriptionNotification   SubscriptionNotification    `json:"subscriptionNotification,omitempty"`
-	OneTimeProductNotification OneTimeProductNotification  `json:"oneTimeProductNotification,omitempty"`
-	VoidedPurchaseNotification *VoidedPurchaseNotification `json:"voidedPurchaseNotification,omitempty"`
-	TestNotification           TestNotification            `json:"testNotification,omitempty"`
+	Version                    string                     `json:"version"`
+	PackageName                string                     `json:"packageName"`
+	EventTimeMillis            string                     `json:"eventTimeMillis"`
+	SubscriptionNotification   SubscriptionNotification   `json:"subscriptionNotification,omitempty"`
+	OneTimeProductNotification OneTimeProductNotification `json:"oneTimeProductNotification,omitempty"`
+	VoidedPurchaseNotification VoidedPurchaseNotification `json:"voidedPurchaseNotification,omitempty"`
+	TestNotification           TestNotification           `json:"testNotification,omitempty"`
 }
 
 // SubscriptionNotification has subscription status as notificationType, token and subscription id
