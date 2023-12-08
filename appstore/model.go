@@ -102,15 +102,15 @@ type (
 
 	// The InApp type has the receipt attributes
 	InApp struct {
-		Quantity                    string `json:"quantity"`
-		ProductID                   string `json:"product_id"`
-		TransactionID               string `json:"transaction_id"`
-		OriginalTransactionID       string `json:"original_transaction_id"` // this field is string
-		WebOrderLineItemID          string `json:"web_order_line_item_id,omitempty"`
-		PromotionalOfferID          string `json:"promotional_offer_id"`
-		SubscriptionGroupIdentifier string `json:"subscription_group_identifier"`
-		OfferCodeRefName            string `json:"offer_code_ref_name,omitempty"`
-		AppAccountToken             string `json:"app_account_token,omitempty"`
+		Quantity                    string        `json:"quantity"`
+		ProductID                   string        `json:"product_id"`
+		TransactionID               string        `json:"transaction_id"`
+		OriginalTransactionID       NumericString `json:"original_transaction_id"`
+		WebOrderLineItemID          string        `json:"web_order_line_item_id,omitempty"`
+		PromotionalOfferID          string        `json:"promotional_offer_id"`
+		SubscriptionGroupIdentifier string        `json:"subscription_group_identifier"`
+		OfferCodeRefName            string        `json:"offer_code_ref_name,omitempty"`
+		AppAccountToken             string        `json:"app_account_token,omitempty"`
 
 		IsTrialPeriod        string `json:"is_trial_period"`
 		IsInIntroOfferPeriod string `json:"is_in_intro_offer_period,omitempty"`
