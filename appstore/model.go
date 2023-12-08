@@ -105,7 +105,7 @@ type (
 		Quantity                    string        `json:"quantity"`
 		ProductID                   string        `json:"product_id"`
 		TransactionID               string        `json:"transaction_id"`
-		OriginalTransactionID       NumericString `json:"original_transaction_id"`
+		OriginalTransactionID       NumericString `json:"original_transaction_id,omitempty"`
 		WebOrderLineItemID          string        `json:"web_order_line_item_id,omitempty"`
 		PromotionalOfferID          string        `json:"promotional_offer_id"`
 		SubscriptionGroupIdentifier string        `json:"subscription_group_identifier"`
@@ -211,7 +211,7 @@ type (
 		ItemID               string `json:"item_id"`
 		ProductID            string `json:"product_id"`
 		PurchaseDate
-		OriginalTransactionID NumericString `json:"original_transaction_id"`
+		OriginalTransactionID NumericString `json:"original_transaction_id,omitempty"`
 		OriginalPurchaseDate
 		Quantity                  string        `json:"quantity"`
 		TransactionID             string        `json:"transaction_id"`
