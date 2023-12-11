@@ -66,7 +66,7 @@ type NotificationReceipt struct {
 	BID                       string        `json:"bid"`
 	BVRS                      string        `json:"bvrs"`
 	TransactionID             string        `json:"transaction_id"`
-	OriginalTransactionID     numericString `json:"original_transaction_id"`
+	OriginalTransactionID     NumericString `json:"original_transaction_id,omitempty"`
 	IsTrialPeriod             string        `json:"is_trial_period"`
 	IsInIntroOfferPeriod      string        `json:"is_in_intro_offer_period"`
 
@@ -94,7 +94,7 @@ type SubscriptionNotification struct {
 
 	// Not show in raw notify body
 	Password              string        `json:"password"`
-	OriginalTransactionID numericString `json:"original_transaction_id"`
+	OriginalTransactionID NumericString `json:"original_transaction_id,omitempty"`
 	AutoRenewAdamID       string        `json:"auto_renew_adam_id"`
 
 	// The primary key for identifying a subscription purchase.
@@ -103,7 +103,7 @@ type SubscriptionNotification struct {
 
 	// This is the same as the Subscription Expiration Intent in the receipt.
 	// Posted only if notification_type is RENEWAL or INTERACTIVE_RENEWAL.
-	ExpirationIntent numericString `json:"expiration_intent"`
+	ExpirationIntent NumericString `json:"expiration_intent"`
 
 	// Auto renew info
 	AutoRenewStatus    string `json:"auto_renew_status"` // false or true

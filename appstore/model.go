@@ -2,14 +2,14 @@ package appstore
 
 import "encoding/json"
 
-type numericString string
+type NumericString string
 
-func (n *numericString) UnmarshalJSON(b []byte) error {
+func (n *NumericString) UnmarshalJSON(b []byte) error {
 	var number json.Number
 	if err := json.Unmarshal(b, &number); err != nil {
 		return err
 	}
-	*n = numericString(number.String())
+	*n = NumericString(number.String())
 	return nil
 }
 
@@ -102,15 +102,15 @@ type (
 
 	// The InApp type has the receipt attributes
 	InApp struct {
-		Quantity                    string `json:"quantity"`
-		ProductID                   string `json:"product_id"`
-		TransactionID               string `json:"transaction_id"`
-		OriginalTransactionID       string `json:"original_transaction_id"` // this field is string
-		WebOrderLineItemID          string `json:"web_order_line_item_id,omitempty"`
-		PromotionalOfferID          string `json:"promotional_offer_id"`
-		SubscriptionGroupIdentifier string `json:"subscription_group_identifier"`
-		OfferCodeRefName            string `json:"offer_code_ref_name,omitempty"`
-		AppAccountToken             string `json:"app_account_token,omitempty"`
+		Quantity                    string        `json:"quantity"`
+		ProductID                   string        `json:"product_id"`
+		TransactionID               string        `json:"transaction_id"`
+		OriginalTransactionID       NumericString `json:"original_transaction_id,omitempty"`
+		WebOrderLineItemID          string        `json:"web_order_line_item_id,omitempty"`
+		PromotionalOfferID          string        `json:"promotional_offer_id"`
+		SubscriptionGroupIdentifier string        `json:"subscription_group_identifier"`
+		OfferCodeRefName            string        `json:"offer_code_ref_name,omitempty"`
+		AppAccountToken             string        `json:"app_account_token,omitempty"`
 
 		IsTrialPeriod        string `json:"is_trial_period"`
 		IsInIntroOfferPeriod string `json:"is_in_intro_offer_period,omitempty"`
@@ -131,11 +131,11 @@ type (
 	Receipt struct {
 		ReceiptType                string        `json:"receipt_type"`
 		AdamID                     int64         `json:"adam_id"`
-		AppItemID                  numericString `json:"app_item_id"`
+		AppItemID                  NumericString `json:"app_item_id"`
 		BundleID                   string        `json:"bundle_id"`
 		ApplicationVersion         string        `json:"application_version"`
 		DownloadID                 int64         `json:"download_id"`
-		VersionExternalIdentifier  numericString `json:"version_external_identifier"`
+		VersionExternalIdentifier  NumericString `json:"version_external_identifier"`
 		OriginalApplicationVersion string        `json:"original_application_version"`
 		InApp                      []InApp       `json:"in_app"`
 		ReceiptCreationDate
@@ -201,7 +201,7 @@ type (
 
 	// ReceiptForIOS6 is struct
 	ReceiptForIOS6 struct {
-		AppItemID numericString `json:"app_item_id"`
+		AppItemID NumericString `json:"app_item_id"`
 		BID       string        `json:"bid"`
 		BVRS      string        `json:"bvrs"`
 		CancellationDate
@@ -211,13 +211,13 @@ type (
 		ItemID               string `json:"item_id"`
 		ProductID            string `json:"product_id"`
 		PurchaseDate
-		OriginalTransactionID numericString `json:"original_transaction_id"`
+		OriginalTransactionID NumericString `json:"original_transaction_id,omitempty"`
 		OriginalPurchaseDate
 		Quantity                  string        `json:"quantity"`
 		TransactionID             string        `json:"transaction_id"`
 		UniqueIdentifier          string        `json:"unique_identifier"`
 		UniqueVendorIdentifier    string        `json:"unique_vendor_identifier"`
-		VersionExternalIdentifier numericString `json:"version_external_identifier,omitempty"`
+		VersionExternalIdentifier NumericString `json:"version_external_identifier,omitempty"`
 		WebOrderLineItemID        string        `json:"web_order_line_item_id"`
 	}
 )
