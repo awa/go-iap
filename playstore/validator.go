@@ -34,6 +34,13 @@ type IABSubscription interface {
 	CancelSubscription(context.Context, string, string, string) error
 	RefundSubscription(context.Context, string, string, string) error
 	RevokeSubscription(context.Context, string, string, string) error
+	DeferSubscription(context.Context, string, string, string, *androidpublisher.SubscriptionPurchasesDeferRequest) error
+}
+
+// The IABSubscriptionV2 type is an interface  for subscriptionV2 service
+type IABSubscriptionV2 interface {
+	VerifySubscriptionV2(context.Context, string, string, string) (*androidpublisher.SubscriptionPurchaseV2, error)
+	RevokeSubscriptionV2(context.Context, string, string, *androidpublisher.RevokeSubscriptionPurchaseRequest) (*androidpublisher.RevokeSubscriptionPurchaseResponse, error)
 }
 
 // The IABMonetization type is an interface for monetization service
@@ -123,6 +130,7 @@ func (c *Client) AcknowledgeSubscription(
 }
 
 // VerifySubscription verifies subscription status
+// Deprecated
 func (c *Client) VerifySubscription(
 	ctx context.Context,
 	packageName string,
@@ -143,6 +151,19 @@ func (c *Client) VerifySubscriptionV2(
 ) (*androidpublisher.SubscriptionPurchaseV2, error) {
 	ps := androidpublisher.NewPurchasesSubscriptionsv2Service(c.service)
 	result, err := ps.Get(packageName, token).Context(ctx).Do()
+
+	return result, err
+}
+
+// RevokeSubscriptionV2 verifies subscription status
+func (c *Client) RevokeSubscriptionV2(
+	ctx context.Context,
+	packageName string,
+	token string,
+	req *androidpublisher.RevokeSubscriptionPurchaseRequest,
+) (*androidpublisher.RevokeSubscriptionPurchaseResponse, error) {
+	ps := androidpublisher.NewPurchasesSubscriptionsv2Service(c.service)
+	result, err := ps.Revoke(packageName, token, req).Context(ctx).Do()
 
 	return result, err
 }
@@ -199,6 +220,16 @@ func (c *Client) RevokeSubscription(ctx context.Context, packageName string, sub
 	err := ps.Revoke(packageName, subscriptionID, token).Context(ctx).Do()
 
 	return err
+}
+
+// DeferSubscription refunds and immediately defers a user's subscription purchase.
+// Access to the subscription will be terminated immediately and it will stop recurring.
+func (c *Client) DeferSubscription(ctx context.Context, packageName string, subscriptionID string, token string,
+	req *androidpublisher.SubscriptionPurchasesDeferRequest) (*androidpublisher.SubscriptionPurchasesDeferResponse, error) {
+	ps := androidpublisher.NewPurchasesSubscriptionsService(c.service)
+	result, err := ps.Defer(packageName, subscriptionID, token, req).Context(ctx).Do()
+
+	return result, err
 }
 
 // GetSubscriptionOffer reads a single subscription offer.
