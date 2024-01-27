@@ -7,11 +7,25 @@ import (
 	"log"
 )
 
+// ConfirmPurchases gets subscriptions info with subscriptionId and purchaseToken.
+// This API is used to notify the Huawei IAP server to update the delivery status of a consumable after it is successfully delivered. If no notification is sent, the consumable cannot be purchased again.
+// Document: https://developer.huawei.com/consumer/en/doc/HMSCore-References/api-purchase-confirm-for-order-service-0000001051066054
+func (c *Client) ConfirmPurchases(ctx context.Context, purchaseToken, productID string, accountFlag int64) (success bool, responseMessage string, err error) {
+	bodyMap := map[string]string{
+		"productId":     productID,
+		"purchaseToken": purchaseToken,
+	}
+	var resp ModifySubscriptionResponse
+	success, resp, err = c.modifySubscriptionQuery(ctx, bodyMap, accountFlag, "/applications/v2/purchases/confirm")
+	responseMessage = resp.ResponseMessage
+	return
+}
+
 // CancelSubscriptionRenewal Cancel a aubscription from auto-renew when expired.
 // Note that this does not cancel the current subscription.
 // If you want to revoke a subscription, use Client.RevokeSubscription() instead.
 // Source code originated from https://github.com/HMS-Core/hms-iap-serverdemo/blob/92241f97fed1b68ddeb7cb37ea4ca6e6d33d2a87/demo/subscription.go#L54
-// Document: https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/api-cancel-subscription-0000001050746115-V5
+// Document: https://developer.huawei.com/consumer/en/doc/HMSCore-References/api-cancel-subscription-0000001050746115
 func (c *Client) CancelSubscriptionRenewal(ctx context.Context, purchaseToken, subscriptionID string, accountFlag int64) (success bool, responseMessage string, err error) {
 	bodyMap := map[string]string{
 		"subscriptionId": subscriptionID,
@@ -23,10 +37,10 @@ func (c *Client) CancelSubscriptionRenewal(ctx context.Context, purchaseToken, s
 	return
 }
 
-// ExtendSubscription extend the current subscription expiration date without chanrging the customer.
+// DelaySubscription extend the current subscription expiration date without chanrging the customer.
 // Source code originated from https://github.com/HMS-Core/hms-iap-serverdemo/blob/92241f97fed1b68ddeb7cb37ea4ca6e6d33d2a87/demo/subscription.go#L68
-// Document: https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/api-refund-subscription-fee-0000001050986131-V5
-func (c *Client) ExtendSubscription(ctx context.Context, purchaseToken, subscriptionID string, currentExpirationTime, desiredExpirationTime int64, accountFlag int64) (success bool, responseMessage string, newExpirationTime int64, err error) {
+// Document: https://developer.huawei.com/consumer/en/doc/HMSCore-References/api-delayed-settlement-0000001050706082
+func (c *Client) DelaySubscription(ctx context.Context, purchaseToken, subscriptionID string, currentExpirationTime, desiredExpirationTime int64, accountFlag int64) (success bool, responseMessage string, newExpirationTime int64, err error) {
 	bodyMap := map[string]string{
 		"subscriptionId":        subscriptionID,
 		"purchaseToken":         purchaseToken,
@@ -44,7 +58,7 @@ func (c *Client) ExtendSubscription(ctx context.Context, purchaseToken, subscrip
 // Note that this does not cancel the current subscription.
 // If you want to revoke a subscription, use Client.RevokeSubscription() instead.
 // Source code originated from https://github.com/HMS-Core/hms-iap-serverdemo/blob/92241f97fed1b68ddeb7cb37ea4ca6e6d33d2a87/demo/subscription.go#L84
-// Document: https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/api-refund-subscription-fee-0000001050986131-V5
+// Document: https://developer.huawei.com/consumer/en/doc/HMSCore-References/api-refund-subscription-fee-0000001050986131
 func (c *Client) RefundSubscription(ctx context.Context, purchaseToken, subscriptionID string, accountFlag int64) (success bool, responseMessage string, err error) {
 	bodyMap := map[string]string{
 		"subscriptionId": subscriptionID,
@@ -58,7 +72,7 @@ func (c *Client) RefundSubscription(ctx context.Context, purchaseToken, subscrip
 
 // RevokeSubscription will revoke and issue a refund on a subscription immediately.
 // Source code originated from https://github.com/HMS-Core/hms-iap-serverdemo/blob/92241f97fed1b68ddeb7cb37ea4ca6e6d33d2a87/demo/subscription.go#L99
-// Document: https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/api-unsubscribe-0000001051066056-V5
+// Document: https://developer.huawei.com/consumer/en/doc/HMSCore-References/api-unsubscribe-0000001051066056
 func (c *Client) RevokeSubscription(ctx context.Context, purchaseToken, subscriptionID string, accountFlag int64) (success bool, responseMessage string, err error) {
 	bodyMap := map[string]string{
 		"subscriptionId": subscriptionID,

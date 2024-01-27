@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -29,7 +29,7 @@ var applicationAccessTokens = make(map[[16]byte]ApplicationAccessToken)
 var applicationAccessTokensLock sync.Mutex
 
 // ApplicationAccessToken model, received from HMS OAuth API
-// https://developer.huawei.com/consumer/en/doc/HMSCore-Guides-V5/open-platform-oauth-0000001050123437-V5#EN-US_TOPIC_0000001050123437__section12493191334711
+// https://developer.huawei.com/consumer/en/doc/HMSCore-Guides/open-platform-oauth-0000001050123437#EN-US_TOPIC_0000001050123437__section12493191334711
 type ApplicationAccessToken struct {
 	// App-level access token.
 	AccessToken string `json:"access_token"`
@@ -62,7 +62,7 @@ type Client struct {
 // If orderSiteURL or subscriptionSiteURL are not set, default to AppTouch Germany site.
 //
 // Please refer https://developer.huawei.com/consumer/en/doc/start/api-console-guide
-// and https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/api-common-statement-0000001050986127-V5 for details.
+// and https://developer.huawei.com/consumer/en/doc/HMSCore-References/api-common-statement-0000001050986127 for details.
 func New(clientID, clientSecret, orderSiteURL, subscriptionSiteURL string) *Client {
 	// Set default order / subscription iap site to AppTouch Germany if it is not provided
 	if !strings.HasPrefix(orderSiteURL, "http") {
@@ -91,7 +91,7 @@ func New(clientID, clientSecret, orderSiteURL, subscriptionSiteURL string) *Clie
 func (c *Client) GetApplicationAccessTokenHeader() (string, error) {
 	// To complie with the rate limit (1000/5min as of July 24th, 2020)
 	// new AccessTokens are requested only when it is expired.
-	// Please refer https://developer.huawei.com/consumer/en/doc/HMSCore-Guides-V5/open-platform-oauth-0000001050123437-V5 for detailes
+	// Please refer https://developer.huawei.com/consumer/en/doc/HMSCore-Guides/open-platform-oauth-0000001050123437 for detailes
 	if applicationAccessTokens[c.clientIDSecretHash].ExpiredAt > time.Now().Unix() {
 		return applicationAccessTokens[c.clientIDSecretHash].HeaderString, nil
 	}
@@ -102,7 +102,7 @@ func (c *Client) GetApplicationAccessTokenHeader() (string, error) {
 		return "", err
 	}
 	defer resp.Body.Close()
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
@@ -136,7 +136,13 @@ func (c *Client) GetApplicationAccessTokenHeader() (string, error) {
 func (c *Client) getRootOrderURLByFlag(flag int64) string {
 	switch flag {
 	case 1:
-		return "https://orders-at-dre.iap.dbankcloud.com"
+		return "https://orders-drcn.iap.cloud.huawei.com.cn"
+	case 2:
+		return "https://orders-dre.iap.cloud.huawei.eu"
+	case 3:
+		return "https://orders-dra.iap.cloud.huawei.asia"
+	case 4:
+		return "https://orders-drru.iap.cloud.huawei.ru"
 	}
 	return c.orderSiteURL
 }
@@ -145,7 +151,13 @@ func (c *Client) getRootOrderURLByFlag(flag int64) string {
 func (c *Client) getRootSubscriptionURLByFlag(flag int64) string {
 	switch flag {
 	case 1:
-		return "https://subscr-at-dre.iap.dbankcloud.com"
+		return "https://subscr-drcn.iap.cloud.huawei.com.cn"
+	case 2:
+		return "https://subscr-dre.iap.cloud.huawei.eu"
+	case 3:
+		return "https://subscr-dra.iap.cloud.huawei.asia"
+	case 4:
+		return "https://subscr-drru.iap.cloud.huawei.ru"
 	}
 	return c.subscriptionSiteURL
 }
@@ -176,33 +188,33 @@ func (c *Client) getResponseErrorByCode(code string) error {
 var ErrorResponseUnknown error = errors.New("Unknown error from API response")
 
 // ErrorResponseSignatureVerifyFailed failed to verify dataSignature against the response json string.
-// https://developer.huawei.com/consumer/en/doc/HMSCore-Guides-V5/verifying-signature-returned-result-0000001050033088-V5
+// https://developer.huawei.com/consumer/en/doc/HMSCore-Guides/verifying-signature-returned-result-0000001050033088
 // var ErrorResponseSignatureVerifyFailed error = errors.New("Failed to verify dataSignature against the response json string")
 
 // ErrorResponseInvalidParameter The parameter passed to the API is invalid.
 // This error may also indicate that an agreement is not signed or parameters are not set correctly for the in-app purchase settlement in HUAWEI IAP, or the required permission is not in the list.
 //
 // Check whether the parameter passed to the API is correctly set. If so, check whether required settings in HUAWEI IAP are correctly configured.
-// https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/server-error-code-0000001050166248-V5
+// https://developer.huawei.com/consumer/en/doc/HMSCore-References/server-error-code-0000001050166248
 var ErrorResponseInvalidParameter error = errors.New("The parameter passed to the API is invalid")
 
 // ErrorResponseCritical A critical error occurs during API operations.
 //
 // Rectify the fault based on the error information in the response. If the fault persists, contact Huawei technical support.
-// https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/server-error-code-0000001050166248-V5
+// https://developer.huawei.com/consumer/en/doc/HMSCore-References/server-error-code-0000001050166248
 var ErrorResponseCritical error = errors.New("A critical error occurs during API operations")
 
 // ErrorResponseProductNotBelongToUser A user failed to consume or confirm a product because the user does not own the product.
 //
-// https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/server-error-code-0000001050166248-V5
+// https://developer.huawei.com/consumer/en/doc/HMSCore-References/server-error-code-0000001050166248
 var ErrorResponseProductNotBelongToUser error = errors.New("A user failed to consume or confirm a product because the user does not own the product")
 
 // ErrorResponseConsumedProduct The product cannot be consumed or confirmed because it has been consumed or confirmed.
 //
-// https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/server-error-code-0000001050166248-V5
+// https://developer.huawei.com/consumer/en/doc/HMSCore-References/server-error-code-0000001050166248
 var ErrorResponseConsumedProduct error = errors.New("The product cannot be consumed or confirmed because it has been consumed or confirmed")
 
 // ErrorResponseAbnormalUserAccount The user account is abnormal, for example, the user has been deregistered.
 //
-// https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/server-error-code-0000001050166248-V5
+// https://developer.huawei.com/consumer/en/doc/HMSCore-References/server-error-code-0000001050166248
 var ErrorResponseAbnormalUserAccount error = errors.New("The user account is abnormal, for example, the user has been deregistered")

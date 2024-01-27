@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 
@@ -149,7 +149,7 @@ func (c *Client) verify(ctx context.Context, reqBody IAPRequest, result interfac
 
 func (c *Client) parseResponse(resp *http.Response, result interface{}, ctx context.Context, reqBody IAPRequest) (int, error) {
 	// Read the body now so that we can unmarshal it twice
-	buf, err := ioutil.ReadAll(resp.Body)
+	buf, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return 0, err
 	}
