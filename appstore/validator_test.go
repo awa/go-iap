@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/golang-jwt/jwt/v4"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -284,7 +284,7 @@ func TestHttpStatusErrors(t *testing.T) {
 
 func TestCannotReadBody(t *testing.T) {
 	client := New()
-	testResponse := http.Response{Body: ioutil.NopCloser(errReader(0))}
+	testResponse := http.Response{Body: io.NopCloser(errReader(0))}
 
 	ctx := context.Background()
 	if _, err := client.parseResponse(&testResponse, IAPResponse{}, ctx, IAPRequest{}); err == nil {
@@ -294,7 +294,7 @@ func TestCannotReadBody(t *testing.T) {
 
 func TestCannotUnmarshalBody(t *testing.T) {
 	client := New()
-	testResponse := http.Response{Body: ioutil.NopCloser(strings.NewReader(`{"status": true}`))}
+	testResponse := http.Response{Body: io.NopCloser(strings.NewReader(`{"status": true}`))}
 
 	ctx := context.Background()
 	if _, err := client.parseResponse(&testResponse, StatusResponse{}, ctx, IAPRequest{}); err == nil {

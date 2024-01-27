@@ -10,14 +10,14 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 )
 
 // VerifySignature validate inapp order or subscription data signature. Returns nil if pass.
 //
-// Document: https://developer.huawei.com/consumer/en/doc/development/HMSCore-Guides-V5/verifying-signature-returned-result-0000001050033088-V5
+// Document: https://developer.huawei.com/consumer/en/doc/development/HMSCore-Guides/verifying-signature-returned-result-0000001050033088
 // Source code originated from https://github.com/HMS-Core/hms-iap-serverdemo/blob/92241f97fed1b68ddeb7cb37ea4ca6e6d33d2a87/demo/demo.go#L60
 func VerifySignature(base64EncodedPublicKey string, data string, signature string) (err error) {
 	publicKeyByte, err := base64.StdEncoding.DecodeString(base64EncodedPublicKey)
@@ -38,14 +38,14 @@ func VerifySignature(base64EncodedPublicKey string, data string, signature strin
 
 // SubscriptionVerifyResponse JSON response after requested {rootUrl}/sub/applications/v2/purchases/get
 type SubscriptionVerifyResponse struct {
-	ResponseCode      string `json:"responseCode"`                // Response code, if = "0" means succeed, for others see https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/server-error-code-0000001050166248-V5
+	ResponseCode      string `json:"responseCode"`                // Response code, if = "0" means succeed, for others see https://developer.huawei.com/consumer/en/doc/HMSCore-References/server-error-code-0000001050166248
 	ResponseMessage   string `json:"responseMessage,omitempty"`   // Response descriptions, especially when error
 	InappPurchaseData string `json:"inappPurchaseData,omitempty"` // InappPurchaseData JSON string
 }
 
 // VerifySubscription gets subscriptions info with subscriptionId and purchaseToken.
 //
-// Document: https://developer.huawei.com/consumer/en/doc/development/HMSCore-References-V5/api-subscription-verify-purchase-token-0000001050706080-V5
+// Document: https://developer.huawei.com/consumer/en/doc/development/HMSCore-References/api-subscription-verify-purchase-token-0000001050706080
 // Source code originated from https://github.com/HMS-Core/hms-iap-serverdemo/blob/92241f97fed1b68ddeb7cb37ea4ca6e6d33d2a87/demo/subscription.go#L40
 func (c *Client) VerifySubscription(ctx context.Context, purchaseToken, subscriptionID string, accountFlag int64) (InAppPurchaseData, error) {
 	var iap InAppPurchaseData
@@ -64,7 +64,7 @@ func (c *Client) VerifySubscription(ctx context.Context, purchaseToken, subscrip
 
 // GetSubscriptionDataString gets subscriptions response data string.
 //
-// Document: https://developer.huawei.com/consumer/en/doc/development/HMSCore-References-V5/api-subscription-verify-purchase-token-0000001050706080-V5
+// Document: https://developer.huawei.com/consumer/en/doc/development/HMSCore-References/api-subscription-verify-purchase-token-0000001050706080
 // Source code originated from https://github.com/HMS-Core/hms-iap-serverdemo/blob/92241f97fed1b68ddeb7cb37ea4ca6e6d33d2a87/demo/subscription.go#L40
 func (c *Client) GetSubscriptionDataString(ctx context.Context, purchaseToken, subscriptionID string, accountFlag int64) (string, error) {
 	bodyMap := map[string]string{
@@ -92,7 +92,7 @@ func (c *Client) GetSubscriptionDataString(ctx context.Context, purchaseToken, s
 
 // OrderVerifyResponse JSON response from {rootUrl}/applications/purchases/tokens/verify
 type OrderVerifyResponse struct {
-	ResponseCode      string `json:"responseCode"`                // Response code, if = "0" means succeed, for others see https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/server-error-code-0000001050166248-V5
+	ResponseCode      string `json:"responseCode"`                // Response code, if = "0" means succeed, for others see https://developer.huawei.com/consumer/en/doc/HMSCore-References/server-error-code-0000001050166248
 	ResponseMessage   string `json:"responseMessage,omitempty"`   // Response descriptions, especially when error
 	PurchaseTokenData string `json:"purchaseTokenData,omitempty"` // InappPurchaseData JSON string
 	DataSignature     string `json:"dataSignature,omitempty"`     // Signature to verify PurchaseTokenData string
@@ -102,7 +102,7 @@ type OrderVerifyResponse struct {
 //
 // Note that this method does not verify the DataSignature, thus security is relied on HTTPS solely.
 //
-// Document: https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/api-order-verify-purchase-token-0000001050746113-V5
+// Document: https://developer.huawei.com/consumer/en/doc/HMSCore-References/api-order-verify-purchase-token-0000001050746113
 // Source code originated from https://github.com/HMS-Core/hms-iap-serverdemo/blob/92241f97fed1b68ddeb7cb37ea4ca6e6d33d2a87/demo/order.go#L41
 func (c *Client) VerifyOrder(ctx context.Context, purchaseToken, productID string, accountFlag int64) (InAppPurchaseData, error) {
 	var iap InAppPurchaseData
@@ -121,7 +121,7 @@ func (c *Client) VerifyOrder(ctx context.Context, purchaseToken, productID strin
 
 // GetOrderDataString gets order (single item purchase) response data as json string and dataSignature
 //
-// Document: https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/api-order-verify-purchase-token-0000001050746113-V5
+// Document: https://developer.huawei.com/consumer/en/doc/HMSCore-References/api-order-verify-purchase-token-0000001050746113
 // Source code originated from https://github.com/HMS-Core/hms-iap-serverdemo/blob/92241f97fed1b68ddeb7cb37ea4ca6e6d33d2a87/demo/order.go#L41
 func (c *Client) GetOrderDataString(ctx context.Context, purchaseToken, productID string, accountFlag int64) (purchaseTokenData, dataSignature string, err error) {
 	bodyMap := map[string]string{
@@ -137,10 +137,10 @@ func (c *Client) GetOrderDataString(ctx context.Context, purchaseToken, productI
 	}
 
 	var resp OrderVerifyResponse
-	if err := json.Unmarshal(bodyBytes, &resp); err != nil {
+	if err = json.Unmarshal(bodyBytes, &resp); err != nil {
 		return "", "", err
 	}
-	if err := c.getResponseErrorByCode(resp.ResponseCode); err != nil {
+	if err = c.getResponseErrorByCode(resp.ResponseCode); err != nil {
 		return "", "", err
 	}
 
@@ -175,7 +175,7 @@ func (c *Client) sendJSONRequest(ctx context.Context, url string, bodyMap map[st
 	}
 	defer resp.Body.Close()
 
-	bodyBytes, err = ioutil.ReadAll(resp.Body)
+	bodyBytes, err = io.ReadAll(resp.Body)
 	if err != nil {
 		return
 	}
@@ -188,7 +188,7 @@ func (c *Client) sendJSONRequest(ctx context.Context, url string, bodyMap map[st
 // In case of an error, this method might return some fetch results if maxRows greater than 1000 or equals 0.
 //
 // Source code originated from https://github.com/HMS-Core/hms-iap-serverdemo/blob/92241f97fed1b68ddeb7cb37ea4ca6e6d33d2a87/demo/order.go#L52
-// Document: https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/api-cancel-or-refund-record-0000001050746117-V5
+// Document: https://developer.huawei.com/consumer/en/doc/HMSCore-References/api-cancel-or-refund-record-0000001050746117
 func (c *Client) GetCanceledOrRefundedPurchases(
 	// context of request
 	ctx context.Context,
@@ -254,6 +254,62 @@ func (c *Client) GetCanceledOrRefundedPurchases(
 	if err != nil {
 		return canceledPurchases, continuationToken, cpl.ResponseCode, cpl.ResponseMessage, err
 	}
+
+	return canceledPurchases, cpl.ContinuationToken, cpl.ResponseCode, cpl.ResponseMessage, nil
+}
+
+// GetMerchantQueryPurchases gets all revoked purchases in OrderInfoList{}.
+// This method allow fetch over 1000 results regardles the cap implied by HMS API. Though you should still limit maxRows to a certain number to increate preformance.
+//
+// In case of an error, this method might return some fetch results if maxRows greater than 1000 or equals 0.
+//
+// Document: https://developer.huawei.com/consumer/en/doc/HMSCore-References/api-cancel-or-refund-record-0000001050746117
+func (c *Client) GetMerchantQueryPurchases(
+	// context of request
+	ctx context.Context,
+
+	// start time timestamp in milliseconds, if =0, will default to 1 month ago.
+	startAt int64,
+
+	// end time timestamp in milliseconds, if =0, will default to now.
+	endAt int64,
+
+	// Token returned in the last query to query the data on the next page.
+	continuationToken string,
+	// Account flag to determine which API URL to use.
+	accountFlag int64,
+) (canceledPurchases []OrderInfoList, newContinuationToken string, responseCode string, responseMessage string, err error) {
+
+	switch endAt {
+	case 0:
+		endAt = time.Now().UnixNano() / 1000000
+	case startAt:
+		endAt++
+	}
+
+	bodyMap := map[string]string{
+		"startAt":           fmt.Sprintf("%v", startAt),
+		"endAt":             fmt.Sprintf("%v", endAt),
+		"continuationToken": continuationToken,
+	}
+
+	url := c.getRootOrderURLByFlag(accountFlag) + "/applications/v1/merchantQuery"
+	var bodyBytes []byte
+	bodyBytes, err = c.sendJSONRequest(ctx, url, bodyMap)
+	if err != nil {
+		// log.Printf("GetCanceledOrRefundedPurchases(): Encounter error: %s", err)
+		return
+	}
+
+	var cpl MerchantPurchaseList // temporary variable to store api query result
+	err = json.Unmarshal(bodyBytes, &cpl)
+	if err != nil {
+		return canceledPurchases, continuationToken, cpl.ResponseCode, cpl.ResponseMessage, err
+	}
+	if cpl.ResponseCode != "0" {
+		return canceledPurchases, continuationToken, cpl.ResponseCode, cpl.ResponseMessage, c.getResponseErrorByCode(cpl.ResponseCode)
+	}
+	canceledPurchases = cpl.OrderInfoList
 
 	return canceledPurchases, cpl.ContinuationToken, cpl.ResponseCode, cpl.ResponseMessage, nil
 }

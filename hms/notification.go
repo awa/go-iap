@@ -2,7 +2,7 @@ package hms
 
 // SubscriptionNotification Request parameters when a developer server is called by HMS API.
 //
-// https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/api-notifications-about-subscription-events-0000001050706084-V5
+// https://developer.huawei.com/consumer/en/doc/HMSCore-References/api-notifications-about-subscription-events-0000001050706084
 type SubscriptionNotification struct {
 	// Notification message, which is a JSON string. For details, please refer to statusUpdateNotification.
 	StatusUpdateNotification string `json:"statusUpdateNotification"`
@@ -10,9 +10,9 @@ type SubscriptionNotification struct {
 	// Signature string for the StatusUpdateNotification parameter. The signature algorithm is SHA256withRSA.
 	//
 	// After your server receives the signature string, you need to use the public payment key to verify the signature of StatusUpdateNotification in JSON format.
-	// For details, please refer to https://developer.huawei.com/consumer/en/doc/HMSCore-Guides-V5/verifying-signature-returned-result-0000001050033088-V5
+	// For details, please refer to https://developer.huawei.com/consumer/en/doc/HMSCore-Guides/verifying-signature-returned-result-0000001050033088
 	//
-	// For details about how to obtain the public key, please refer to https://developer.huawei.com/consumer/en/doc/HMSCore-Guides-V5/query-payment-info-0000001050166299-V5
+	// For details about how to obtain the public key, please refer to https://developer.huawei.com/consumer/en/doc/HMSCore-Guides/query-payment-info-0000001050166299
 	NotifycationSignature string `json:"notifycationSignature"`
 
 	// Notification service version, which is set to v2.
@@ -23,7 +23,7 @@ type SubscriptionNotification struct {
 }
 
 // StatusUpdateNotification JSON content when unmarshal NotificationRequest.StatusUpdateNotification
-// https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/api-notifications-about-subscription-events-0000001050706084-V5#EN-US_TOPIC_0000001050706084__section18290165220716
+// https://developer.huawei.com/consumer/en/doc/HMSCore-References/api-notifications-about-subscription-events-0000001050706084#EN-US_TOPIC_0000001050706084__section18290165220716
 type StatusUpdateNotification struct {
 	// Environment for sending a notification. Value could be one of either:
 	//    "PROD": general production environment
@@ -49,15 +49,15 @@ type StatusUpdateNotification struct {
 	LatestReceipt string `json:"latestReceipt,omitempty"`
 
 	// Latest receipt, which is a JSON string. This parameter is left empty when notificationType is CANCEL(1).
-	// For details about the parameters contained, please refer to https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/server-data-model-0000001050986133-V5#EN-US_TOPIC_0000001050986133__section264617465219
+	// For details about the parameters contained, please refer to https://developer.huawei.com/consumer/en/doc/HMSCore-References/server-data-model-0000001050986133#EN-US_TOPIC_0000001050986133__section264617465219
 	LatestReceiptInfo string `json:"latestReceiptInfo,omitempty"`
 
 	// Signature string for the LatestReceiptInfo parameter. The signature algorithm is SHA256withRSA.
 	//
 	// After your server receives the signature string, you need to use the public payment key to verify the signature of LatestReceiptInfo in JSON format.
-	// For details, please refer to https://developer.huawei.com/consumer/en/doc/HMSCore-Guides-V5/verifying-signature-returned-result-0000001050033088-V5
+	// For details, please refer to https://developer.huawei.com/consumer/en/doc/HMSCore-Guides/verifying-signature-returned-result-00000010500330885
 	//
-	// For details about how to obtain the public key, please refer to https://developer.huawei.com/consumer/en/doc/HMSCore-Guides-V5/query-payment-info-0000001050166299-V5
+	// For details about how to obtain the public key, please refer to https://developer.huawei.com/consumer/en/doc/HMSCore-Guides/query-payment-info-0000001050166299
 	LatestReceiptInfoSignature string `json:"latestReceiptInfoSignature,omitempty"`
 
 	// Token of the latest expired receipt. This parameter has a value only when NotificationType is RENEWAL(2) or INTERACTIVE_RENEWAL(3).
@@ -69,9 +69,9 @@ type StatusUpdateNotification struct {
 	// Signature string for the LatestExpiredReceiptInfo parameter. The signature algorithm is SHA256withRSA.
 	//
 	// After your server receives the signature string, you need to use the public payment key to verify the signature of LatestExpiredReceiptInfo in JSON format.
-	// For details, please refer to https://developer.huawei.com/consumer/en/doc/HMSCore-Guides-V5/verifying-signature-returned-result-0000001050033088-V5
+	// For details, please refer to https://developer.huawei.com/consumer/en/doc/HMSCore-Guides/verifying-signature-returned-result-0000001050033088
 	//
-	// For details about how to obtain the public key, please refer to https://developer.huawei.com/consumer/en/doc/HMSCore-Guides-V5/query-payment-info-0000001050166299-V5
+	// For details about how to obtain the public key, please refer to https://developer.huawei.com/consumer/en/doc/HMSCore-Guides/query-payment-info-0000001050166299
 	LatestExpiredReceiptInfoSignature string `json:"latestExpiredReceiptInfoSignature,omitempty"`
 
 	// Signature algorithm
@@ -96,7 +96,7 @@ type StatusUpdateNotification struct {
 }
 
 // Constants for StatusUpdateNotification.NotificationType
-// https://developer.huawei.com/consumer/en/doc/HMSCore-References-V5/api-notifications-about-subscription-events-0000001050706084-V5#EN-US_TOPIC_0000001050706084__section18290165220716
+// https://developer.huawei.com/consumer/en/doc/HMSCore-References/api-notifications-about-subscription-events-0000001050706084#EN-US_TOPIC_0000001050706084__section18290165220716
 const (
 	NotificationTypeInitialBuy           int64 = 0
 	NotificationTypeCancel               int64 = 1
