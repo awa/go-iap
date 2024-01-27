@@ -133,6 +133,20 @@ func (mr *MockIABSubscriptionMockRecorder) CancelSubscription(arg0, arg1, arg2, 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelSubscription", reflect.TypeOf((*MockIABSubscription)(nil).CancelSubscription), arg0, arg1, arg2, arg3)
 }
 
+// DeferSubscription mocks base method.
+func (m *MockIABSubscription) DeferSubscription(arg0 context.Context, arg1, arg2, arg3 string, arg4 *androidpublisher.SubscriptionPurchasesDeferRequest) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeferSubscription", arg0, arg1, arg2, arg3, arg4)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeferSubscription indicates an expected call of DeferSubscription.
+func (mr *MockIABSubscriptionMockRecorder) DeferSubscription(arg0, arg1, arg2, arg3, arg4 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeferSubscription", reflect.TypeOf((*MockIABSubscription)(nil).DeferSubscription), arg0, arg1, arg2, arg3, arg4)
+}
+
 // RefundSubscription mocks base method.
 func (m *MockIABSubscription) RefundSubscription(arg0 context.Context, arg1, arg2, arg3 string) error {
 	m.ctrl.T.Helper()
