@@ -34,7 +34,7 @@ type IABSubscription interface {
 	CancelSubscription(context.Context, string, string, string) error
 	RefundSubscription(context.Context, string, string, string) error
 	RevokeSubscription(context.Context, string, string, string) error
-	DeferSubscription(context.Context, string, string, string, *androidpublisher.SubscriptionPurchasesDeferRequest) error
+	DeferSubscription(context.Context, string, string, string, *androidpublisher.SubscriptionPurchasesDeferRequest) (*androidpublisher.SubscriptionPurchasesDeferResponse, error)
 }
 
 // The IABSubscriptionV2 type is an interface  for subscriptionV2 service
