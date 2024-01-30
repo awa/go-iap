@@ -257,6 +257,26 @@ func TestRevokeSubscription(t *testing.T) {
 	// TODO Normal scenario
 }
 
+func TestDeferSubscription(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	client, _ := New(jsonKey)
+	deferralInfo := &androidpublisher.SubscriptionPurchasesDeferRequest{
+		DeferralInfo: &androidpublisher.SubscriptionDeferralInfo{
+			DesiredExpiryTimeMillis:  1234567890,
+			ExpectedExpiryTimeMillis: 1234567890,
+		},
+	}
+	expectedStr := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
+	_, actual := client.DeferSubscription(ctx, "package", "productID", "purchaseToken", deferralInfo)
+
+	if actual == nil || actual.Error() != expectedStr {
+		t.Errorf("got %v\nwant %v", actual, expectedStr)
+	}
+	// TODO Normal scenario
+}
+
 func TestGetSubscriptionOffer(t *testing.T) {
 	t.Parallel()
 	// Exception scenario
