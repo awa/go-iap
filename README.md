@@ -101,6 +101,15 @@ func main() {
 
 ### In App Store Server API
 
+**Note**
+- The App Store Server API differentiates between a sandbox and a production environment based on the base URL:  
+  - Use https://api.storekit.itunes.apple.com/ for the production environment.
+  - Use https://api.storekit-sandbox.itunes.apple.com/ for the sandbox environment.
+- If you're unsure about the environment, follow these steps:
+  - Initiate a call to the endpoint using the production URL. If the call is successful, the transaction identifier is associated with the production environment.
+  - If you encounter an error code `4040010`, indicating a `TransactionIdNotFoundError`, make a call to the endpoint using the sandbox URL.
+  - If this call is successful, the transaction identifier is associated with the sandbox environment. If the call fails with the same error code, the transaction identifier doesn't exist in either environment.
+
 - GetTransactionInfo
 
 ```go
