@@ -120,6 +120,14 @@ const (
 	TransactionReasonRenewal  = "RENEWAL"
 )
 
+type OfferDiscountType string
+
+const (
+	OfferDiscountTypeFreeTrial  OfferDiscountType = "FREE_TRIAL"
+	OfferDiscountTypePayAsYouGo OfferDiscountType = "PAY_AS_YOU_GO"
+	OfferDiscountTypePayUpFront OfferDiscountType = "PAY_UP_FRONT"
+)
+
 type (
 	// SubscriptionNotificationV2 is struct for
 	// https://developer.apple.com/documentation/appstoreservernotifications/responsebodyv2
@@ -211,14 +219,17 @@ type (
 	JWSTransactionDecodedPayload struct {
 		AppAccountToken             string            `json:"appAccountToken"`
 		BundleId                    string            `json:"bundleId"`
+		Currency                    string            `json:"currency,omitempty"`
 		Environment                 Environment       `json:"environment"`
 		ExpiresDate                 int64             `json:"expiresDate"`
 		InAppOwnershipType          string            `json:"inAppOwnershipType"`
 		IsUpgraded                  bool              `json:"isUpgraded"`
+		OfferDiscountType           OfferDiscountType `json:"offerDiscountType"`
 		OfferIdentifier             string            `json:"offerIdentifier"`
 		OfferType                   OfferType         `json:"offerType"`
 		OriginalPurchaseDate        int64             `json:"originalPurchaseDate"`
 		OriginalTransactionId       string            `json:"originalTransactionId"`
+		Price                       int32             `json:"price,omitempty"`
 		ProductId                   string            `json:"productId"`
 		PurchaseDate                int64             `json:"purchaseDate"`
 		Quantity                    int64             `json:"quantity"`
