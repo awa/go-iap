@@ -49,7 +49,7 @@ type DeveloperNotification struct {
 	TestNotification           TestNotification           `json:"testNotification,omitempty"`
 }
 
-// DeveloperNotification is sent by a Pub/Sub topic.
+// DeveloperNotificationNew is sent by a Pub/Sub topic.
 // Detailed description is following.
 // https://developer.android.com/google/play/billing/rtdn-reference#json_specification
 type DeveloperNotificationNew struct {
