@@ -38,8 +38,7 @@ const (
 // DeveloperNotification is sent by a Pub/Sub topic.
 // Detailed description is following.
 // https://developer.android.com/google/play/billing/rtdn-reference#json_specification
-// use DeveloperNotificationV2 instead
-// Deprecated
+// Depreacated: use DeveloperNotificationV2 instead.
 type DeveloperNotification struct {
 	Version                    string                     `json:"version"`
 	PackageName                string                     `json:"packageName"`
