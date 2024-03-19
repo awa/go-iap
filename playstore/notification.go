@@ -38,6 +38,7 @@ const (
 // DeveloperNotification is sent by a Pub/Sub topic.
 // Detailed description is following.
 // https://developer.android.com/google/play/billing/rtdn-reference#json_specification
+// Depreacated: use DeveloperNotificationV2 instead.
 type DeveloperNotification struct {
 	Version                    string                     `json:"version"`
 	PackageName                string                     `json:"packageName"`
@@ -46,6 +47,19 @@ type DeveloperNotification struct {
 	OneTimeProductNotification OneTimeProductNotification `json:"oneTimeProductNotification,omitempty"`
 	VoidedPurchaseNotification VoidedPurchaseNotification `json:"voidedPurchaseNotification,omitempty"`
 	TestNotification           TestNotification           `json:"testNotification,omitempty"`
+}
+
+// DeveloperNotificationV2 is sent by a Pub/Sub topic.
+// Detailed description is following.
+// https://developer.android.com/google/play/billing/rtdn-reference#json_specification
+type DeveloperNotificationV2 struct {
+	Version                    string                      `json:"version"`
+	PackageName                string                      `json:"packageName"`
+	EventTimeMillis            string                      `json:"eventTimeMillis"`
+	SubscriptionNotification   *SubscriptionNotification   `json:"subscriptionNotification,omitempty"`
+	OneTimeProductNotification *OneTimeProductNotification `json:"oneTimeProductNotification,omitempty"`
+	VoidedPurchaseNotification *VoidedPurchaseNotification `json:"voidedPurchaseNotification,omitempty"`
+	TestNotification           *TestNotification           `json:"testNotification,omitempty"`
 }
 
 // SubscriptionNotification has subscription status as notificationType, token and subscription id
