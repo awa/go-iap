@@ -38,6 +38,7 @@ const (
 // DeveloperNotification is sent by a Pub/Sub topic.
 // Detailed description is following.
 // https://developer.android.com/google/play/billing/rtdn-reference#json_specification
+// use DeveloperNotificationV2 instead
 // Deprecated
 type DeveloperNotification struct {
 	Version                    string                     `json:"version"`
@@ -49,10 +50,10 @@ type DeveloperNotification struct {
 	TestNotification           TestNotification           `json:"testNotification,omitempty"`
 }
 
-// DeveloperNotificationNew is sent by a Pub/Sub topic.
+// DeveloperNotificationV2 is sent by a Pub/Sub topic.
 // Detailed description is following.
 // https://developer.android.com/google/play/billing/rtdn-reference#json_specification
-type DeveloperNotificationNew struct {
+type DeveloperNotificationV2 struct {
 	Version                    string                      `json:"version"`
 	PackageName                string                      `json:"packageName"`
 	EventTimeMillis            string                      `json:"eventTimeMillis"`
