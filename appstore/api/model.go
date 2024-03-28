@@ -91,7 +91,7 @@ type JWSRenewalInfoDecodedPayload struct {
 	GracePeriodExpiresDate      int64           `json:"gracePeriodExpiresDate"`
 	IsInBillingRetryPeriod      *bool           `json:"isInBillingRetryPeriod"`
 	OfferIdentifier             string          `json:"offerIdentifier"`
-	OfferType                   string          `json:"offerType"`
+	OfferType                   int32           `json:"offerType"`
 	OriginalTransactionId       string          `json:"originalTransactionId"`
 	PriceIncreaseStatus         *int32          `json:"priceIncreaseStatus"`
 	ProductId                   string          `json:"productId"`
