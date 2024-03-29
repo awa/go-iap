@@ -48,6 +48,7 @@ const (
 	SubTypeV2Resubscribe       = "RESUBSCRIBE"
 	SubTypeV2Summary           = "SUMMARY"
 	SubTypeV2Upgrade           = "UPGRADE"
+	SubTypeV2Unreported        = "UNREPORTED"
 	SubTypeV2Voluntary         = "VOLUNTARY"
 )
 
