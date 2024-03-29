@@ -14,6 +14,7 @@ const (
 	NotificationTypeV2DidFailToRenew         NotificationTypeV2 = "DID_FAIL_TO_RENEW"
 	NotificationTypeV2DidRenew               NotificationTypeV2 = "DID_RENEW"
 	NotificationTypeV2Expired                NotificationTypeV2 = "EXPIRED"
+	NotificationTypeV2ExternalPurchaseToken  NotificationTypeV2 = "EXTERNAL_PURCHASE_TOKEN"
 	NotificationTypeV2GracePeriodExpired     NotificationTypeV2 = "GRACE_PERIOD_EXPIRED"
 	NotificationTypeV2OfferRedeemed          NotificationTypeV2 = "OFFER_REDEEMED"
 	NotificationTypeV2PriceIncrease          NotificationTypeV2 = "PRICE_INCREASE"
