@@ -231,7 +231,7 @@ type (
 		OfferType                   OfferType         `json:"offerType"`
 		OriginalPurchaseDate        int64             `json:"originalPurchaseDate"`
 		OriginalTransactionId       string            `json:"originalTransactionId"`
-		Price                       int32             `json:"price,omitempty"`
+		Price                       int64             `json:"price,omitempty"`
 		ProductId                   string            `json:"productId"`
 		PurchaseDate                int64             `json:"purchaseDate"`
 		Quantity                    int64             `json:"quantity"`

@@ -163,7 +163,7 @@ type JWSTransaction struct {
 	StorefrontId                string            `json:"storefrontId,omitempty"`
 	TransactionReason           TransactionReason `json:"transactionReason,omitempty"`
 	Environment                 Environment       `json:"environment,omitempty"`
-	Price                       int32             `json:"price,omitempty"`
+	Price                       int64             `json:"price,omitempty"`
 	Currency                    string            `json:"currency,omitempty"`
 	OfferDiscountType           OfferDiscountType `json:"offerDiscountType,omitempty"`
 }
