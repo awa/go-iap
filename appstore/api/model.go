@@ -80,6 +80,7 @@ type ConsumptionRequestBody struct {
 	PlayTime                 int32  `json:"playTime"`
 	SampleContentProvided    bool   `json:"sampleContentProvided"`
 	UserStatus               int32  `json:"userStatus"`
+	RefundPreference         int32  `json:"refundPreference"`
 }
 
 // JWSRenewalInfoDecodedPayload https://developer.apple.com/documentation/appstoreserverapi/jwsrenewalinfodecodedpayload
