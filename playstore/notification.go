@@ -35,6 +35,13 @@ const (
 	VoidedPurchaseProductTypeOneTime
 )
 
+type VoidedPurchaseRefundType int
+
+const (
+	VoidedPurchaseRefundTypeFullRefund VoidedPurchaseRefundType = iota + 1
+	VoidedPurchaseRefundTypePartialRefund
+)
+
 // DeveloperNotification is sent by a Pub/Sub topic.
 // Detailed description is following.
 // https://developer.android.com/google/play/billing/rtdn-reference#json_specification
@@ -83,10 +90,12 @@ type OneTimeProductNotification struct {
 // VoidedPurchaseNotification has token, order and product type to locate the right purchase and order.
 // To learn how to get additional information about the voided purchase, check out the Google Play Voided Purchases API,
 // which is a pull model that provides additional data for voided purchases between a given timestamp.
+// https://developer.android.com/google/play/billing/rtdn-reference#voided-purchase
 type VoidedPurchaseNotification struct {
 	PurchaseToken string                    `json:"purchaseToken"`
 	OrderID       string                    `json:"orderId"`
 	ProductType   VoidedPurchaseProductType `json:"productType"`
+	RefundType    VoidedPurchaseRefundType  `json:"refundType"`
 }
 
 // TestNotification is the test publish that are sent only through the Google Play Developer Console
