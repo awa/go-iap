@@ -52,7 +52,7 @@ func (t *Token) GenerateIfExpired() (string, error) {
 	t.Lock()
 	defer t.Unlock()
 
-	if t.Expired() {
+	if t.Expired() || t.Bearer == "" {
 		err := t.Generate()
 		if err != nil {
 			return "", err
