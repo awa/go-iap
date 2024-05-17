@@ -24,17 +24,18 @@ var (
 type Token struct {
 	sync.Mutex
 
-	KeyContent []byte // Loads a .p8 certificate
-	KeyID      string // Your private key ID from App Store Connect (Ex: 2X9R4HXF34)
-	BundleID   string // Your app’s bundle ID
-	Issuer     string // Your issuer ID from the Keys page in App Store Connect (Ex: "57246542-96fe-1a63-e053-0824d011072a")
-	Sandbox    bool   // default is Production
-	IssueAt    int64  // The token’s creation time, in UNIX time. Default is current timestamp.
-	ExpiredAt  int64  // The token’s expiration time, in UNIX time. Tokens that expire more than 60 minutes after the time in iat are not valid (Ex: 1623086400)
+	KeyContent    []byte       // Loads a .p8 certificate
+	KeyID         string       // Your private key ID from App Store Connect (Ex: 2X9R4HXF34)
+	BundleID      string       // Your app’s bundle ID
+	Issuer        string       // Your issuer ID from the Keys page in App Store Connect (Ex: "57246542-96fe-1a63-e053-0824d011072a")
+	Sandbox       bool         // default is Production
+	IssuedAtFunc  func() int64 // The token’s creation time func. Default is current timestamp.
+	ExpiredAtFunc func() int64 // The token’s expiration time func.
 
 	// internal variables
-	AuthKey *ecdsa.PrivateKey // .p8 private key
-	Bearer  string            // Authorized bearer token
+	AuthKey   *ecdsa.PrivateKey // .p8 private key
+	Bearer    string            // Authorized bearer token
+	ExpiredAt int64             // The token’s expiration time, in UNIX time
 }
 
 func (t *Token) WithConfig(c *StoreConfig) {
@@ -43,8 +44,8 @@ func (t *Token) WithConfig(c *StoreConfig) {
 	t.BundleID = c.BundleID
 	t.Issuer = c.Issuer
 	t.Sandbox = c.Sandbox
-	t.IssueAt = c.TokenIssueAt
-	t.ExpiredAt = c.TokenExpiredAt
+	t.IssuedAtFunc = c.TokenIssuedAtFunc
+	t.ExpiredAtFunc = c.TokenExpiredAtFunc
 }
 
 // GenerateIfExpired checks to see if the token is about to expire and generates a new token.
@@ -76,12 +77,12 @@ func (t *Token) Generate() error {
 	t.AuthKey = key
 
 	issuedAt := time.Now().Unix()
-	if t.IssueAt > 0 {
-		issuedAt = t.IssueAt
+	if t.IssuedAtFunc != nil {
+		issuedAt = t.IssuedAtFunc()
 	}
 	expiredAt := time.Now().Add(time.Duration(1) * time.Hour).Unix()
-	if t.ExpiredAt > 0 {
-		expiredAt = t.ExpiredAt
+	if t.ExpiredAtFunc != nil {
+		expiredAt = t.ExpiredAtFunc()
 	}
 	jwtToken := &jwt.Token{
 		Header: map[string]interface{}{
