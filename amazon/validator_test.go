@@ -115,6 +115,9 @@ func TestVerifySubscription(t *testing.T) {
 	)
 	defer server.Close()
 
+	freeTrialEndDate := int64(1561104377023)
+	gracePeriodEndDate := int64(1561104377013)
+
 	expected := IAPResponse{
 		ReceiptID:          "q1YqVrJSSs7P1UvMTazKz9PLTCwoTswtyEktM9JLrShIzCvOzM-LL04tiTdW0lFKASo2NDEwMjCwMDM2MTC0AIqVAsUsLd1c4l18jIxdfTOK_N1d8kqLLHVLc8oK83OLgtPNCit9AoJdjJ3dXG2BGkqUrAxrAQ",
 		ProductType:        "SUBSCRIPTION",
@@ -126,9 +129,9 @@ func TestVerifySubscription(t *testing.T) {
 		Quantity:           1,
 		Term:               "1 Week",
 		TermSku:            "sub1-weekly",
-		FreeTrialEndDate:   1561104377023,
+		FreeTrialEndDate:   &freeTrialEndDate,
 		AutoRenewing:       false,
-		GracePeriodEndDate: 1561104377013,
+		GracePeriodEndDate: &gracePeriodEndDate,
 	}
 
 	actual, _ := client.Verify(
