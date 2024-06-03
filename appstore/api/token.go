@@ -76,11 +76,12 @@ func (t *Token) Generate() error {
 	}
 	t.AuthKey = key
 
-	issuedAt := time.Now().Unix()
+	now := time.Now()
+	issuedAt := now.Unix()
 	if t.IssuedAtFunc != nil {
 		issuedAt = t.IssuedAtFunc()
 	}
-	expiredAt := time.Now().Add(time.Duration(1) * time.Hour).Unix()
+	expiredAt := now.Add(time.Duration(1) * time.Hour).Unix()
 	if t.ExpiredAtFunc != nil {
 		expiredAt = t.ExpiredAtFunc()
 	}
