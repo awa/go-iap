@@ -85,20 +85,23 @@ type ConsumptionRequestBody struct {
 
 // JWSRenewalInfoDecodedPayload https://developer.apple.com/documentation/appstoreserverapi/jwsrenewalinfodecodedpayload
 type JWSRenewalInfoDecodedPayload struct {
-	AutoRenewProductId          string          `json:"autoRenewProductId"`
-	AutoRenewStatus             AutoRenewStatus `json:"autoRenewStatus"`
-	Environment                 Environment     `json:"environment"`
-	ExpirationIntent            int32           `json:"expirationIntent"`
-	GracePeriodExpiresDate      int64           `json:"gracePeriodExpiresDate"`
-	IsInBillingRetryPeriod      *bool           `json:"isInBillingRetryPeriod"`
-	OfferIdentifier             string          `json:"offerIdentifier"`
-	OfferType                   int32           `json:"offerType"`
-	OriginalTransactionId       string          `json:"originalTransactionId"`
-	PriceIncreaseStatus         *int32          `json:"priceIncreaseStatus"`
-	ProductId                   string          `json:"productId"`
-	RecentSubscriptionStartDate int64           `json:"recentSubscriptionStartDate"`
-	RenewalDate                 int64           `json:"renewalDate"`
-	SignedDate                  int64           `json:"signedDate"`
+	AutoRenewProductId          string            `json:"autoRenewProductId"`
+	AutoRenewStatus             AutoRenewStatus   `json:"autoRenewStatus"`
+	Environment                 Environment       `json:"environment"`
+	ExpirationIntent            int32             `json:"expirationIntent"`
+	GracePeriodExpiresDate      int64             `json:"gracePeriodExpiresDate"`
+	IsInBillingRetryPeriod      *bool             `json:"isInBillingRetryPeriod"`
+	OfferIdentifier             string            `json:"offerIdentifier"`
+	OfferType                   int32             `json:"offerType"`
+	OriginalTransactionId       string            `json:"originalTransactionId"`
+	PriceIncreaseStatus         *int32            `json:"priceIncreaseStatus"`
+	ProductId                   string            `json:"productId"`
+	RecentSubscriptionStartDate int64             `json:"recentSubscriptionStartDate"`
+	RenewalDate                 int64             `json:"renewalDate"`
+	SignedDate                  int64             `json:"signedDate"`
+	RenewalPrice                int64             `json:"renewalPrice,omitempty"`
+	Currency                    string            `json:"currency,omitempty"`
+	OfferDiscountType           OfferDiscountType `json:"offerDiscountType,omitempty"`
 }
 
 func (J JWSRenewalInfoDecodedPayload) Valid() error {
