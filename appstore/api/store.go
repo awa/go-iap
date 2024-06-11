@@ -24,7 +24,8 @@ const (
 	HostProduction = "https://api.storekit.itunes.apple.com"
 
 	PathLookUp                              = "/inApps/v1/lookup/{orderId}"
-	PathTransactionHistory                  = "/inApps/v1/history/{originalTransactionId}"
+	PathTransactionHistory                  = "/inApps/v2/history/{originalTransactionId}"
+	PathTransactionHistoryV1                = "/inApps/v1/history/{originalTransactionId}"
 	PathTransactionInfo                     = "/inApps/v1/transactions/{transactionId}"
 	PathRefundHistory                       = "/inApps/v2/refund/lookup/{originalTransactionId}"
 	PathGetALLSubscriptionStatus            = "/inApps/v1/subscriptions/{originalTransactionId}"
