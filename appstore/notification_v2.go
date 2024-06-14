@@ -17,6 +17,7 @@ const (
 	NotificationTypeV2ExternalPurchaseToken  NotificationTypeV2 = "EXTERNAL_PURCHASE_TOKEN"
 	NotificationTypeV2GracePeriodExpired     NotificationTypeV2 = "GRACE_PERIOD_EXPIRED"
 	NotificationTypeV2OfferRedeemed          NotificationTypeV2 = "OFFER_REDEEMED"
+	NotificationTypeV2OneTimeCharge          NotificationTypeV2 = "ONE_TIME_CHARGE"
 	NotificationTypeV2PriceIncrease          NotificationTypeV2 = "PRICE_INCREASE"
 	NotificationTypeV2Refund                 NotificationTypeV2 = "REFUND"
 	NotificationTypeV2RefundDeclined         NotificationTypeV2 = "REFUND_DECLINED"
