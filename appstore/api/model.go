@@ -102,6 +102,7 @@ type JWSRenewalInfoDecodedPayload struct {
 	RenewalPrice                int64             `json:"renewalPrice,omitempty"`
 	Currency                    string            `json:"currency,omitempty"`
 	OfferDiscountType           OfferDiscountType `json:"offerDiscountType,omitempty"`
+	EligibleWinBackOfferIds     []string          `json:"eligibleWinBackOfferIds,omitempty"`
 }
 
 func (J JWSRenewalInfoDecodedPayload) Valid() error {
