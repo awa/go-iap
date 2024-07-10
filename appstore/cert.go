@@ -52,7 +52,9 @@ func (c *Cert) extractCertByIndex(tokenStr string, index int) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	if len(header.X5c) <= 0 || index >= len(header.X5c) {
+		return nil, errors.New("failed to extract cert from x5c header, possible unauthorised request detected")
+	}
 	certByte, err := base64.StdEncoding.DecodeString(header.X5c[index])
 	if err != nil {
 		return nil, err
