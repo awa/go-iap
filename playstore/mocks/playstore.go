@@ -230,18 +230,18 @@ func (mr *MockIABSubscriptionV2MockRecorder) RevokeSubscriptionV2(arg0, arg1, ar
 }
 
 // VerifySubscriptionV2 mocks base method.
-func (m *MockIABSubscriptionV2) VerifySubscriptionV2(arg0 context.Context, arg1, arg2, arg3 string) (*androidpublisher.SubscriptionPurchaseV2, error) {
+func (m *MockIABSubscriptionV2) VerifySubscriptionV2(arg0 context.Context, arg1, arg2 string) (*androidpublisher.SubscriptionPurchaseV2, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "VerifySubscriptionV2", arg0, arg1, arg2, arg3)
+	ret := m.ctrl.Call(m, "VerifySubscriptionV2", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*androidpublisher.SubscriptionPurchaseV2)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // VerifySubscriptionV2 indicates an expected call of VerifySubscriptionV2.
-func (mr *MockIABSubscriptionV2MockRecorder) VerifySubscriptionV2(arg0, arg1, arg2, arg3 any) *gomock.Call {
+func (mr *MockIABSubscriptionV2MockRecorder) VerifySubscriptionV2(arg0, arg1, arg2 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifySubscriptionV2", reflect.TypeOf((*MockIABSubscriptionV2)(nil).VerifySubscriptionV2), arg0, arg1, arg2, arg3)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifySubscriptionV2", reflect.TypeOf((*MockIABSubscriptionV2)(nil).VerifySubscriptionV2), arg0, arg1, arg2)
 }
 
 // MockIABMonetization is a mock of IABMonetization interface.

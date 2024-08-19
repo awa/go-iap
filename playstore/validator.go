@@ -39,7 +39,7 @@ type IABSubscription interface {
 
 // The IABSubscriptionV2 type is an interface  for subscriptionV2 service
 type IABSubscriptionV2 interface {
-	VerifySubscriptionV2(context.Context, string, string, string) (*androidpublisher.SubscriptionPurchaseV2, error)
+	VerifySubscriptionV2(context.Context, string, string) (*androidpublisher.SubscriptionPurchaseV2, error)
 	RevokeSubscriptionV2(context.Context, string, string, *androidpublisher.RevokeSubscriptionPurchaseRequest) (*androidpublisher.RevokeSubscriptionPurchaseResponse, error)
 }
 
