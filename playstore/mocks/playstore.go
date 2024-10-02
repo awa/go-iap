@@ -267,6 +267,21 @@ func (m *MockIABMonetization) EXPECT() *MockIABMonetizationMockRecorder {
 	return m.recorder
 }
 
+// GetSubscription mocks base method.
+func (m *MockIABMonetization) GetSubscription(ctx context.Context, packageName, productID string) (*androidpublisher.Subscription, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSubscription", ctx, packageName, productID)
+	ret0, _ := ret[0].(*androidpublisher.Subscription)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSubscription indicates an expected call of GetSubscription.
+func (mr *MockIABMonetizationMockRecorder) GetSubscription(ctx, packageName, productID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscription", reflect.TypeOf((*MockIABMonetization)(nil).GetSubscription), ctx, packageName, productID)
+}
+
 // GetSubscriptionOffer mocks base method.
 func (m *MockIABMonetization) GetSubscriptionOffer(arg0 context.Context, arg1, arg2, arg3, arg4 string) (*androidpublisher.SubscriptionOffer, error) {
 	m.ctrl.T.Helper()

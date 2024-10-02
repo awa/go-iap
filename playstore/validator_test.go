@@ -277,6 +277,22 @@ func TestDeferSubscription(t *testing.T) {
 	// TODO Normal scenario
 }
 
+func TestGetSubscription(t *testing.T) {
+	t.Parallel()
+	// Exception scenario
+	expected := "googleapi: Error 404: Package not found: package., notFound"
+
+	client, _ := New(jsonKey)
+	ctx := context.Background()
+	_, err := client.GetSubscription(ctx, "package", "productID")
+
+	if err == nil || err.Error() != expected {
+		t.Errorf("got %v", err)
+	}
+
+	// TODO Normal scenario
+}
+
 func TestGetSubscriptionOffer(t *testing.T) {
 	t.Parallel()
 	// Exception scenario

@@ -45,6 +45,7 @@ type IABSubscriptionV2 interface {
 
 // The IABMonetization type is an interface for monetization service
 type IABMonetization interface {
+	GetSubscription(ctx context.Context, packageName string, productID string) (*androidpublisher.Subscription, error)
 	GetSubscriptionOffer(context.Context, string, string, string, string) (*androidpublisher.SubscriptionOffer, error)
 }
 
@@ -228,6 +229,17 @@ func (c *Client) DeferSubscription(ctx context.Context, packageName string, subs
 	req *androidpublisher.SubscriptionPurchasesDeferRequest) (*androidpublisher.SubscriptionPurchasesDeferResponse, error) {
 	ps := androidpublisher.NewPurchasesSubscriptionsService(c.service)
 	result, err := ps.Defer(packageName, subscriptionID, token, req).Context(ctx).Do()
+
+	return result, err
+}
+
+// GetSubscription reads a single subscription.
+func (c *Client) GetSubscription(ctx context.Context,
+	packageName string,
+	productID string,
+) (*androidpublisher.Subscription, error) {
+	ps := androidpublisher.NewMonetizationSubscriptionsService(c.service)
+	result, err := ps.Get(packageName, productID).Context(ctx).Do()
 
 	return result, err
 }
