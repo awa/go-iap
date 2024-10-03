@@ -165,7 +165,7 @@ func main() {
 		KeyContent: []byte(ACCOUNTPRIVATEKEY),  // Loads a .p8 certificate
 		KeyID:      "FAKEKEYID",                // Your private key ID from App Store Connect (Ex: 2X9R4HXF34)
 		BundleID:   "fake.bundle.id",           // Your app’s bundle ID
-		Issuer:     "xxxxx-xx-xx-xx-xxxxxxxxxx",// Your issuer ID from the Keys page in App Store Connect (Ex: "57246542-96fe-1a63-e053-0824d011072a")
+		Issuer:     "xxxxx-xx-xx-xx-xxxxxxxxxx",// Your issuer ID from App Store Connect (Users and Access > Integrations > In-App Purchase)(Ex: "57246542-96fe-1a63-e053-0824d011072a")
 		Sandbox:    false,                      // default is Production
 	}
 	originalTransactionId := "FAKETRANSACTIONID"
