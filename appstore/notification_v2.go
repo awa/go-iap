@@ -202,6 +202,7 @@ type (
 	JWSRenewalInfoDecodedPayload struct {
 		AutoRenewProductId          string              `json:"autoRenewProductId"`
 		AutoRenewStatus             AutoRenewStatus     `json:"autoRenewStatus"`
+		Currency                    string              `json:"currency"`
 		Environment                 Environment         `json:"environment"`
 		ExpirationIntent            ExpirationIntent    `json:"expirationIntent"`
 		GracePeriodExpiresDate      int64               `json:"gracePeriodExpiresDate"`
@@ -213,6 +214,7 @@ type (
 		ProductId                   string              `json:"productId"`
 		RecentSubscriptionStartDate int64               `json:"recentSubscriptionStartDate"`
 		RenewalDate                 int64               `json:"renewalDate"`
+		RenewalPrice                int64               `json:"renewalPrice"`
 		SignedDate                  int64               `json:"signedDate"`
 		jwt.RegisteredClaims
 	}
