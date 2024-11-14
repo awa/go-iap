@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/awa/go-iap/appstore/api"
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -214,30 +213,4 @@ func (c *Client) ParseNotificationV2WithClaim(tokenStr string, result jwt.Claims
 		return cert.ExtractPublicKeyFromToken(tokenStr)
 	})
 	return err
-}
-
-// IAPAPIClient is an interface to call validation API in App Store Server API
-type IAPAPIClient interface {
-	Verify(ctx context.Context, transactionId string) (interface{}, error)
-}
-
-type APIClient struct {
-	productionCli *api.StoreClient
-	sandboxCli    *api.StoreClient
-}
-
-func NewAPIClient(config api.StoreConfig) *APIClient {
-	prodConf := config
-	prodConf.Sandbox = false
-	sandboxConf := config
-	sandboxConf.Sandbox = true
-	return &APIClient{productionCli: api.NewStoreClient(&prodConf), sandboxCli: api.NewStoreClient(&sandboxConf)}
-}
-
-func (c *APIClient) Verify(ctx context.Context, transactionId string) (interface{}, error) {
-	result, err := c.productionCli.GetTransactionInfo(ctx, transactionId)
-	if err != nil && errors.Is(err, api.TransactionIdNotFoundError) {
-		result, err = c.sandboxCli.GetTransactionInfo(ctx, transactionId)
-	}
-	return result, err
 }
