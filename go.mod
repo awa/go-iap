@@ -6,7 +6,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.1
 	github.com/google/uuid v1.6.0
 	github.com/stretchr/testify v1.9.0
-	go.uber.org/mock v0.5.0
+	go.uber.org/mock v0.3.0
 	golang.org/x/oauth2 v0.24.0
 	google.golang.org/api v0.205.0
 	google.golang.org/appengine v1.6.8
