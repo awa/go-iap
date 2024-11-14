@@ -45,6 +45,7 @@ type IABSubscriptionV2 interface {
 
 // The IABMonetization type is an interface for monetization service
 type IABMonetization interface {
+	ConvertRegionPrices(ctx context.Context, packageName string, price *androidpublisher.Money) (*androidpublisher.ConvertRegionPricesResponse, error)
 	GetSubscription(ctx context.Context, packageName string, productID string) (*androidpublisher.Subscription, error)
 	GetSubscriptionOffer(context.Context, string, string, string, string) (*androidpublisher.SubscriptionOffer, error)
 }
@@ -229,6 +230,20 @@ func (c *Client) DeferSubscription(ctx context.Context, packageName string, subs
 	req *androidpublisher.SubscriptionPurchasesDeferRequest) (*androidpublisher.SubscriptionPurchasesDeferResponse, error) {
 	ps := androidpublisher.NewPurchasesSubscriptionsService(c.service)
 	result, err := ps.Defer(packageName, subscriptionID, token, req).Context(ctx).Do()
+
+	return result, err
+}
+
+// ConvertRegionPrices
+func (c *Client) ConvertRegionPrices(ctx context.Context,
+	packageName string,
+	price *androidpublisher.Money,
+) (*androidpublisher.ConvertRegionPricesResponse, error) {
+	ps := androidpublisher.NewMonetizationService(c.service)
+	convertRegionPricesRequest := &androidpublisher.ConvertRegionPricesRequest{
+		Price: price,
+	}
+	result, err := ps.ConvertRegionPrices(packageName, convertRegionPricesRequest).Context(ctx).Do()
 
 	return result, err
 }
