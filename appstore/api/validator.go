@@ -7,7 +7,7 @@ import (
 
 // IAPAPIClient is an interface to call validation API in App Store Server API
 type IAPAPIClient interface {
-	Verify(ctx context.Context, transactionId string) (interface{}, error)
+	Verify(ctx context.Context, transactionId string) (*TransactionInfoResponse, error)
 }
 
 type APIClient struct {
@@ -23,7 +23,7 @@ func NewAPIClient(config StoreConfig) *APIClient {
 	return &APIClient{productionCli: NewStoreClient(&prodConf), sandboxCli: NewStoreClient(&sandboxConf)}
 }
 
-func (c *APIClient) Verify(ctx context.Context, transactionId string) (interface{}, error) {
+func (c *APIClient) Verify(ctx context.Context, transactionId string) (*TransactionInfoResponse, error) {
 	result, err := c.productionCli.GetTransactionInfo(ctx, transactionId)
 	if err != nil && errors.Is(err, TransactionIdNotFoundError) {
 		result, err = c.sandboxCli.GetTransactionInfo(ctx, transactionId)
