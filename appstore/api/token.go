@@ -5,11 +5,10 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
-	"os"
 	"sync"
 	"time"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
@@ -111,16 +110,6 @@ func (t *Token) Generate() error {
 	t.Bearer = bearer
 
 	return nil
-}
-
-// loadKeyFromFile loads a .p8 certificate from a local file and returns a *ecdsa.PrivateKey.
-func (t *Token) loadKeyFromFile(filename string) (*ecdsa.PrivateKey, error) {
-	bytes, err := os.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-
-	return t.passKeyFromByte(bytes)
 }
 
 // passKeyFromByte loads a .p8 certificate from an in memory byte array and returns an *ecdsa.PrivateKey.

@@ -191,7 +191,7 @@ func main() {
 ```go
 import (
 	"github.com/awa/go-iap/appstore"
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func main() {

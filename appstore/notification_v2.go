@@ -1,6 +1,6 @@
 package appstore
 
-import "github.com/golang-jwt/jwt/v4"
+import "github.com/golang-jwt/jwt/v5"
 
 // NotificationTypeV2 is type
 type NotificationTypeV2 string

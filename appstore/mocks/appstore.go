@@ -13,7 +13,7 @@ import (
 	reflect "reflect"
 
 	appstore "github.com/awa/go-iap/appstore"
-	jwt "github.com/golang-jwt/jwt/v4"
+	jwt "github.com/golang-jwt/jwt/v5"
 	gomock "go.uber.org/mock/gomock"
 )
 

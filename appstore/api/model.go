@@ -1,6 +1,9 @@
 package api
 
-import "github.com/awa/go-iap/appstore"
+import (
+	"github.com/awa/go-iap/appstore"
+	"github.com/golang-jwt/jwt/v5"
+)
 
 // OrderLookupResponse https://developer.apple.com/documentation/appstoreserverapi/orderlookupresponse
 type OrderLookupResponse struct {
@@ -83,6 +86,9 @@ type ConsumptionRequestBody struct {
 	RefundPreference         int32  `json:"refundPreference"`
 }
 
+// Verify that JWSRenewalInfoDecodedPayload implements jwt.Claims
+var _ jwt.Claims = JWSRenewalInfoDecodedPayload{}
+
 // JWSRenewalInfoDecodedPayload https://developer.apple.com/documentation/appstoreserverapi/jwsrenewalinfodecodedpayload
 type JWSRenewalInfoDecodedPayload struct {
 	AutoRenewProductId          string            `json:"autoRenewProductId"`
@@ -105,8 +111,34 @@ type JWSRenewalInfoDecodedPayload struct {
 	EligibleWinBackOfferIds     []string          `json:"eligibleWinBackOfferIds,omitempty"`
 }
 
-func (J JWSRenewalInfoDecodedPayload) Valid() error {
-	return nil
+// GetAudience implements jwt.Claims.
+func (J JWSRenewalInfoDecodedPayload) GetAudience() (jwt.ClaimStrings, error) {
+	return nil, nil
+}
+
+// GetExpirationTime implements jwt.Claims.
+func (J JWSRenewalInfoDecodedPayload) GetExpirationTime() (*jwt.NumericDate, error) {
+	return nil, nil
+}
+
+// GetIssuedAt implements jwt.Claims.
+func (J JWSRenewalInfoDecodedPayload) GetIssuedAt() (*jwt.NumericDate, error) {
+	return nil, nil
+}
+
+// GetIssuer implements jwt.Claims.
+func (J JWSRenewalInfoDecodedPayload) GetIssuer() (string, error) {
+	return "", nil
+}
+
+// GetNotBefore implements jwt.Claims.
+func (J JWSRenewalInfoDecodedPayload) GetNotBefore() (*jwt.NumericDate, error) {
+	return nil, nil
+}
+
+// GetSubject implements jwt.Claims.
+func (J JWSRenewalInfoDecodedPayload) GetSubject() (string, error) {
+	return "", nil
 }
 
 // JWSDecodedHeader https://developer.apple.com/documentation/appstoreserverapi/jwsdecodedheader
@@ -143,6 +175,9 @@ const (
 	OfferDiscountTypePayUpFront OfferDiscountType = "PAY_UP_FRONT"
 )
 
+// Verify that JWSTransaction implements jwt.Claims
+var _ jwt.Claims = JWSTransaction{}
+
 // JWSTransaction https://developer.apple.com/documentation/appstoreserverapi/jwstransaction
 type JWSTransaction struct {
 	TransactionID               string            `json:"transactionId,omitempty"`
@@ -173,8 +208,34 @@ type JWSTransaction struct {
 	OfferDiscountType           OfferDiscountType `json:"offerDiscountType,omitempty"`
 }
 
-func (J JWSTransaction) Valid() error {
-	return nil
+// GetAudience implements jwt.Claims.
+func (J JWSTransaction) GetAudience() (jwt.ClaimStrings, error) {
+	return nil, nil
+}
+
+// GetExpirationTime implements jwt.Claims.
+func (J JWSTransaction) GetExpirationTime() (*jwt.NumericDate, error) {
+	return nil, nil
+}
+
+// GetIssuedAt implements jwt.Claims.
+func (J JWSTransaction) GetIssuedAt() (*jwt.NumericDate, error) {
+	return nil, nil
+}
+
+// GetIssuer implements jwt.Claims.
+func (J JWSTransaction) GetIssuer() (string, error) {
+	return "", nil
+}
+
+// GetNotBefore implements jwt.Claims.
+func (J JWSTransaction) GetNotBefore() (*jwt.NumericDate, error) {
+	return nil, nil
+}
+
+// GetSubject implements jwt.Claims.
+func (J JWSTransaction) GetSubject() (string, error) {
+	return "", nil
 }
 
 // https://developer.apple.com/documentation/appstoreserverapi/extendreasoncode
@@ -258,8 +319,10 @@ type SendTestNotificationResponse struct {
 	TestNotificationToken string `json:"testNotificationToken"`
 }
 
-type AutoRenewSubscriptionStatus int32
-type AutoRenewStatus int32
+type (
+	AutoRenewSubscriptionStatus int32
+	AutoRenewStatus             int32
+)
 
 const (
 	SubscriptionActive      AutoRenewSubscriptionStatus = 1
