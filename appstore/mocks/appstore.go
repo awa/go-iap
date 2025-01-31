@@ -5,6 +5,7 @@
 //
 //	mockgen -destination=mocks/appstore.go -package=mocks github.com/awa/go-iap/appstore IAPClient
 //
+
 // Package mocks is a generated GoMock package.
 package mocks
 
@@ -21,6 +22,7 @@ import (
 type MockIAPClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockIAPClientMockRecorder
+	isgomock struct{}
 }
 
 // MockIAPClientMockRecorder is the mock recorder for MockIAPClient.
@@ -41,58 +43,58 @@ func (m *MockIAPClient) EXPECT() *MockIAPClientMockRecorder {
 }
 
 // ParseNotificationV2 mocks base method.
-func (m *MockIAPClient) ParseNotificationV2(arg0 string, arg1 *jwt.Token) error {
+func (m *MockIAPClient) ParseNotificationV2(tokenStr string, result *jwt.Token) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ParseNotificationV2", arg0, arg1)
+	ret := m.ctrl.Call(m, "ParseNotificationV2", tokenStr, result)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ParseNotificationV2 indicates an expected call of ParseNotificationV2.
-func (mr *MockIAPClientMockRecorder) ParseNotificationV2(arg0, arg1 any) *gomock.Call {
+func (mr *MockIAPClientMockRecorder) ParseNotificationV2(tokenStr, result any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseNotificationV2", reflect.TypeOf((*MockIAPClient)(nil).ParseNotificationV2), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseNotificationV2", reflect.TypeOf((*MockIAPClient)(nil).ParseNotificationV2), tokenStr, result)
 }
 
 // ParseNotificationV2WithClaim mocks base method.
-func (m *MockIAPClient) ParseNotificationV2WithClaim(arg0 string, arg1 jwt.Claims) error {
+func (m *MockIAPClient) ParseNotificationV2WithClaim(tokenStr string, result jwt.Claims) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ParseNotificationV2WithClaim", arg0, arg1)
+	ret := m.ctrl.Call(m, "ParseNotificationV2WithClaim", tokenStr, result)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ParseNotificationV2WithClaim indicates an expected call of ParseNotificationV2WithClaim.
-func (mr *MockIAPClientMockRecorder) ParseNotificationV2WithClaim(arg0, arg1 any) *gomock.Call {
+func (mr *MockIAPClientMockRecorder) ParseNotificationV2WithClaim(tokenStr, result any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseNotificationV2WithClaim", reflect.TypeOf((*MockIAPClient)(nil).ParseNotificationV2WithClaim), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseNotificationV2WithClaim", reflect.TypeOf((*MockIAPClient)(nil).ParseNotificationV2WithClaim), tokenStr, result)
 }
 
 // Verify mocks base method.
-func (m *MockIAPClient) Verify(arg0 context.Context, arg1 appstore.IAPRequest, arg2 any) error {
+func (m *MockIAPClient) Verify(ctx context.Context, reqBody appstore.IAPRequest, resp any) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Verify", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "Verify", ctx, reqBody, resp)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Verify indicates an expected call of Verify.
-func (mr *MockIAPClientMockRecorder) Verify(arg0, arg1, arg2 any) *gomock.Call {
+func (mr *MockIAPClientMockRecorder) Verify(ctx, reqBody, resp any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Verify", reflect.TypeOf((*MockIAPClient)(nil).Verify), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Verify", reflect.TypeOf((*MockIAPClient)(nil).Verify), ctx, reqBody, resp)
 }
 
 // VerifyWithStatus mocks base method.
-func (m *MockIAPClient) VerifyWithStatus(arg0 context.Context, arg1 appstore.IAPRequest, arg2 any) (int, error) {
+func (m *MockIAPClient) VerifyWithStatus(ctx context.Context, reqBody appstore.IAPRequest, resp any) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "VerifyWithStatus", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "VerifyWithStatus", ctx, reqBody, resp)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // VerifyWithStatus indicates an expected call of VerifyWithStatus.
-func (mr *MockIAPClientMockRecorder) VerifyWithStatus(arg0, arg1, arg2 any) *gomock.Call {
+func (mr *MockIAPClientMockRecorder) VerifyWithStatus(ctx, reqBody, resp any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyWithStatus", reflect.TypeOf((*MockIAPClient)(nil).VerifyWithStatus), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifyWithStatus", reflect.TypeOf((*MockIAPClient)(nil).VerifyWithStatus), ctx, reqBody, resp)
 }

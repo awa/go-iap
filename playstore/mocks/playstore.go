@@ -5,6 +5,7 @@
 //
 //	mockgen -destination=mocks/playstore.go -package=mocks github.com/awa/go-iap/playstore IABProduct,IABSubscription,IABSubscriptionV2,IABMonetization
 //
+
 // Package mocks is a generated GoMock package.
 package mocks
 
@@ -20,6 +21,7 @@ import (
 type MockIABProduct struct {
 	ctrl     *gomock.Controller
 	recorder *MockIABProductMockRecorder
+	isgomock struct{}
 }
 
 // MockIABProductMockRecorder is the mock recorder for MockIABProduct.
@@ -86,6 +88,7 @@ func (mr *MockIABProductMockRecorder) VerifyProduct(arg0, arg1, arg2, arg3 any) 
 type MockIABSubscription struct {
 	ctrl     *gomock.Controller
 	recorder *MockIABSubscriptionMockRecorder
+	isgomock struct{}
 }
 
 // MockIABSubscriptionMockRecorder is the mock recorder for MockIABSubscription.
@@ -195,6 +198,7 @@ func (mr *MockIABSubscriptionMockRecorder) VerifySubscription(arg0, arg1, arg2, 
 type MockIABSubscriptionV2 struct {
 	ctrl     *gomock.Controller
 	recorder *MockIABSubscriptionV2MockRecorder
+	isgomock struct{}
 }
 
 // MockIABSubscriptionV2MockRecorder is the mock recorder for MockIABSubscriptionV2.
@@ -248,6 +252,7 @@ func (mr *MockIABSubscriptionV2MockRecorder) VerifySubscriptionV2(arg0, arg1, ar
 type MockIABMonetization struct {
 	ctrl     *gomock.Controller
 	recorder *MockIABMonetizationMockRecorder
+	isgomock struct{}
 }
 
 // MockIABMonetizationMockRecorder is the mock recorder for MockIABMonetization.
