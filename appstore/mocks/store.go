@@ -5,6 +5,7 @@
 //
 //	mockgen -destination=../mocks/store.go -package=mocks github.com/awa/go-iap/appstore/api StoreAPIClient
 //
+
 // Package mocks is a generated GoMock package.
 package mocks
 
@@ -23,6 +24,7 @@ import (
 type MockStoreAPIClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockStoreAPIClientMockRecorder
+	isgomock struct{}
 }
 
 // MockStoreAPIClientMockRecorder is the mock recorder for MockStoreAPIClient.
@@ -43,9 +45,9 @@ func (m *MockStoreAPIClient) EXPECT() *MockStoreAPIClientMockRecorder {
 }
 
 // Do mocks base method.
-func (m *MockStoreAPIClient) Do(arg0 context.Context, arg1, arg2 string, arg3 io.Reader) (int, []byte, error) {
+func (m *MockStoreAPIClient) Do(ctx context.Context, method, url string, body io.Reader) (int, []byte, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Do", arg0, arg1, arg2, arg3)
+	ret := m.ctrl.Call(m, "Do", ctx, method, url, body)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].([]byte)
 	ret2, _ := ret[2].(error)
@@ -53,105 +55,105 @@ func (m *MockStoreAPIClient) Do(arg0 context.Context, arg1, arg2 string, arg3 io
 }
 
 // Do indicates an expected call of Do.
-func (mr *MockStoreAPIClientMockRecorder) Do(arg0, arg1, arg2, arg3 any) *gomock.Call {
+func (mr *MockStoreAPIClientMockRecorder) Do(ctx, method, url, body any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Do", reflect.TypeOf((*MockStoreAPIClient)(nil).Do), arg0, arg1, arg2, arg3)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Do", reflect.TypeOf((*MockStoreAPIClient)(nil).Do), ctx, method, url, body)
 }
 
 // ExtendSubscriptionRenewalDate mocks base method.
-func (m *MockStoreAPIClient) ExtendSubscriptionRenewalDate(arg0 context.Context, arg1 string, arg2 api.ExtendRenewalDateRequest) (int, error) {
+func (m *MockStoreAPIClient) ExtendSubscriptionRenewalDate(ctx context.Context, originalTransactionId string, body api.ExtendRenewalDateRequest) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ExtendSubscriptionRenewalDate", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "ExtendSubscriptionRenewalDate", ctx, originalTransactionId, body)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ExtendSubscriptionRenewalDate indicates an expected call of ExtendSubscriptionRenewalDate.
-func (mr *MockStoreAPIClientMockRecorder) ExtendSubscriptionRenewalDate(arg0, arg1, arg2 any) *gomock.Call {
+func (mr *MockStoreAPIClientMockRecorder) ExtendSubscriptionRenewalDate(ctx, originalTransactionId, body any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExtendSubscriptionRenewalDate", reflect.TypeOf((*MockStoreAPIClient)(nil).ExtendSubscriptionRenewalDate), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExtendSubscriptionRenewalDate", reflect.TypeOf((*MockStoreAPIClient)(nil).ExtendSubscriptionRenewalDate), ctx, originalTransactionId, body)
 }
 
 // ExtendSubscriptionRenewalDateForAll mocks base method.
-func (m *MockStoreAPIClient) ExtendSubscriptionRenewalDateForAll(arg0 context.Context, arg1 api.MassExtendRenewalDateRequest) (int, error) {
+func (m *MockStoreAPIClient) ExtendSubscriptionRenewalDateForAll(ctx context.Context, body api.MassExtendRenewalDateRequest) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ExtendSubscriptionRenewalDateForAll", arg0, arg1)
+	ret := m.ctrl.Call(m, "ExtendSubscriptionRenewalDateForAll", ctx, body)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ExtendSubscriptionRenewalDateForAll indicates an expected call of ExtendSubscriptionRenewalDateForAll.
-func (mr *MockStoreAPIClientMockRecorder) ExtendSubscriptionRenewalDateForAll(arg0, arg1 any) *gomock.Call {
+func (mr *MockStoreAPIClientMockRecorder) ExtendSubscriptionRenewalDateForAll(ctx, body any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExtendSubscriptionRenewalDateForAll", reflect.TypeOf((*MockStoreAPIClient)(nil).ExtendSubscriptionRenewalDateForAll), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExtendSubscriptionRenewalDateForAll", reflect.TypeOf((*MockStoreAPIClient)(nil).ExtendSubscriptionRenewalDateForAll), ctx, body)
 }
 
 // GetALLSubscriptionStatuses mocks base method.
-func (m *MockStoreAPIClient) GetALLSubscriptionStatuses(arg0 context.Context, arg1 string, arg2 *url.Values) (*api.StatusResponse, error) {
+func (m *MockStoreAPIClient) GetALLSubscriptionStatuses(ctx context.Context, originalTransactionId string, query *url.Values) (*api.StatusResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetALLSubscriptionStatuses", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "GetALLSubscriptionStatuses", ctx, originalTransactionId, query)
 	ret0, _ := ret[0].(*api.StatusResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetALLSubscriptionStatuses indicates an expected call of GetALLSubscriptionStatuses.
-func (mr *MockStoreAPIClientMockRecorder) GetALLSubscriptionStatuses(arg0, arg1, arg2 any) *gomock.Call {
+func (mr *MockStoreAPIClientMockRecorder) GetALLSubscriptionStatuses(ctx, originalTransactionId, query any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetALLSubscriptionStatuses", reflect.TypeOf((*MockStoreAPIClient)(nil).GetALLSubscriptionStatuses), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetALLSubscriptionStatuses", reflect.TypeOf((*MockStoreAPIClient)(nil).GetALLSubscriptionStatuses), ctx, originalTransactionId, query)
 }
 
 // GetAllNotificationHistory mocks base method.
-func (m *MockStoreAPIClient) GetAllNotificationHistory(arg0 context.Context, arg1 api.NotificationHistoryRequest, arg2 time.Duration) ([]api.NotificationHistoryResponseItem, error) {
+func (m *MockStoreAPIClient) GetAllNotificationHistory(ctx context.Context, body api.NotificationHistoryRequest, duration time.Duration) ([]api.NotificationHistoryResponseItem, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllNotificationHistory", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "GetAllNotificationHistory", ctx, body, duration)
 	ret0, _ := ret[0].([]api.NotificationHistoryResponseItem)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAllNotificationHistory indicates an expected call of GetAllNotificationHistory.
-func (mr *MockStoreAPIClientMockRecorder) GetAllNotificationHistory(arg0, arg1, arg2 any) *gomock.Call {
+func (mr *MockStoreAPIClientMockRecorder) GetAllNotificationHistory(ctx, body, duration any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllNotificationHistory", reflect.TypeOf((*MockStoreAPIClient)(nil).GetAllNotificationHistory), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllNotificationHistory", reflect.TypeOf((*MockStoreAPIClient)(nil).GetAllNotificationHistory), ctx, body, duration)
 }
 
 // GetNotificationHistory mocks base method.
-func (m *MockStoreAPIClient) GetNotificationHistory(arg0 context.Context, arg1 api.NotificationHistoryRequest, arg2 string) (*api.NotificationHistoryResponses, error) {
+func (m *MockStoreAPIClient) GetNotificationHistory(ctx context.Context, body api.NotificationHistoryRequest, paginationToken string) (*api.NotificationHistoryResponses, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetNotificationHistory", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "GetNotificationHistory", ctx, body, paginationToken)
 	ret0, _ := ret[0].(*api.NotificationHistoryResponses)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetNotificationHistory indicates an expected call of GetNotificationHistory.
-func (mr *MockStoreAPIClientMockRecorder) GetNotificationHistory(arg0, arg1, arg2 any) *gomock.Call {
+func (mr *MockStoreAPIClientMockRecorder) GetNotificationHistory(ctx, body, paginationToken any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNotificationHistory", reflect.TypeOf((*MockStoreAPIClient)(nil).GetNotificationHistory), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNotificationHistory", reflect.TypeOf((*MockStoreAPIClient)(nil).GetNotificationHistory), ctx, body, paginationToken)
 }
 
 // GetRefundHistory mocks base method.
-func (m *MockStoreAPIClient) GetRefundHistory(arg0 context.Context, arg1 string) ([]*api.RefundLookupResponse, error) {
+func (m *MockStoreAPIClient) GetRefundHistory(ctx context.Context, originalTransactionId string) ([]*api.RefundLookupResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRefundHistory", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetRefundHistory", ctx, originalTransactionId)
 	ret0, _ := ret[0].([]*api.RefundLookupResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetRefundHistory indicates an expected call of GetRefundHistory.
-func (mr *MockStoreAPIClientMockRecorder) GetRefundHistory(arg0, arg1 any) *gomock.Call {
+func (mr *MockStoreAPIClientMockRecorder) GetRefundHistory(ctx, originalTransactionId any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRefundHistory", reflect.TypeOf((*MockStoreAPIClient)(nil).GetRefundHistory), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRefundHistory", reflect.TypeOf((*MockStoreAPIClient)(nil).GetRefundHistory), ctx, originalTransactionId)
 }
 
 // GetSubscriptionRenewalDataStatus mocks base method.
-func (m *MockStoreAPIClient) GetSubscriptionRenewalDataStatus(arg0 context.Context, arg1, arg2 string) (int, *api.MassExtendRenewalDateStatusResponse, error) {
+func (m *MockStoreAPIClient) GetSubscriptionRenewalDataStatus(ctx context.Context, productId, requestIdentifier string) (int, *api.MassExtendRenewalDateStatusResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetSubscriptionRenewalDataStatus", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "GetSubscriptionRenewalDataStatus", ctx, productId, requestIdentifier)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(*api.MassExtendRenewalDateStatusResponse)
 	ret2, _ := ret[2].(error)
@@ -159,15 +161,15 @@ func (m *MockStoreAPIClient) GetSubscriptionRenewalDataStatus(arg0 context.Conte
 }
 
 // GetSubscriptionRenewalDataStatus indicates an expected call of GetSubscriptionRenewalDataStatus.
-func (mr *MockStoreAPIClientMockRecorder) GetSubscriptionRenewalDataStatus(arg0, arg1, arg2 any) *gomock.Call {
+func (mr *MockStoreAPIClientMockRecorder) GetSubscriptionRenewalDataStatus(ctx, productId, requestIdentifier any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptionRenewalDataStatus", reflect.TypeOf((*MockStoreAPIClient)(nil).GetSubscriptionRenewalDataStatus), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSubscriptionRenewalDataStatus", reflect.TypeOf((*MockStoreAPIClient)(nil).GetSubscriptionRenewalDataStatus), ctx, productId, requestIdentifier)
 }
 
 // GetTestNotificationStatus mocks base method.
-func (m *MockStoreAPIClient) GetTestNotificationStatus(arg0 context.Context, arg1 string) (int, []byte, error) {
+func (m *MockStoreAPIClient) GetTestNotificationStatus(ctx context.Context, testNotificationToken string) (int, []byte, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTestNotificationStatus", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetTestNotificationStatus", ctx, testNotificationToken)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].([]byte)
 	ret2, _ := ret[2].(error)
@@ -175,120 +177,120 @@ func (m *MockStoreAPIClient) GetTestNotificationStatus(arg0 context.Context, arg
 }
 
 // GetTestNotificationStatus indicates an expected call of GetTestNotificationStatus.
-func (mr *MockStoreAPIClientMockRecorder) GetTestNotificationStatus(arg0, arg1 any) *gomock.Call {
+func (mr *MockStoreAPIClientMockRecorder) GetTestNotificationStatus(ctx, testNotificationToken any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTestNotificationStatus", reflect.TypeOf((*MockStoreAPIClient)(nil).GetTestNotificationStatus), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTestNotificationStatus", reflect.TypeOf((*MockStoreAPIClient)(nil).GetTestNotificationStatus), ctx, testNotificationToken)
 }
 
 // GetTransactionHistory mocks base method.
-func (m *MockStoreAPIClient) GetTransactionHistory(arg0 context.Context, arg1 string, arg2 *url.Values) ([]*api.HistoryResponse, error) {
+func (m *MockStoreAPIClient) GetTransactionHistory(ctx context.Context, originalTransactionId string, query *url.Values) ([]*api.HistoryResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTransactionHistory", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "GetTransactionHistory", ctx, originalTransactionId, query)
 	ret0, _ := ret[0].([]*api.HistoryResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetTransactionHistory indicates an expected call of GetTransactionHistory.
-func (mr *MockStoreAPIClientMockRecorder) GetTransactionHistory(arg0, arg1, arg2 any) *gomock.Call {
+func (mr *MockStoreAPIClientMockRecorder) GetTransactionHistory(ctx, originalTransactionId, query any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTransactionHistory", reflect.TypeOf((*MockStoreAPIClient)(nil).GetTransactionHistory), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTransactionHistory", reflect.TypeOf((*MockStoreAPIClient)(nil).GetTransactionHistory), ctx, originalTransactionId, query)
 }
 
 // GetTransactionInfo mocks base method.
-func (m *MockStoreAPIClient) GetTransactionInfo(arg0 context.Context, arg1 string) (*api.TransactionInfoResponse, error) {
+func (m *MockStoreAPIClient) GetTransactionInfo(ctx context.Context, transactionId string) (*api.TransactionInfoResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTransactionInfo", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetTransactionInfo", ctx, transactionId)
 	ret0, _ := ret[0].(*api.TransactionInfoResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetTransactionInfo indicates an expected call of GetTransactionInfo.
-func (mr *MockStoreAPIClientMockRecorder) GetTransactionInfo(arg0, arg1 any) *gomock.Call {
+func (mr *MockStoreAPIClientMockRecorder) GetTransactionInfo(ctx, transactionId any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTransactionInfo", reflect.TypeOf((*MockStoreAPIClient)(nil).GetTransactionInfo), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTransactionInfo", reflect.TypeOf((*MockStoreAPIClient)(nil).GetTransactionInfo), ctx, transactionId)
 }
 
 // LookupOrderID mocks base method.
-func (m *MockStoreAPIClient) LookupOrderID(arg0 context.Context, arg1 string) (*api.OrderLookupResponse, error) {
+func (m *MockStoreAPIClient) LookupOrderID(ctx context.Context, orderId string) (*api.OrderLookupResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "LookupOrderID", arg0, arg1)
+	ret := m.ctrl.Call(m, "LookupOrderID", ctx, orderId)
 	ret0, _ := ret[0].(*api.OrderLookupResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // LookupOrderID indicates an expected call of LookupOrderID.
-func (mr *MockStoreAPIClientMockRecorder) LookupOrderID(arg0, arg1 any) *gomock.Call {
+func (mr *MockStoreAPIClientMockRecorder) LookupOrderID(ctx, orderId any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LookupOrderID", reflect.TypeOf((*MockStoreAPIClient)(nil).LookupOrderID), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LookupOrderID", reflect.TypeOf((*MockStoreAPIClient)(nil).LookupOrderID), ctx, orderId)
 }
 
 // ParseJWSEncodeString mocks base method.
-func (m *MockStoreAPIClient) ParseJWSEncodeString(arg0 string) (any, error) {
+func (m *MockStoreAPIClient) ParseJWSEncodeString(jwsEncode string) (any, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ParseJWSEncodeString", arg0)
+	ret := m.ctrl.Call(m, "ParseJWSEncodeString", jwsEncode)
 	ret0, _ := ret[0].(any)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ParseJWSEncodeString indicates an expected call of ParseJWSEncodeString.
-func (mr *MockStoreAPIClientMockRecorder) ParseJWSEncodeString(arg0 any) *gomock.Call {
+func (mr *MockStoreAPIClientMockRecorder) ParseJWSEncodeString(jwsEncode any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseJWSEncodeString", reflect.TypeOf((*MockStoreAPIClient)(nil).ParseJWSEncodeString), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseJWSEncodeString", reflect.TypeOf((*MockStoreAPIClient)(nil).ParseJWSEncodeString), jwsEncode)
 }
 
 // ParseSignedTransaction mocks base method.
-func (m *MockStoreAPIClient) ParseSignedTransaction(arg0 string) (*api.JWSTransaction, error) {
+func (m *MockStoreAPIClient) ParseSignedTransaction(transaction string) (*api.JWSTransaction, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ParseSignedTransaction", arg0)
+	ret := m.ctrl.Call(m, "ParseSignedTransaction", transaction)
 	ret0, _ := ret[0].(*api.JWSTransaction)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ParseSignedTransaction indicates an expected call of ParseSignedTransaction.
-func (mr *MockStoreAPIClientMockRecorder) ParseSignedTransaction(arg0 any) *gomock.Call {
+func (mr *MockStoreAPIClientMockRecorder) ParseSignedTransaction(transaction any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseSignedTransaction", reflect.TypeOf((*MockStoreAPIClient)(nil).ParseSignedTransaction), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseSignedTransaction", reflect.TypeOf((*MockStoreAPIClient)(nil).ParseSignedTransaction), transaction)
 }
 
 // ParseSignedTransactions mocks base method.
-func (m *MockStoreAPIClient) ParseSignedTransactions(arg0 []string) ([]*api.JWSTransaction, error) {
+func (m *MockStoreAPIClient) ParseSignedTransactions(transactions []string) ([]*api.JWSTransaction, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ParseSignedTransactions", arg0)
+	ret := m.ctrl.Call(m, "ParseSignedTransactions", transactions)
 	ret0, _ := ret[0].([]*api.JWSTransaction)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ParseSignedTransactions indicates an expected call of ParseSignedTransactions.
-func (mr *MockStoreAPIClientMockRecorder) ParseSignedTransactions(arg0 any) *gomock.Call {
+func (mr *MockStoreAPIClientMockRecorder) ParseSignedTransactions(transactions any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseSignedTransactions", reflect.TypeOf((*MockStoreAPIClient)(nil).ParseSignedTransactions), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseSignedTransactions", reflect.TypeOf((*MockStoreAPIClient)(nil).ParseSignedTransactions), transactions)
 }
 
 // SendConsumptionInfo mocks base method.
-func (m *MockStoreAPIClient) SendConsumptionInfo(arg0 context.Context, arg1 string, arg2 api.ConsumptionRequestBody) (int, error) {
+func (m *MockStoreAPIClient) SendConsumptionInfo(ctx context.Context, originalTransactionId string, body api.ConsumptionRequestBody) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SendConsumptionInfo", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "SendConsumptionInfo", ctx, originalTransactionId, body)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // SendConsumptionInfo indicates an expected call of SendConsumptionInfo.
-func (mr *MockStoreAPIClientMockRecorder) SendConsumptionInfo(arg0, arg1, arg2 any) *gomock.Call {
+func (mr *MockStoreAPIClientMockRecorder) SendConsumptionInfo(ctx, originalTransactionId, body any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendConsumptionInfo", reflect.TypeOf((*MockStoreAPIClient)(nil).SendConsumptionInfo), arg0, arg1, arg2)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendConsumptionInfo", reflect.TypeOf((*MockStoreAPIClient)(nil).SendConsumptionInfo), ctx, originalTransactionId, body)
 }
 
 // SendRequestTestNotification mocks base method.
-func (m *MockStoreAPIClient) SendRequestTestNotification(arg0 context.Context) (int, []byte, error) {
+func (m *MockStoreAPIClient) SendRequestTestNotification(ctx context.Context) (int, []byte, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SendRequestTestNotification", arg0)
+	ret := m.ctrl.Call(m, "SendRequestTestNotification", ctx)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].([]byte)
 	ret2, _ := ret[2].(error)
@@ -296,7 +298,7 @@ func (m *MockStoreAPIClient) SendRequestTestNotification(arg0 context.Context) (
 }
 
 // SendRequestTestNotification indicates an expected call of SendRequestTestNotification.
-func (mr *MockStoreAPIClientMockRecorder) SendRequestTestNotification(arg0 any) *gomock.Call {
+func (mr *MockStoreAPIClientMockRecorder) SendRequestTestNotification(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendRequestTestNotification", reflect.TypeOf((*MockStoreAPIClient)(nil).SendRequestTestNotification), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendRequestTestNotification", reflect.TypeOf((*MockStoreAPIClient)(nil).SendRequestTestNotification), ctx)
 }
