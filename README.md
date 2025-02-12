@@ -4,7 +4,7 @@ go-iap
 ![](https://img.shields.io/badge/golang-1.22+-blue.svg?style=flat)
 [![unit test](https://github.com/awa/go-iap/actions/workflows/unit_test.yml/badge.svg)](https://github.com/awa/go-iap/actions/workflows/unit_test.yml)
 
->go-iap verifies the purchase receipt via AppStore, GooglePlayStore or Amazon AppStore.
+>go-iap verifies the purchase receipt via AppStore, GooglePlayStore, Amazon AppStore, HMS or MicrosoftStore.
 
 Current API Documents:
 
@@ -13,6 +13,7 @@ Current API Documents:
 * GooglePlay: [![GoDoc](https://godoc.org/github.com/awa/go-iap/playstore?status.svg)](https://godoc.org/github.com/awa/go-iap/playstore)
 * Amazon AppStore: [![GoDoc](https://godoc.org/github.com/awa/go-iap/amazon?status.svg)](https://godoc.org/github.com/awa/go-iap/amazon)
 * Huawei HMS: [![GoDoc](https://godoc.org/github.com/awa/go-iap/hms?status.svg)](https://godoc.org/github.com/awa/go-iap/hms)
+* Microsoft Store: [![GoDoc](https://godoc.org/github.com/awa/go-iap/microsoftstore?status.svg)](https://godoc.org/github.com/awa/go-iap/microsoftstore)
 
 
 # Installation
@@ -21,6 +22,7 @@ go get github.com/awa/go-iap/appstore
 go get github.com/awa/go-iap/playstore
 go get github.com/awa/go-iap/amazon
 go get github.com/awa/go-iap/hms
+go get github.com/awa/go-iap/microsoftstore
 ```
 
 
@@ -230,6 +232,9 @@ This validator uses [Version 2 API](https://developer.huawei.com/consumer/en/doc
 
 ### In App Store Server API
 This validator uses [Version 1.0+](https://developer.apple.com/documentation/appstoreserverapi)
+
+### In App Purchase (Microsoft Store)
+This validator uses [Version 1.0](https://learn.microsoft.com/en-us/windows/uwp/monetize/view-and-grant-products-from-a-services)
 
 # License
 go-iap is licensed under the MIT.
