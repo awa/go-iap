@@ -91,6 +91,8 @@ var _ jwt.Claims = JWSRenewalInfoDecodedPayload{}
 
 // JWSRenewalInfoDecodedPayload https://developer.apple.com/documentation/appstoreserverapi/jwsrenewalinfodecodedpayload
 type JWSRenewalInfoDecodedPayload struct {
+	AppAccountToken             string            `json:"appAccountToken,omitempty"`
+	AppTransactionId            string            `json:"appTransactionId,omitempty"`
 	AutoRenewProductId          string            `json:"autoRenewProductId"`
 	AutoRenewStatus             AutoRenewStatus   `json:"autoRenewStatus"`
 	Environment                 Environment       `json:"environment"`
@@ -99,6 +101,7 @@ type JWSRenewalInfoDecodedPayload struct {
 	IsInBillingRetryPeriod      *bool             `json:"isInBillingRetryPeriod"`
 	OfferIdentifier             string            `json:"offerIdentifier"`
 	OfferType                   int32             `json:"offerType"`
+	OfferPeriod                 string            `json:"offerPeriod"`
 	OriginalTransactionId       string            `json:"originalTransactionId"`
 	PriceIncreaseStatus         *int32            `json:"priceIncreaseStatus"`
 	ProductId                   string            `json:"productId"`
@@ -180,6 +183,7 @@ var _ jwt.Claims = JWSTransaction{}
 
 // JWSTransaction https://developer.apple.com/documentation/appstoreserverapi/jwstransaction
 type JWSTransaction struct {
+	AppTransactionId            string            `json:"appTransactionId,omitempty"`
 	TransactionID               string            `json:"transactionId,omitempty"`
 	OriginalTransactionId       string            `json:"originalTransactionId,omitempty"`
 	WebOrderLineItemId          string            `json:"webOrderLineItemId,omitempty"`
@@ -195,6 +199,7 @@ type JWSTransaction struct {
 	InAppOwnershipType          string            `json:"inAppOwnershipType,omitempty"`
 	SignedDate                  int64             `json:"signedDate,omitempty"`
 	OfferType                   int32             `json:"offerType,omitempty"`
+	OfferPeriod                 string            `json:"offerPeriod,omitempty"`
 	OfferIdentifier             string            `json:"offerIdentifier,omitempty"`
 	RevocationDate              int64             `json:"revocationDate,omitempty"`
 	RevocationReason            *int32            `json:"revocationReason,omitempty"`
