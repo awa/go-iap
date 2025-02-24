@@ -169,4 +169,5 @@ var (
 	InvalidUserStatusError                  = newError(4000042, "Invalid request. The user status field is invalid")
 	InvalidTransactionNotConsumableError    = newError(4000043, "Invalid request. The transaction id parameter must represent a consumable in-app purchase")
 	InvalidTransactionTypeNotSupportedError = newError(4000047, "Invalid request. The transaction id doesn't represent a supported in-app purchase type")
+	AppTransactionIdNotSupportedError       = newError(4000048, "Invalid request. Invalid request. App transactions aren't supported by this endpoint")
 )
