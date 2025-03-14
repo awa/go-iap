@@ -24,7 +24,7 @@ const (
 	HostProduction = "https://api.storekit.itunes.apple.com"
 
 	PathLookUp                              = "/inApps/v1/lookup/{orderId}"
-	PathTransactionHistory                  = "/inApps/v2/history/{originalTransactionId}"
+	PathTransactionHistory                  = "/inApps/v2/history/{transactionId}"
 	PathTransactionHistoryV1                = "/inApps/v1/history/{originalTransactionId}"
 	PathTransactionInfo                     = "/inApps/v1/transactions/{transactionId}"
 	PathRefundHistory                       = "/inApps/v2/refund/lookup/{originalTransactionId}"
@@ -66,7 +66,7 @@ type (
 		GetALLSubscriptionStatuses(ctx context.Context, originalTransactionId string, query *url.Values) (rsp *StatusResponse, err error)
 		GetRefundHistory(ctx context.Context, originalTransactionId string) (responses []*RefundLookupResponse, err error)
 		GetSubscriptionRenewalDataStatus(ctx context.Context, productId, requestIdentifier string) (statusCode int, rsp *MassExtendRenewalDateStatusResponse, err error)
-		GetTransactionHistory(ctx context.Context, originalTransactionId string, query *url.Values) (responses []*HistoryResponse, err error)
+		GetTransactionHistory(ctx context.Context, transactionId string, query *url.Values) (responses []*HistoryResponse, err error)
 		GetTransactionInfo(ctx context.Context, transactionId string) (rsp *TransactionInfoResponse, err error)
 		LookupOrderID(ctx context.Context, orderId string) (rsp *OrderLookupResponse, err error)
 	}
@@ -190,9 +190,9 @@ func (a *StoreClient) LookupOrderID(ctx context.Context, orderId string) (rsp *O
 }
 
 // GetTransactionHistory https://developer.apple.com/documentation/appstoreserverapi/get_transaction_history
-func (a *StoreClient) GetTransactionHistory(ctx context.Context, originalTransactionId string, query *url.Values) (responses []*HistoryResponse, err error) {
+func (a *StoreClient) GetTransactionHistory(ctx context.Context, transactionId string, query *url.Values) (responses []*HistoryResponse, err error) {
 	URL := a.host + PathTransactionHistory
-	URL = strings.Replace(URL, "{originalTransactionId}", originalTransactionId, -1)
+	URL = strings.Replace(URL, "{transactionId}", transactionId, -1)
 
 	if query == nil {
 		query = &url.Values{}
