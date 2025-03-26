@@ -279,6 +279,29 @@ func TestDeferSubscription(t *testing.T) {
 	// TODO Normal scenario
 }
 
+func TestConvertRegionPrices(t *testing.T) {
+	t.Parallel()
+	// Exception scenario
+	expected := "googleapi: Error 404: Package not found: package., notFound"
+
+	client, _ := New(jsonKey)
+	ctx := context.Background()
+	price := &androidpublisher.Money{
+		CurrencyCode:    "USD",
+		Nanos:           1 * 1000,
+		Units:           1,
+		ForceSendFields: nil,
+		NullFields:      nil,
+	}
+	_, err := client.ConvertRegionPrices(ctx, "package", price)
+
+	if err == nil || err.Error() != expected {
+		t.Errorf("got %v", err)
+	}
+
+	// TODO Normal scenario
+}
+
 func TestGetSubscription(t *testing.T) {
 	t.Parallel()
 	// Exception scenario
