@@ -92,7 +92,7 @@ func TestNewDefaultTokenSourceClient(t *testing.T) {
 
 	_, err := NewDefaultTokenSourceClient()
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err.Error())
 	}
 }
 
