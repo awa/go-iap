@@ -240,6 +240,11 @@ func (a *StoreClient) GetTransactionInfo(ctx context.Context, transactionId stri
 		return nil, err
 	}
 
+	// Test transaction may also return 401 when queried in the production environment
+	if statusCode == http.StatusUnauthorized {
+		return nil, http.TransactionIdNotFoundError
+	}
+
 	if statusCode != http.StatusOK {
 		return nil, fmt.Errorf("appstore api: %v return status code %v", URL, statusCode)
 	}
