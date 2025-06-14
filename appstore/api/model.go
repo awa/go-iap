@@ -339,3 +339,7 @@ const (
 	AutoRenewStatusOff AutoRenewStatus = 0
 	AutoRenewStatusOn  AutoRenewStatus = 1
 )
+
+type UpdateAppAccountTokenRequest struct {
+	AppAccountToken string `json:"appAccountToken"`
+}
