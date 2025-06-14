@@ -36,6 +36,7 @@ const (
 	PathGetNotificationHistory              = "/inApps/v1/notifications/history"
 	PathRequestTestNotification             = "/inApps/v1/notifications/test"
 	PathGetTestNotificationStatus           = "/inApps/v1/notifications/test/{testNotificationToken}"
+	PathSetAppAccountToken                  = "/inApps/v1/transactions/{originalTransactionId}/appAccountToken"
 )
 
 type StoreConfig struct {
@@ -59,6 +60,7 @@ type (
 		NotificationGetter
 		NotificationSender
 		ConsumptionSender
+		AppAccountSetter
 		Do(ctx context.Context, method string, url string, body io.Reader) (int, []byte, error)
 	}
 
@@ -94,6 +96,10 @@ type (
 
 	ConsumptionSender interface {
 		SendConsumptionInfo(ctx context.Context, originalTransactionId string, body ConsumptionRequestBody) (statusCode int, err error)
+	}
+
+	AppAccountSetter interface {
+		SetAppAccountToken(ctx context.Context, originalTransactionId string, body UpdateAppAccountTokenRequest) (statusCode int, err error)
 	}
 )
 
@@ -435,6 +441,24 @@ func (a *StoreClient) GetTestNotificationStatus(ctx context.Context, testNotific
 	URL = strings.Replace(URL, "{testNotificationToken}", testNotificationToken, -1)
 
 	return a.Do(ctx, http.MethodGet, URL, nil)
+}
+
+// SetAppAccountToken https://developer.apple.com/documentation/appstoreserverapi/set-app-account-token
+func (a *StoreClient) SetAppAccountToken(ctx context.Context, originalTransactionId string, body UpdateAppAccountTokenRequest) (statusCode int, err error) {
+	URL := a.host + PathSetAppAccountToken
+	URL = strings.Replace(URL, "{originalTransactionId}", originalTransactionId, -1)
+
+	bodyBuf := new(bytes.Buffer)
+	err = json.NewEncoder(bodyBuf).Encode(body)
+	if err != nil {
+		return 0, err
+	}
+
+	statusCode, _, err = a.Do(ctx, http.MethodPut, URL, bodyBuf)
+	if err != nil {
+		return statusCode, err
+	}
+	return statusCode, nil
 }
 
 // ParseSignedTransactions parse the jws singed transactions
