@@ -138,12 +138,12 @@ func main() {
 	ctx := context.Background()
 	response, err := a.GetTransactionInfo(ctx, transactionId)
 
-	transantion, err := a.ParseSignedTransaction(response.SignedTransactionInfo)
+	transaction, err := a.ParseSignedTransaction(response.SignedTransactionInfo)
 	if err != nil {
 	    // error handling
 	}
 
-	if transaction.TransactionId == transactionId {
+	if transaction.TransactionID == transactionId {
 		// the transaction is valid
 	}
 }
@@ -179,7 +179,7 @@ func main() {
 	responses, err := a.GetTransactionHistory(ctx, originalTransactionId, query)
 
 	for _, response := range responses {
-		transantions, err := a.ParseSignedTransactions(response.SignedTransactions)
+		transactions, err := a.ParseSignedTransactions(response.SignedTransactions)
 	}
 }
 ```
