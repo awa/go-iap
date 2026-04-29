@@ -150,6 +150,14 @@ type AdvancedCommerceRenewalInfo struct {
 	TaxCode            string                         `json:"taxCode"`
 }
 
+type RenewalCommitmentInfo struct {
+	CommitmentAutoRenewProductId     string          `json:"commitmentAutoRenewProductId"`
+	CommitmentAutoRenewStatus        int32           `json:"commitmentAutoRenewStatus"`
+	CommitmentRenewalBillingPlanType BillingPlanType `json:"commitmentRenewalBillingPlanType"`
+	CommitmentRenewalDate            int64           `json:"commitmentRenewalDate"`
+	CommitmentRenewalPrice           int64           `json:"commitmentRenewalPrice"`
+}
+
 // Verify that JWSRenewalInfoDecodedPayload implements jwt.Claims
 var _ jwt.Claims = JWSRenewalInfoDecodedPayload{}
 
@@ -177,6 +185,8 @@ type JWSRenewalInfoDecodedPayload struct {
 	OfferDiscountType           OfferDiscountType           `json:"offerDiscountType,omitempty"`
 	EligibleWinBackOfferIds     []string                    `json:"eligibleWinBackOfferIds,omitempty"`
 	AdvancedCommerceInfo        AdvancedCommerceRenewalInfo `json:"advancedCommerceInfo,omitempty"`
+	CommitmentInfo              RenewalCommitmentInfo       `json:"commitmentInfo,omitempty"`
+	RenewalBillingPlanType      BillingPlanType             `json:"renewalBillingPlanType,omitempty"`
 }
 
 // GetAudience implements jwt.Claims.
@@ -252,41 +262,119 @@ const (
 	FAMILY_REVOKE   RevocationType = "FAMILY_REVOKE"
 )
 
+type AdvancedCommerceRefundReason string
+
+const (
+	AdvancedCommerceRefundUNINTENDED_PURCHASE       AdvancedCommerceRefundReason = "UNINTENDED_PURCHASE"
+	AdvancedCommerceRefundFULFILLMENT_ISSUE         AdvancedCommerceRefundReason = "FULFILLMENT_ISSUE"
+	AdvancedCommerceRefundUNSATISFIED_WITH_PURCHASE AdvancedCommerceRefundReason = "UNSATISFIED_WITH_PURCHASE"
+	AdvancedCommerceRefundLEGAL                     AdvancedCommerceRefundReason = "LEGAL"
+	AdvancedCommerceRefundOTHER                     AdvancedCommerceRefundReason = "OTHER"
+	AdvancedCommerceRefundMODIFY_ITEMS_REFUND       AdvancedCommerceRefundReason = "MODIFY_ITEMS_REFUND"
+	AdvancedCommerceRefundSIMULATE_REFUND_DECLINE   AdvancedCommerceRefundReason = "SIMULATE_REFUND_DECLINE"
+)
+
+type AdvancedCommerceRefundType string
+
+const (
+	AdvancedCommerceRefundTypeFULL     AdvancedCommerceRefundType = "FULL"
+	AdvancedCommerceRefundTypePRORATED AdvancedCommerceRefundType = "PRORATED"
+	AdvancedCommerceRefundTypeCUSTOM   AdvancedCommerceRefundType = "CUSTOM"
+)
+
+type AdvancedCommerceRefund struct {
+	RefundAmount int64                        `json:"refundAmount"`
+	RefundDate   int64                        `json:"refundDate"`
+	RefundReason AdvancedCommerceRefundReason `json:"refundReason"`
+	RefundType   AdvancedCommerceRefundType   `json:"refundType"`
+}
+
+type AdvancedCommerceTransactionItem struct {
+	SKU            string                   `json:"SKU,omitempty"`
+	Description    string                   `json:"description,omitempty"`
+	DisplayName    string                   `json:"displayName,omitempty"`
+	Offer          AdvancedCommerceOffer    `json:"offer,omitempty"`
+	Price          int64                    `json:"price,omitempty"`
+	Refunds        []AdvancedCommerceRefund `json:"refunds,omitempty"`
+	RevocationDate int64                    `json:"revocationDate,omitempty"`
+}
+
+type AdvancedCommercePeriod string
+
+const (
+	AdvancedCommercePeriodP1W AdvancedCommercePeriod = "P1W"
+	AdvancedCommercePeriodP1M AdvancedCommercePeriod = "P1M"
+	AdvancedCommercePeriodP2M AdvancedCommercePeriod = "P2M"
+	AdvancedCommercePeriodP3M AdvancedCommercePeriod = "P3M"
+	AdvancedCommercePeriodP6M AdvancedCommercePeriod = "P6M"
+	AdvancedCommercePeriodP1Y AdvancedCommercePeriod = "P1Y"
+)
+
+// advancedCommerceTransactionInfo https://developer.apple.com/documentation/appstoreserverapi/advancedcommercetransactioninfo
+type AdvancedCommerceTransactionInfo struct {
+	Descriptors        AdvancedCommerceDescriptors       `json:"descriptors"`
+	EstimatedTax       int64                             `json:"estimatedTax"`
+	Items              []AdvancedCommerceTransactionItem `json:"items"`
+	Period             AdvancedCommercePeriod            `json:"period"`
+	RequestReferenceId string                            `json:"requestReferenceId,omitempty"`
+	TaxCode            string                            `json:"taxCode,omitempty"`
+	TaxExclusivePrice  int64                             `json:"taxExclusivePrice,omitempty"`
+	TaxRate            string                            `json:"taxRate,omitempty"`
+}
+
+type BillingPlanType string
+
+const (
+	BillingPlanTypeBILLED_UPFRONT BillingPlanType = "BILLED_UPFRONT"
+	BillingPlanTypeMONTHLY        BillingPlanType = "MONTHLY"
+)
+
+// TransactionCommitmentInfo https://developer.apple.com/documentation/appstoreserverapi/transactioncommitmentinfo
+type TransactionCommitmentInfo struct {
+	BillingPeriodNumber   int32 `json:"billingPeriodNumber"`
+	CommitmentExpiresDate int64 `json:"commitmentExpiresDate"`
+	CommitmentPrice       int64 `json:"commitmentPrice"`
+	TotalBillingPeriods   int32 `json:"totalBillingPeriods"`
+}
+
 // Verify that JWSTransaction implements jwt.Claims
 var _ jwt.Claims = JWSTransaction{}
 
 // JWSTransaction https://developer.apple.com/documentation/appstoreserverapi/jwstransaction
 type JWSTransaction struct {
-	AppTransactionId            string            `json:"appTransactionId,omitempty"`
-	TransactionID               string            `json:"transactionId,omitempty"`
-	OriginalTransactionId       string            `json:"originalTransactionId,omitempty"`
-	WebOrderLineItemId          string            `json:"webOrderLineItemId,omitempty"`
-	BundleID                    string            `json:"bundleId,omitempty"`
-	ProductID                   string            `json:"productId,omitempty"`
-	SubscriptionGroupIdentifier string            `json:"subscriptionGroupIdentifier,omitempty"`
-	PurchaseDate                int64             `json:"purchaseDate,omitempty"`
-	OriginalPurchaseDate        int64             `json:"originalPurchaseDate,omitempty"`
-	ExpiresDate                 int64             `json:"expiresDate,omitempty"`
-	Quantity                    int32             `json:"quantity,omitempty"`
-	Type                        IAPType           `json:"type,omitempty"`
-	AppAccountToken             string            `json:"appAccountToken,omitempty"`
-	InAppOwnershipType          string            `json:"inAppOwnershipType,omitempty"`
-	SignedDate                  int64             `json:"signedDate,omitempty"`
-	OfferType                   int32             `json:"offerType,omitempty"`
-	OfferPeriod                 string            `json:"offerPeriod,omitempty"`
-	OfferIdentifier             string            `json:"offerIdentifier,omitempty"`
-	RevocationDate              int64             `json:"revocationDate,omitempty"`
-	RevocationReason            *int32            `json:"revocationReason,omitempty"`
-	RevocationType              RevocationType    `json:"revocationType,omitempty"`
-	RevocationPercentage        int32             `json:"revocationPercentage,omitempty"`
-	IsUpgraded                  bool              `json:"isUpgraded,omitempty"`
-	Storefront                  string            `json:"storefront,omitempty"`
-	StorefrontId                string            `json:"storefrontId,omitempty"`
-	TransactionReason           TransactionReason `json:"transactionReason,omitempty"`
-	Environment                 Environment       `json:"environment,omitempty"`
-	Price                       int64             `json:"price,omitempty"`
-	Currency                    string            `json:"currency,omitempty"`
-	OfferDiscountType           OfferDiscountType `json:"offerDiscountType,omitempty"`
+	AppTransactionId            string                          `json:"appTransactionId,omitempty"`
+	TransactionID               string                          `json:"transactionId,omitempty"`
+	OriginalTransactionId       string                          `json:"originalTransactionId,omitempty"`
+	WebOrderLineItemId          string                          `json:"webOrderLineItemId,omitempty"`
+	BundleID                    string                          `json:"bundleId,omitempty"`
+	ProductID                   string                          `json:"productId,omitempty"`
+	SubscriptionGroupIdentifier string                          `json:"subscriptionGroupIdentifier,omitempty"`
+	PurchaseDate                int64                           `json:"purchaseDate,omitempty"`
+	OriginalPurchaseDate        int64                           `json:"originalPurchaseDate,omitempty"`
+	ExpiresDate                 int64                           `json:"expiresDate,omitempty"`
+	Quantity                    int32                           `json:"quantity,omitempty"`
+	Type                        IAPType                         `json:"type,omitempty"`
+	AppAccountToken             string                          `json:"appAccountToken,omitempty"`
+	InAppOwnershipType          string                          `json:"inAppOwnershipType,omitempty"`
+	SignedDate                  int64                           `json:"signedDate,omitempty"`
+	OfferType                   int32                           `json:"offerType,omitempty"`
+	OfferPeriod                 string                          `json:"offerPeriod,omitempty"`
+	OfferIdentifier             string                          `json:"offerIdentifier,omitempty"`
+	RevocationDate              int64                           `json:"revocationDate,omitempty"`
+	RevocationReason            *int32                          `json:"revocationReason,omitempty"`
+	RevocationType              RevocationType                  `json:"revocationType,omitempty"`
+	RevocationPercentage        int32                           `json:"revocationPercentage,omitempty"`
+	IsUpgraded                  bool                            `json:"isUpgraded,omitempty"`
+	Storefront                  string                          `json:"storefront,omitempty"`
+	StorefrontId                string                          `json:"storefrontId,omitempty"`
+	TransactionReason           TransactionReason               `json:"transactionReason,omitempty"`
+	Environment                 Environment                     `json:"environment,omitempty"`
+	Price                       int64                           `json:"price,omitempty"`
+	Currency                    string                          `json:"currency,omitempty"`
+	OfferDiscountType           OfferDiscountType               `json:"offerDiscountType,omitempty"`
+	AdvancedCommerceInfo        AdvancedCommerceTransactionInfo `json:"advancedCommerceInfo,omitempty"`
+	BillingPlanType             BillingPlanType                 `json:"billingPlanType,omitempty"`
+	CommitmentInfo              TransactionCommitmentInfo       `json:"commitmentInfo,omitempty"`
 }
 
 // GetAudience implements jwt.Claims.
