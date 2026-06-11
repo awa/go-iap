@@ -20,8 +20,8 @@ import (
 )
 
 const (
-	HostSandBox    = "https://api.storekit-sandbox.itunes.apple.com"
-	HostProduction = "https://api.storekit.itunes.apple.com"
+	HostSandBox    = "https://api.storekit-sandbox.apple.com"
+	HostProduction = "https://api.storekit.apple.com"
 
 	PathLookUp                              = "/inApps/v1/lookup/{orderId}"
 	PathTransactionHistory                  = "/inApps/v2/history/{transactionId}"
