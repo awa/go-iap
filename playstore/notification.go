@@ -101,14 +101,21 @@ type VoidedPurchaseNotification struct {
 	RefundType    VoidedPurchaseRefundType  `json:"refundType"`
 }
 
-// PendingRefundReviewNotification
+// RefundReason is the reason a pending refund review was requested.
+// https://developer.android.com/google/play/billing/rtdn-reference#pending-refund-review
+type RefundReason int
+
+// RefundReasonChargeback is currently the only reason Google sends.
+const RefundReasonChargeback RefundReason = 7
+
+// PendingRefundReviewNotification is sent when a user requests a chargeback for a purchase, and the request requires developer review.
 type PendingRefundReviewNotification struct {
-	Version             string `json:"version"`
-	PendingRefundToken  string `json:"pendingRefundToken"`
-	OrderID             string `json:"orderId"`
-	RefundReason        int    `json:"refundReason"`
-	ObfuscatedAccountID string `json:"obfuscatedAccountId"`
-	ObfuscatedProfileID string `json:"obfuscatedProfileId"`
+	Version             string       `json:"version"`
+	PendingRefundToken  string       `json:"pendingRefundToken"`
+	OrderID             string       `json:"orderId"`
+	RefundReason        RefundReason `json:"refundReason"`
+	ObfuscatedAccountID string       `json:"obfuscatedAccountId"`
+	ObfuscatedProfileID string       `json:"obfuscatedProfileId"`
 }
 
 // TestNotification is the test publish that are sent only through the Google Play Developer Console
