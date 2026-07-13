@@ -17,7 +17,7 @@ import (
 	"google.golang.org/api/option"
 )
 
-//go:generate mockgen  -destination=mocks/playstore.go -package=mocks github.com/awa/go-iap/playstore IABProduct,IABSubscription,IABSubscriptionV2,IABMonetization
+//go:generate mockgen  -destination=mocks/playstore.go -package=mocks github.com/awa/go-iap/playstore IABProduct,IABProductV2,IABSubscription,IABSubscriptionV2,IABMonetization,IABOrder
 
 // The IABProduct type is an interface for product service
 type IABProduct interface {
@@ -31,7 +31,7 @@ type IABProductV2 interface {
 	VerifyProductV2(context.Context, string, string) (*androidpublisher.ProductPurchaseV2, error)
 }
 
-// The IABSubscription type is an interface  for subscription service
+// The IABSubscription type is an interface for subscription service
 type IABSubscription interface {
 	AcknowledgeSubscription(context.Context, string, string, string, *androidpublisher.SubscriptionPurchasesAcknowledgeRequest) error
 	VerifySubscription(context.Context, string, string, string) (*androidpublisher.SubscriptionPurchase, error)
@@ -41,7 +41,7 @@ type IABSubscription interface {
 	DeferSubscription(context.Context, string, string, string, *androidpublisher.SubscriptionPurchasesDeferRequest) (*androidpublisher.SubscriptionPurchasesDeferResponse, error)
 }
 
-// The IABSubscriptionV2 type is an interface  for subscriptionV2 service
+// The IABSubscriptionV2 type is an interface for subscriptionV2 service
 type IABSubscriptionV2 interface {
 	VerifySubscriptionV2(context.Context, string, string) (*androidpublisher.SubscriptionPurchaseV2, error)
 	RevokeSubscriptionV2(context.Context, string, string, *androidpublisher.RevokeSubscriptionPurchaseRequest) (*androidpublisher.RevokeSubscriptionPurchaseResponse, error)
@@ -51,6 +51,14 @@ type IABSubscriptionV2 interface {
 type IABMonetization interface {
 	GetSubscription(ctx context.Context, packageName string, productID string) (*androidpublisher.Subscription, error)
 	GetSubscriptionOffer(context.Context, string, string, string, string) (*androidpublisher.SubscriptionOffer, error)
+}
+
+// The IABOrder type is an interface for order service
+type IABOrder interface {
+	GetOrder(ctx context.Context, packageName string, orderId string) (*androidpublisher.Order, error)
+	BatchGetOrder(ctx context.Context, packageName string, orderIds ...string) (*androidpublisher.BatchGetOrdersResponse, error)
+	Refund(ctx context.Context, packageName string, orderId string) error
+	ReviewRefund(ctx context.Context, packageName string, orderId string, req *androidpublisher.OrdersReviewRefundRequest) error
 }
 
 // The Client type implements VerifySubscription method
@@ -186,7 +194,7 @@ func (c *Client) VerifyProduct(
 	return result, err
 }
 
-// VerifyProductV2 Checks the purchase and consumption status of an inapp item.
+// VerifyProductV2 Checks the purchase and consumption status of an in-app item.
 func (c *Client) VerifyProductV2(
 	ctx context.Context,
 	packageName string,
@@ -361,4 +369,27 @@ func (c *Client) BatchGetOrder(ctx context.Context,
 	result, err := ps.Batchget(packageName).OrderIds(orderIds...).Context(ctx).Do()
 
 	return result, err
+}
+
+// Refund refunds a user's subscription or in-app purchase order. Orders older than 3 years cannot be refunded.
+func (c *Client) Refund(ctx context.Context,
+	packageName string,
+	orderId string,
+) error {
+	ps := androidpublisher.NewOrdersService(c.service)
+	err := ps.Refund(packageName, orderId).Context(ctx).Do()
+
+	return err
+}
+
+// ReviewRefund provide refund preference and purchase usage for a chargeback request.
+func (c *Client) ReviewRefund(ctx context.Context,
+	packageName string,
+	orderId string,
+	req *androidpublisher.OrdersReviewRefundRequest,
+) error {
+	ps := androidpublisher.NewOrdersService(c.service)
+	err := ps.Reviewrefund(packageName, orderId, req).Context(ctx).Do()
+
+	return err
 }
