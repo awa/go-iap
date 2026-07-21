@@ -90,6 +90,21 @@ func (mr *MockStoreAPIClientMockRecorder) ExtendSubscriptionRenewalDateForAll(ct
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExtendSubscriptionRenewalDateForAll", reflect.TypeOf((*MockStoreAPIClient)(nil).ExtendSubscriptionRenewalDateForAll), ctx, body)
 }
 
+// FinishTransaction mocks base method.
+func (m *MockStoreAPIClient) FinishTransaction(ctx context.Context, transactionId string) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FinishTransaction", ctx, transactionId)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FinishTransaction indicates an expected call of FinishTransaction.
+func (mr *MockStoreAPIClientMockRecorder) FinishTransaction(ctx, transactionId any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FinishTransaction", reflect.TypeOf((*MockStoreAPIClient)(nil).FinishTransaction), ctx, transactionId)
+}
+
 // GetALLSubscriptionStatuses mocks base method.
 func (m *MockStoreAPIClient) GetALLSubscriptionStatuses(ctx context.Context, originalTransactionId string, query *url.Values) (*api.StatusResponse, error) {
 	m.ctrl.T.Helper()
