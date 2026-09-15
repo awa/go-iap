@@ -111,6 +111,36 @@ func main() {
   - Initiate a call to the endpoint using the production URL. If the call is successful, the transaction identifier is associated with the production environment.
   - If you encounter an error code `4040010`, indicating a `TransactionIdNotFoundError`, make a call to the endpoint using the sandbox URL.
   - If this call is successful, the transaction identifier is associated with the sandbox environment. If the call fails with the same error code, the transaction identifier doesn't exist in either environment.
+- `api.NewStoreClientWithSandboxFallback` does this for you. It returns an `*api.StoreClientWithSandboxFallback`, which satisfies `api.StoreAPIClient`, so it is a drop-in replacement for a client built with `api.NewStoreClient`.
+
+- Sandbox fallback
+
+An app distributed through App Review or TestFlight is a production build whose purchases are made in Sandbox, so the production host cannot find those transactions. This client queries production first and retries against Sandbox on `TransactionIdNotFoundError`.
+
+```go
+import(
+	"github.com/awa/go-iap/appstore/api"
+)
+
+func main() {
+	c := &api.StoreConfig{
+		KeyContent: []byte(ACCOUNTPRIVATEKEY),
+		KeyID:      "FAKEKEYID",
+		BundleID:   "fake.bundle.id",
+		Issuer:     "xxxxx-xx-xx-xx-xxxxxxxxxx",
+		// Sandbox is ignored: both hosts are built.
+	}
+	a := api.NewStoreClientWithSandboxFallback(c)
+	ctx := context.Background()
+
+	// Falls back to Sandbox when production reports the transaction missing.
+	response, err := a.GetALLSubscriptionStatuses(ctx, "FAKETRANSACTIONID", nil)
+}
+```
+
+The retry applies to the lookups Apple documents as returning `TransactionIdNotFoundError`: `GetTransactionInfo`, `GetALLSubscriptionStatuses`, `GetTransactionHistory`, `GetRefundHistory` and `GetAppTransactionInfo`. Every other method behaves exactly as it does on `StoreClient`.
+
+Only that error is retried. An authentication failure or an unknown bundle id is a caller-side misconfiguration, and retrying it against Sandbox would hide the mistake rather than surface it.
 
 - GetTransactionInfo
 
