@@ -362,3 +362,18 @@ func (mr *MockStoreAPIClientMockRecorder) SetAppAccountToken(ctx, originalTransa
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAppAccountToken", reflect.TypeOf((*MockStoreAPIClient)(nil).SetAppAccountToken), ctx, originalTransactionId, body)
 }
+
+// Verify mocks base method.
+func (m *MockStoreAPIClient) Verify(ctx context.Context, transactionId string) (*api.TransactionInfoResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Verify", ctx, transactionId)
+	ret0, _ := ret[0].(*api.TransactionInfoResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Verify indicates an expected call of Verify.
+func (mr *MockStoreAPIClientMockRecorder) Verify(ctx, transactionId any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Verify", reflect.TypeOf((*MockStoreAPIClient)(nil).Verify), ctx, transactionId)
+}

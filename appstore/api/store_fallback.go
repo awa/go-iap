@@ -48,6 +48,10 @@ func (c *StoreClientWithSandboxFallback) GetTransactionInfo(ctx context.Context,
 	return rsp, sandboxRetryErr(err)
 }
 
+func (c *StoreClientWithSandboxFallback) Verify(ctx context.Context, transactionId string) (*TransactionInfoResponse, error) {
+	return c.GetTransactionInfo(ctx, transactionId)
+}
+
 func (c *StoreClientWithSandboxFallback) GetTransactionHistory(ctx context.Context, transactionId string, query *url.Values) ([]*HistoryResponse, error) {
 	responses, err := c.productionCli.GetTransactionHistory(ctx, transactionId, query)
 	if !errors.Is(err, TransactionIdNotFoundError) {

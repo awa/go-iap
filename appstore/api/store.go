@@ -64,6 +64,7 @@ type (
 		NotificationSender
 		ConsumptionSender
 		AppAccountSetter
+		TransactionVerifier
 		Do(ctx context.Context, method string, url string, body io.Reader) (int, []byte, error)
 	}
 
@@ -106,6 +107,10 @@ type (
 
 	AppAccountSetter interface {
 		SetAppAccountToken(ctx context.Context, originalTransactionId string, body UpdateAppAccountTokenRequest) (statusCode int, err error)
+	}
+
+	TransactionVerifier interface {
+		Verify(ctx context.Context, transactionId string) (rsp *TransactionInfoResponse, err error)
 	}
 )
 
@@ -262,6 +267,12 @@ func (a *StoreClient) GetTransactionInfo(ctx context.Context, transactionId stri
 	}
 
 	return
+}
+
+// Verify returns the transaction info for transactionId from the single
+// environment this client was built for.
+func (a *StoreClient) Verify(ctx context.Context, transactionId string) (rsp *TransactionInfoResponse, err error) {
+	return a.GetTransactionInfo(ctx, transactionId)
 }
 
 // GetAppTransactionInfo https://developer.apple.com/documentation/appstoreserverapi/get-app-transaction-info

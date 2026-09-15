@@ -94,6 +94,10 @@ func lookups() []lookup {
 			_, err := c.GetAppTransactionInfo(ctx, "1")
 			return err
 		}},
+		{"Verify", func(ctx context.Context, c *StoreClientWithSandboxFallback) error {
+			_, err := c.Verify(ctx, "1")
+			return err
+		}},
 	}
 }
 
