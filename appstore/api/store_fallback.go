@@ -5,13 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"time"
 )
 
 // NewStoreClientWithSandboxFallback creates a client that looks a transaction
-// up in production and retries against Sandbox when production reports it
-// missing, as App Review and TestFlight purchases need. config.Sandbox is
+// up in production and retries against Sandbox when production cannot answer
+// for it, as App Review and TestFlight purchases need. config.Sandbox is
 // ignored: both hosts are built.
 func NewStoreClientWithSandboxFallback(config *StoreConfig) *StoreClientWithSandboxFallback {
 	prodConf, sandboxConf := *config, *config
@@ -27,25 +28,40 @@ type StoreClientWithSandboxFallback struct {
 	sandboxCli    StoreAPIClient
 }
 
-// Lookups Apple documents as returning TransactionIdNotFoundError. Only that
-// error is retried: other failures are caller mistakes a retry would hide.
+// hasFallback reports whether Sandbox may answer a production failure: the
+// transaction lives in the other environment, or production refuses the bundle
+// ID because the app has never shipped there. It hangs off this client so
+// StoreClient, which has no Sandbox host to ask, cannot reach it.
+func (c *StoreClientWithSandboxFallback) hasFallback(err error) bool {
+	if errors.Is(err, TransactionIdNotFoundError) {
+		return true
+	}
+	var statusErr *httpStatusError
+	return errors.As(err, &statusErr) && statusErr.StatusCode() == http.StatusUnauthorized
+}
 
 func (c *StoreClientWithSandboxFallback) GetALLSubscriptionStatuses(ctx context.Context, originalTransactionId string, query *url.Values) (*StatusResponse, error) {
-	rsp, err := c.productionCli.GetALLSubscriptionStatuses(ctx, originalTransactionId, query)
-	if !errors.Is(err, TransactionIdNotFoundError) {
-		return rsp, err
+	rsp, productionErr := c.productionCli.GetALLSubscriptionStatuses(ctx, originalTransactionId, query)
+	if !c.hasFallback(productionErr) {
+		return rsp, productionErr
 	}
-	rsp, err = c.sandboxCli.GetALLSubscriptionStatuses(ctx, originalTransactionId, query)
-	return rsp, sandboxRetryErr(err)
+	rsp, err := c.sandboxCli.GetALLSubscriptionStatuses(ctx, originalTransactionId, query)
+	if err == nil {
+		return rsp, nil
+	}
+	return rsp, fmt.Errorf("production: %v; sandbox: %w", productionErr, err)
 }
 
 func (c *StoreClientWithSandboxFallback) GetTransactionInfo(ctx context.Context, transactionId string) (*TransactionInfoResponse, error) {
-	rsp, err := c.productionCli.GetTransactionInfo(ctx, transactionId)
-	if !errors.Is(err, TransactionIdNotFoundError) {
-		return rsp, err
+	rsp, productionErr := c.productionCli.GetTransactionInfo(ctx, transactionId)
+	if !c.hasFallback(productionErr) {
+		return rsp, productionErr
 	}
-	rsp, err = c.sandboxCli.GetTransactionInfo(ctx, transactionId)
-	return rsp, sandboxRetryErr(err)
+	rsp, err := c.sandboxCli.GetTransactionInfo(ctx, transactionId)
+	if err == nil {
+		return rsp, nil
+	}
+	return rsp, fmt.Errorf("production: %v; sandbox: %w", productionErr, err)
 }
 
 func (c *StoreClientWithSandboxFallback) Verify(ctx context.Context, transactionId string) (*TransactionInfoResponse, error) {
@@ -53,36 +69,43 @@ func (c *StoreClientWithSandboxFallback) Verify(ctx context.Context, transaction
 }
 
 func (c *StoreClientWithSandboxFallback) GetTransactionHistory(ctx context.Context, transactionId string, query *url.Values) ([]*HistoryResponse, error) {
-	responses, err := c.productionCli.GetTransactionHistory(ctx, transactionId, query)
-	if !errors.Is(err, TransactionIdNotFoundError) {
-		return responses, err
+	responses, productionErr := c.productionCli.GetTransactionHistory(ctx, transactionId, query)
+	if !c.hasFallback(productionErr) {
+		return responses, productionErr
 	}
-	responses, err = c.sandboxCli.GetTransactionHistory(ctx, transactionId, query)
-	return responses, sandboxRetryErr(err)
+	responses, err := c.sandboxCli.GetTransactionHistory(ctx, transactionId, query)
+	if err == nil {
+		return responses, nil
+	}
+	return responses, fmt.Errorf("production: %v; sandbox: %w", productionErr, err)
 }
 
 func (c *StoreClientWithSandboxFallback) GetRefundHistory(ctx context.Context, originalTransactionId string) ([]*RefundLookupResponse, error) {
-	responses, err := c.productionCli.GetRefundHistory(ctx, originalTransactionId)
-	if !errors.Is(err, TransactionIdNotFoundError) {
-		return responses, err
+	responses, productionErr := c.productionCli.GetRefundHistory(ctx, originalTransactionId)
+	if !c.hasFallback(productionErr) {
+		return responses, productionErr
 	}
-	responses, err = c.sandboxCli.GetRefundHistory(ctx, originalTransactionId)
-	return responses, sandboxRetryErr(err)
+	responses, err := c.sandboxCli.GetRefundHistory(ctx, originalTransactionId)
+	if err == nil {
+		return responses, nil
+	}
+	return responses, fmt.Errorf("production: %v; sandbox: %w", productionErr, err)
 }
 
 func (c *StoreClientWithSandboxFallback) GetAppTransactionInfo(ctx context.Context, transactionId string) (*AppTransactionInfoResponse, error) {
-	rsp, err := c.productionCli.GetAppTransactionInfo(ctx, transactionId)
-	if !errors.Is(err, TransactionIdNotFoundError) {
-		return rsp, err
+	rsp, productionErr := c.productionCli.GetAppTransactionInfo(ctx, transactionId)
+	if !c.hasFallback(productionErr) {
+		return rsp, productionErr
 	}
-	rsp, err = c.sandboxCli.GetAppTransactionInfo(ctx, transactionId)
-	return rsp, sandboxRetryErr(err)
+	rsp, err := c.sandboxCli.GetAppTransactionInfo(ctx, transactionId)
+	if err == nil {
+		return rsp, nil
+	}
+	return rsp, fmt.Errorf("production: %v; sandbox: %w", productionErr, err)
 }
 
-// The rest go to production only: the writes return the same error but
-// repeating a write elsewhere is a separate decision, Extend and
-// SetAppAccountToken report OriginalTransactionIdNotFoundError instead, and a
-// retry on GetNotificationHistory would be skipped by its bulk caller.
+// The rest go to production only. Writes are not repeated elsewhere, and the
+// remaining reads fail in ways Sandbox cannot answer.
 
 func (c *StoreClientWithSandboxFallback) GetSubscriptionRenewalDataStatus(ctx context.Context, productId, requestIdentifier string) (int, *MassExtendRenewalDateStatusResponse, error) {
 	return c.productionCli.GetSubscriptionRenewalDataStatus(ctx, productId, requestIdentifier)
@@ -146,14 +169,4 @@ func (c *StoreClientWithSandboxFallback) SetAppAccountToken(ctx context.Context,
 
 func (c *StoreClientWithSandboxFallback) Do(ctx context.Context, method string, url string, body io.Reader) (int, []byte, error) {
 	return c.productionCli.Do(ctx, method, url, body)
-}
-
-// sandboxRetryErr wraps the Sandbox error, not the production one: missing in
-// both environments still satisfies errors.Is, while a Sandbox outage stays
-// distinguishable from a missing transaction.
-func sandboxRetryErr(err error) error {
-	if err == nil {
-		return nil
-	}
-	return fmt.Errorf("production reported the transaction missing; sandbox: %w", err)
 }

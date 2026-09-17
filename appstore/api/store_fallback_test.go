@@ -2,18 +2,25 @@ package api
 
 import (
 	"context"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/x509"
+	"encoding/pem"
 	"errors"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"reflect"
+	"strings"
 	"testing"
 )
 
 // The constructor returns the concrete type, so nothing else checks this.
 var _ StoreAPIClient = (*StoreClientWithSandboxFallback)(nil)
 
-// stubClient answers one lookup and panics on anything else, so an unexpected
-// call fails loudly.
+// stubClient answers one lookup and panics on anything else.
 type stubClient struct {
 	StoreAPIClient // nil on purpose: any method not stubbed below panics
 
@@ -101,11 +108,14 @@ func lookups() []lookup {
 	}
 }
 
-func TestSandboxFallbackRetriesOnlyWhenTransactionIsMissing(t *testing.T) {
+func TestSandboxFallbackTriggers(t *testing.T) {
 	t.Parallel()
 
 	// A caller mistake, which must not be retried against Sandbox.
 	misconfigured := fmt.Errorf("wrong bundle id: %w", AppNotFoundError)
+
+	// What production answers for a bundle ID it does not serve.
+	unauthenticated := newHTTPStatusError(401, "https://api.storekit.apple.com/inApps/v1/subscriptions/1")
 
 	tests := []struct {
 		name          string
@@ -143,6 +153,26 @@ func TestSandboxFallbackRetriesOnlyWhenTransactionIsMissing(t *testing.T) {
 			name:          "another production error is returned as is",
 			productionErr: misconfigured,
 			wantCalls:     []string{"production"},
+			wantErr:       true,
+		},
+		{
+			name:          "production rejecting the bundle id, sandbox answers",
+			productionErr: unauthenticated,
+			wantCalls:     []string{"production", "sandbox"},
+		},
+		{
+			name:          "rejected in both environments still fails",
+			productionErr: unauthenticated,
+			sandboxErr:    unauthenticated,
+			wantCalls:     []string{"production", "sandbox"},
+			wantErr:       true,
+		},
+		{
+			name:          "a rejection is not a missing transaction",
+			productionErr: unauthenticated,
+			sandboxErr:    TransactionIdNotFoundError,
+			wantCalls:     []string{"production", "sandbox"},
+			wantMissing:   true,
 			wantErr:       true,
 		},
 	}
@@ -200,4 +230,83 @@ type delegatingStub struct {
 func (s *delegatingStub) LookupOrderID(context.Context, string) (*OrderLookupResponse, error) {
 	*s.calls = append(*s.calls, "production")
 	return &OrderLookupResponse{}, nil
+}
+
+// The wrapped error must say why Sandbox was asked.
+func TestSandboxFallbackErrorKeepsBothReasons(t *testing.T) {
+	t.Parallel()
+
+	unauthenticated := newHTTPStatusError(401, "https://api.storekit.apple.com/inApps/v1/subscriptions/1")
+	var calls []string
+	c := &StoreClientWithSandboxFallback{
+		productionCli: &stubClient{name: "production", err: unauthenticated, calls: &calls},
+		sandboxCli:    &stubClient{name: "sandbox", err: TransactionIdNotFoundError, calls: &calls},
+	}
+
+	_, err := c.GetALLSubscriptionStatuses(context.Background(), "1", nil)
+	if err == nil {
+		t.Fatal("want an error")
+	}
+	if !strings.Contains(err.Error(), unauthenticated.Error()) {
+		t.Errorf("error = %q, want it to carry the production reason %q", err, unauthenticated)
+	}
+	if !errors.Is(err, TransactionIdNotFoundError) {
+		t.Errorf("error = %q, want the sandbox error to stay matchable", err)
+	}
+}
+
+// Fails if StoreClient stops reporting the status of a 401.
+func TestStoreClientReportsUnauthenticated(t *testing.T) {
+	t.Parallel()
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusUnauthorized)
+	}))
+	defer srv.Close()
+
+	cli := NewStoreClient(&StoreConfig{
+		KeyContent: testPrivateKeyPEM(t),
+		KeyID:      "TESTKEYID",
+		BundleID:   "test.bundle.id",
+		Issuer:     "test-issuer",
+		HostDebug:  srv.URL,
+	})
+
+	_, err := cli.GetALLSubscriptionStatuses(context.Background(), "1", nil)
+	if err == nil {
+		t.Fatal("want an error from a 401 response")
+	}
+	if !(&StoreClientWithSandboxFallback{}).hasFallback(err) {
+		t.Errorf("hasFallback(%q) = false, want true: StoreClient no longer reports the status of a 401", err)
+	}
+}
+
+// A 500 is an outage, not something Sandbox can answer.
+func TestHasFallbackIgnoresOtherFailures(t *testing.T) {
+	t.Parallel()
+
+	c := &StoreClientWithSandboxFallback{}
+	if c.hasFallback(newHTTPStatusError(500, "https://host/path")) {
+		t.Error("want a 500 not to trigger the fallback")
+	}
+	if c.hasFallback(AppNotFoundError) {
+		t.Error("want an unknown app not to trigger the fallback")
+	}
+	if c.hasFallback(nil) {
+		t.Error("want no error not to trigger the fallback")
+	}
+}
+
+func testPrivateKeyPEM(t *testing.T) []byte {
+	t.Helper()
+
+	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatalf("ecdsa.GenerateKey: %v", err)
+	}
+	der, err := x509.MarshalPKCS8PrivateKey(key)
+	if err != nil {
+		t.Fatalf("x509.MarshalPKCS8PrivateKey: %v", err)
+	}
+	return pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: der})
 }
