@@ -174,7 +174,7 @@ func (a *StoreClient) GetALLSubscriptionStatuses(ctx context.Context, originalTr
 	}
 
 	if statusCode != http.StatusOK {
-		return nil, fmt.Errorf("appstore api: %v return status code %v", URL, statusCode)
+		return nil, newHTTPStatusError(statusCode, URL)
 	}
 
 	err = json.Unmarshal(body, &rsp)
@@ -195,7 +195,7 @@ func (a *StoreClient) LookupOrderID(ctx context.Context, orderId string) (rsp *O
 	}
 
 	if statusCode != http.StatusOK {
-		return nil, fmt.Errorf("appstore api: %v return status code %v", URL, statusCode)
+		return nil, newHTTPStatusError(statusCode, URL)
 	}
 
 	err = json.Unmarshal(body, &rsp)
@@ -224,7 +224,7 @@ func (a *StoreClient) GetTransactionHistory(ctx context.Context, transactionId s
 		}
 
 		if statusCode != http.StatusOK {
-			return nil, fmt.Errorf("appstore api: %v return status code %v", URL, statusCode)
+			return nil, newHTTPStatusError(statusCode, URL)
 		}
 
 		err = json.Unmarshal(body, &rsp)
@@ -258,7 +258,7 @@ func (a *StoreClient) GetTransactionInfo(ctx context.Context, transactionId stri
 	}
 
 	if statusCode != http.StatusOK {
-		return nil, fmt.Errorf("appstore api: %v return status code %v", URL, statusCode)
+		return nil, newHTTPStatusError(statusCode, URL)
 	}
 
 	err = json.Unmarshal(body, &rsp)
@@ -286,7 +286,7 @@ func (a *StoreClient) GetAppTransactionInfo(ctx context.Context, transactionId s
 	}
 
 	if statusCode != http.StatusOK {
-		return nil, fmt.Errorf("appstore api: %v return status code %v", URL, statusCode)
+		return nil, newHTTPStatusError(statusCode, URL)
 	}
 
 	err = json.Unmarshal(body, &rsp)
@@ -312,7 +312,7 @@ func (a *StoreClient) GetRefundHistory(ctx context.Context, originalTransactionI
 		}
 
 		if statusCode != http.StatusOK {
-			return nil, fmt.Errorf("appstore api: %v return status code %v", URL, statusCode)
+			return nil, newHTTPStatusError(statusCode, URL)
 		}
 
 		err = json.Unmarshal(body, &rsp)
@@ -419,7 +419,7 @@ func (a *StoreClient) GetSubscriptionRenewalDataStatus(ctx context.Context, prod
 	}
 
 	if statusCode != http.StatusOK {
-		return statusCode, nil, fmt.Errorf("appstore api: %v return status code %v", URL, statusCode)
+		return statusCode, nil, newHTTPStatusError(statusCode, URL)
 	}
 
 	err = json.Unmarshal(body, &rsp)
@@ -475,7 +475,7 @@ func (a *StoreClient) GetNotificationHistory(ctx context.Context, body Notificat
 	}
 
 	if statusCode != http.StatusOK {
-		return nil, fmt.Errorf("appstore api: %v return status code %v", URL, statusCode)
+		return nil, newHTTPStatusError(statusCode, URL)
 	}
 
 	if err = json.Unmarshal(rspBody, &rsp); err != nil {

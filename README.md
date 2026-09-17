@@ -140,7 +140,18 @@ func main() {
 
 The retry applies to the lookups Apple documents as returning `TransactionIdNotFoundError`: `GetTransactionInfo`, `GetALLSubscriptionStatuses`, `GetTransactionHistory`, `GetRefundHistory` and `GetAppTransactionInfo`. Every other method behaves exactly as it does on `StoreClient`.
 
-Only that error is retried. An authentication failure or an unknown bundle id is a caller-side misconfiguration, and retrying it against Sandbox would hide the mistake rather than surface it.
+Sandbox is also asked when production answers `401`: that is how it refuses an app that has never shipped there, as [an App Store Commerce Engineer confirmed](https://developer.apple.com/forums/thread/806452). Such an app fails before the lookup, so `TransactionIdNotFoundError` never arrives — Apple's [documented procedure](https://developer.apple.com/documentation/appstoreserverapi/get-transaction-info) covers only that error.
+
+When the App Store answers without an error code, the status reaches you through the error:
+
+```go
+var withStatus interface{ StatusCode() int }
+if errors.As(err, &withStatus) && withStatus.StatusCode() == http.StatusTooManyRequests {
+	// back off
+}
+```
+
+Nothing else is retried. `401` is overloaded, so reach for this client only where a Sandbox answer is acceptable. `NewStoreClient` never falls back.
 
 - GetTransactionInfo
 
