@@ -15,7 +15,7 @@ func TestNumericString_UnmarshalJSON(t *testing.T) {
 	tests := []struct {
 		name string
 		in   []byte
-		err  error
+		err  *json.UnmarshalTypeError
 		out  foo
 	}{
 		{
@@ -33,7 +33,7 @@ func TestNumericString_UnmarshalJSON(t *testing.T) {
 		{
 			name: "object case",
 			in:   []byte("{\"ID\":{\"Num\": 8080}}"),
-			err:  errors.New("json: cannot unmarshal object into Go struct field foo.ID of type json.Number"),
+			err:  &json.UnmarshalTypeError{Value: "object", Type: reflect.TypeFor[json.Number]()},
 			out:  foo{},
 		},
 	}
@@ -43,10 +43,17 @@ func TestNumericString_UnmarshalJSON(t *testing.T) {
 			out := foo{}
 			err := json.Unmarshal(v.in, &out)
 
-			if err != nil {
-				if err.Error() != v.err.Error() {
-					t.Errorf("input: %s, get: %s, want: %s\n", v.in, err, v.err)
+			if v.err != nil {
+				// Compare only Value and Type: Go 1.27 no longer adds the enclosing
+				// struct field to errors returned from UnmarshalJSON.
+				var typeErr *json.UnmarshalTypeError
+				if !errors.As(err, &typeErr) || typeErr.Value != v.err.Value || typeErr.Type != v.err.Type {
+					t.Errorf("input: %s, get: %v, want: %v\n", v.in, err, v.err)
 				}
+				return
+			}
+			if err != nil {
+				t.Errorf("input: %s, get: %s, want: no error\n", v.in, err)
 				return
 			}
 
