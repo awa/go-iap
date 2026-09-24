@@ -19,6 +19,7 @@ jobs:
           tag_prefix: "v"
 
       - name: Get latest release
+        if: steps.tag_version.outputs.new_tag != ''
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         id: latest_release
         with:
@@ -32,6 +33,7 @@ jobs:
             return res.data.tag_name;
 
       - name: Generate release note and Create release
+        if: steps.tag_version.outputs.new_tag != ''
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           retries: 3
