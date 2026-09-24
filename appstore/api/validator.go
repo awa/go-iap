@@ -32,7 +32,7 @@ func NewAPIClient(config StoreConfig) *APIClient {
 // Deprecated: use the Verify of a client from NewStoreClientWithSandboxFallback.
 func (c *APIClient) Verify(ctx context.Context, transactionId string) (*TransactionInfoResponse, error) {
 	result, err := c.productionCli.GetTransactionInfo(ctx, transactionId)
-	if err != nil && errors.Is(err, TransactionIdNotFoundError) {
+	if err != nil {
 		result, err = c.sandboxCli.GetTransactionInfo(ctx, transactionId)
 	}
 	return result, err
