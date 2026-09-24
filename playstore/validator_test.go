@@ -249,6 +249,45 @@ func TestDeferSubscription(t *testing.T) {
 	// TODO Normal scenario
 }
 
+func TestCancelSubscriptionV2(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	client, _ := New(jsonKey)
+	req := &androidpublisher.CancelSubscriptionPurchaseRequest{
+		CancellationContext: &androidpublisher.CancellationContext{
+			CancellationType: "DEVELOPER_REQUESTED_STOP_PAYMENTS",
+		},
+	}
+	expectedStr := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
+	_, actual := client.CancelSubscriptionV2(ctx, "package", "purchaseToken", req)
+
+	if actual == nil || actual.Error() != expectedStr {
+		t.Errorf("got %v\nwant %v", actual, expectedStr)
+	}
+	// TODO Normal scenario
+}
+
+func TestDeferSubscriptionV2(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	client, _ := New(jsonKey)
+	req := &androidpublisher.DeferSubscriptionPurchaseRequest{
+		DeferralContext: &androidpublisher.DeferralContext{
+			DeferDuration: "86400s",
+			Etag:          "etag",
+		},
+	}
+	expectedStr := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
+	_, actual := client.DeferSubscriptionV2(ctx, "package", "purchaseToken", req)
+
+	if actual == nil || actual.Error() != expectedStr {
+		t.Errorf("got %v\nwant %v", actual, expectedStr)
+	}
+	// TODO Normal scenario
+}
+
 func TestGetSubscription(t *testing.T) {
 	t.Parallel()
 	// Exception scenario

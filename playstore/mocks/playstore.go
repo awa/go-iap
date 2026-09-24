@@ -214,6 +214,36 @@ func (m *MockIABSubscriptionV2) EXPECT() *MockIABSubscriptionV2MockRecorder {
 	return m.recorder
 }
 
+// CancelSubscriptionV2 mocks base method.
+func (m *MockIABSubscriptionV2) CancelSubscriptionV2(arg0 context.Context, arg1, arg2 string, arg3 *androidpublisher.CancelSubscriptionPurchaseRequest) (*androidpublisher.CancelSubscriptionPurchaseResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CancelSubscriptionV2", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(*androidpublisher.CancelSubscriptionPurchaseResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CancelSubscriptionV2 indicates an expected call of CancelSubscriptionV2.
+func (mr *MockIABSubscriptionV2MockRecorder) CancelSubscriptionV2(arg0, arg1, arg2, arg3 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelSubscriptionV2", reflect.TypeOf((*MockIABSubscriptionV2)(nil).CancelSubscriptionV2), arg0, arg1, arg2, arg3)
+}
+
+// DeferSubscriptionV2 mocks base method.
+func (m *MockIABSubscriptionV2) DeferSubscriptionV2(arg0 context.Context, arg1, arg2 string, arg3 *androidpublisher.DeferSubscriptionPurchaseRequest) (*androidpublisher.DeferSubscriptionPurchaseResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeferSubscriptionV2", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(*androidpublisher.DeferSubscriptionPurchaseResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeferSubscriptionV2 indicates an expected call of DeferSubscriptionV2.
+func (mr *MockIABSubscriptionV2MockRecorder) DeferSubscriptionV2(arg0, arg1, arg2, arg3 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeferSubscriptionV2", reflect.TypeOf((*MockIABSubscriptionV2)(nil).DeferSubscriptionV2), arg0, arg1, arg2, arg3)
+}
+
 // RevokeSubscriptionV2 mocks base method.
 func (m *MockIABSubscriptionV2) RevokeSubscriptionV2(arg0 context.Context, arg1, arg2 string, arg3 *androidpublisher.RevokeSubscriptionPurchaseRequest) (*androidpublisher.RevokeSubscriptionPurchaseResponse, error) {
 	m.ctrl.T.Helper()

@@ -38,9 +38,9 @@ type IABProductV2 interface {
 // Use VerifySubscriptionV2, RevokeSubscriptionV2 and Refund instead.
 type IABSubscription interface {
 	AcknowledgeSubscription(context.Context, string, string, string, *androidpublisher.SubscriptionPurchasesAcknowledgeRequest) error
-	// Deprecated: Google deprecated purchases.subscriptions.cancel in favor of purchases.subscriptionsv2.cancel.
+	// Deprecated: Google deprecated purchases.subscriptions.cancel in favor of purchases.subscriptionsv2.cancel. Use CancelSubscriptionV2.
 	CancelSubscription(context.Context, string, string, string) error
-	// Deprecated: Google deprecated purchases.subscriptions.defer in favor of purchases.subscriptionsv2.defer.
+	// Deprecated: Google deprecated purchases.subscriptions.defer in favor of purchases.subscriptionsv2.defer. Use DeferSubscriptionV2.
 	DeferSubscription(context.Context, string, string, string, *androidpublisher.SubscriptionPurchasesDeferRequest) (*androidpublisher.SubscriptionPurchasesDeferResponse, error)
 }
 
@@ -48,6 +48,8 @@ type IABSubscription interface {
 type IABSubscriptionV2 interface {
 	VerifySubscriptionV2(context.Context, string, string) (*androidpublisher.SubscriptionPurchaseV2, error)
 	RevokeSubscriptionV2(context.Context, string, string, *androidpublisher.RevokeSubscriptionPurchaseRequest) (*androidpublisher.RevokeSubscriptionPurchaseResponse, error)
+	CancelSubscriptionV2(context.Context, string, string, *androidpublisher.CancelSubscriptionPurchaseRequest) (*androidpublisher.CancelSubscriptionPurchaseResponse, error)
+	DeferSubscriptionV2(context.Context, string, string, *androidpublisher.DeferSubscriptionPurchaseRequest) (*androidpublisher.DeferSubscriptionPurchaseResponse, error)
 }
 
 // The IABMonetization type is an interface for monetization service
@@ -170,6 +172,34 @@ func (c *Client) RevokeSubscriptionV2(
 	return result, err
 }
 
+// CancelSubscriptionV2 cancels a user's subscription purchase.
+// It replaces CancelSubscription, which uses the deprecated purchases.subscriptions.cancel.
+func (c *Client) CancelSubscriptionV2(
+	ctx context.Context,
+	packageName string,
+	token string,
+	req *androidpublisher.CancelSubscriptionPurchaseRequest,
+) (*androidpublisher.CancelSubscriptionPurchaseResponse, error) {
+	ps := androidpublisher.NewPurchasesSubscriptionsv2Service(c.service)
+	result, err := ps.Cancel(packageName, token, req).Context(ctx).Do()
+
+	return result, err
+}
+
+// DeferSubscriptionV2 defers the renewal of a user's subscription purchase.
+// It replaces DeferSubscription, which uses the deprecated purchases.subscriptions.defer.
+func (c *Client) DeferSubscriptionV2(
+	ctx context.Context,
+	packageName string,
+	token string,
+	req *androidpublisher.DeferSubscriptionPurchaseRequest,
+) (*androidpublisher.DeferSubscriptionPurchaseResponse, error) {
+	ps := androidpublisher.NewPurchasesSubscriptionsv2Service(c.service)
+	result, err := ps.Defer(packageName, token, req).Context(ctx).Do()
+
+	return result, err
+}
+
 // VerifyProduct verifies product status
 func (c *Client) VerifyProduct(
 	ctx context.Context,
@@ -212,7 +242,7 @@ func (c *Client) ConsumeProduct(ctx context.Context, packageName, productID, tok
 // CancelSubscription cancels a user's subscription purchase.
 //
 // Deprecated: Google deprecated purchases.subscriptions.cancel in favor of purchases.subscriptionsv2.cancel
-// and will shut it down on August 31, 2028.
+// and will shut it down on August 31, 2028. Use CancelSubscriptionV2.
 func (c *Client) CancelSubscription(ctx context.Context, packageName string, subscriptionID string, token string) error {
 	ps := androidpublisher.NewPurchasesSubscriptionsService(c.service)
 	err := ps.Cancel(packageName, subscriptionID, token).Context(ctx).Do()
@@ -223,7 +253,7 @@ func (c *Client) CancelSubscription(ctx context.Context, packageName string, sub
 // DeferSubscription defers a user's subscription purchase until a specified future expiration time.
 //
 // Deprecated: Google deprecated purchases.subscriptions.defer in favor of purchases.subscriptionsv2.defer
-// and will shut it down on August 31, 2028.
+// and will shut it down on August 31, 2028. Use DeferSubscriptionV2.
 func (c *Client) DeferSubscription(ctx context.Context, packageName string, subscriptionID string, token string,
 	req *androidpublisher.SubscriptionPurchasesDeferRequest) (*androidpublisher.SubscriptionPurchasesDeferResponse, error) {
 	ps := androidpublisher.NewPurchasesSubscriptionsService(c.service)
