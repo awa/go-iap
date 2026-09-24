@@ -32,12 +32,15 @@ type IABProductV2 interface {
 }
 
 // The IABSubscription type is an interface for subscription service
+//
+// VerifySubscription, RefundSubscription and RevokeSubscription were removed because
+// google.golang.org/api v0.290.0 dropped the underlying purchases.subscriptions methods.
+// Use VerifySubscriptionV2, RevokeSubscriptionV2 and Refund instead.
 type IABSubscription interface {
 	AcknowledgeSubscription(context.Context, string, string, string, *androidpublisher.SubscriptionPurchasesAcknowledgeRequest) error
-	VerifySubscription(context.Context, string, string, string) (*androidpublisher.SubscriptionPurchase, error)
+	// Deprecated: Google deprecated purchases.subscriptions.cancel in favor of purchases.subscriptionsv2.cancel.
 	CancelSubscription(context.Context, string, string, string) error
-	RefundSubscription(context.Context, string, string, string) error
-	RevokeSubscription(context.Context, string, string, string) error
+	// Deprecated: Google deprecated purchases.subscriptions.defer in favor of purchases.subscriptionsv2.defer.
 	DeferSubscription(context.Context, string, string, string, *androidpublisher.SubscriptionPurchasesDeferRequest) (*androidpublisher.SubscriptionPurchasesDeferResponse, error)
 }
 
@@ -142,20 +145,6 @@ func (c *Client) AcknowledgeSubscription(
 	return err
 }
 
-// VerifySubscription verifies subscription status
-// Deprecated
-func (c *Client) VerifySubscription(
-	ctx context.Context,
-	packageName string,
-	subscriptionID string,
-	token string,
-) (*androidpublisher.SubscriptionPurchase, error) {
-	ps := androidpublisher.NewPurchasesSubscriptionsService(c.service)
-	result, err := ps.Get(packageName, subscriptionID, token).Context(ctx).Do()
-
-	return result, err
-}
-
 // VerifySubscriptionV2 verifies subscription status
 func (c *Client) VerifySubscriptionV2(
 	ctx context.Context,
@@ -221,6 +210,9 @@ func (c *Client) ConsumeProduct(ctx context.Context, packageName, productID, tok
 }
 
 // CancelSubscription cancels a user's subscription purchase.
+//
+// Deprecated: Google deprecated purchases.subscriptions.cancel in favor of purchases.subscriptionsv2.cancel
+// and will shut it down on August 31, 2028.
 func (c *Client) CancelSubscription(ctx context.Context, packageName string, subscriptionID string, token string) error {
 	ps := androidpublisher.NewPurchasesSubscriptionsService(c.service)
 	err := ps.Cancel(packageName, subscriptionID, token).Context(ctx).Do()
@@ -228,26 +220,10 @@ func (c *Client) CancelSubscription(ctx context.Context, packageName string, sub
 	return err
 }
 
-// RefundSubscription refunds a user's subscription purchase, but the subscription remains valid
-// until its expiration time and it will continue to recur.
-func (c *Client) RefundSubscription(ctx context.Context, packageName string, subscriptionID string, token string) error {
-	ps := androidpublisher.NewPurchasesSubscriptionsService(c.service)
-	err := ps.Refund(packageName, subscriptionID, token).Context(ctx).Do()
-
-	return err
-}
-
-// RevokeSubscription refunds and immediately revokes a user's subscription purchase.
-// Access to the subscription will be terminated immediately and it will stop recurring.
-func (c *Client) RevokeSubscription(ctx context.Context, packageName string, subscriptionID string, token string) error {
-	ps := androidpublisher.NewPurchasesSubscriptionsService(c.service)
-	err := ps.Revoke(packageName, subscriptionID, token).Context(ctx).Do()
-
-	return err
-}
-
-// DeferSubscription refunds and immediately defers a user's subscription purchase.
-// Access to the subscription will be terminated immediately and it will stop recurring.
+// DeferSubscription defers a user's subscription purchase until a specified future expiration time.
+//
+// Deprecated: Google deprecated purchases.subscriptions.defer in favor of purchases.subscriptionsv2.defer
+// and will shut it down on August 31, 2028.
 func (c *Client) DeferSubscription(ctx context.Context, packageName string, subscriptionID string, token string,
 	req *androidpublisher.SubscriptionPurchasesDeferRequest) (*androidpublisher.SubscriptionPurchasesDeferResponse, error) {
 	ps := androidpublisher.NewPurchasesSubscriptionsService(c.service)

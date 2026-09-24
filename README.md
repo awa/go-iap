@@ -1,7 +1,7 @@
 go-iap
 ======
 
-![](https://img.shields.io/badge/golang-1.22+-blue.svg?style=flat)
+![](https://img.shields.io/badge/golang-1.26+-blue.svg?style=flat)
 [![unit test](https://github.com/awa/go-iap/actions/workflows/unit_test.yml/badge.svg)](https://github.com/awa/go-iap/actions/workflows/unit_test.yml)
 
 >go-iap verifies the purchase receipt via AppStore, GooglePlayStore, Amazon AppStore, HMS or MicrosoftStore.
@@ -65,7 +65,7 @@ func main() {
 
 	client := playstore.New(jsonKey)
 	ctx := context.Background()
-	resp, err := client.VerifySubscription(ctx, "package", "subscriptionID", "purchaseToken")
+	resp, err := client.VerifySubscriptionV2(ctx, "package", "purchaseToken")
 }
 ```
 

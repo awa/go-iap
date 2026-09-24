@@ -190,49 +190,6 @@ func (mr *MockIABSubscriptionMockRecorder) DeferSubscription(arg0, arg1, arg2, a
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeferSubscription", reflect.TypeOf((*MockIABSubscription)(nil).DeferSubscription), arg0, arg1, arg2, arg3, arg4)
 }
 
-// RefundSubscription mocks base method.
-func (m *MockIABSubscription) RefundSubscription(arg0 context.Context, arg1, arg2, arg3 string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RefundSubscription", arg0, arg1, arg2, arg3)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// RefundSubscription indicates an expected call of RefundSubscription.
-func (mr *MockIABSubscriptionMockRecorder) RefundSubscription(arg0, arg1, arg2, arg3 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RefundSubscription", reflect.TypeOf((*MockIABSubscription)(nil).RefundSubscription), arg0, arg1, arg2, arg3)
-}
-
-// RevokeSubscription mocks base method.
-func (m *MockIABSubscription) RevokeSubscription(arg0 context.Context, arg1, arg2, arg3 string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RevokeSubscription", arg0, arg1, arg2, arg3)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// RevokeSubscription indicates an expected call of RevokeSubscription.
-func (mr *MockIABSubscriptionMockRecorder) RevokeSubscription(arg0, arg1, arg2, arg3 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RevokeSubscription", reflect.TypeOf((*MockIABSubscription)(nil).RevokeSubscription), arg0, arg1, arg2, arg3)
-}
-
-// VerifySubscription mocks base method.
-func (m *MockIABSubscription) VerifySubscription(arg0 context.Context, arg1, arg2, arg3 string) (*androidpublisher.SubscriptionPurchase, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "VerifySubscription", arg0, arg1, arg2, arg3)
-	ret0, _ := ret[0].(*androidpublisher.SubscriptionPurchase)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// VerifySubscription indicates an expected call of VerifySubscription.
-func (mr *MockIABSubscriptionMockRecorder) VerifySubscription(arg0, arg1, arg2, arg3 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VerifySubscription", reflect.TypeOf((*MockIABSubscription)(nil).VerifySubscription), arg0, arg1, arg2, arg3)
-}
-
 // MockIABSubscriptionV2 is a mock of IABSubscriptionV2 interface.
 type MockIABSubscriptionV2 struct {
 	ctrl     *gomock.Controller

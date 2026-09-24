@@ -26,3 +26,5 @@ _testmain.go
 coverage.txt
 
 .idea
+
+.claude/worktrees/
