@@ -115,22 +115,6 @@ func TestAcknowledgeSubscription(t *testing.T) {
 	// TODO Normal scenario
 }
 
-func TestVerifySubscription(t *testing.T) {
-	t.Parallel()
-	// Exception scenario
-	expected := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
-
-	client, _ := New(jsonKey)
-	ctx := context.Background()
-	_, err := client.VerifySubscription(ctx, "package", "subscriptionID", "purchaseToken")
-
-	if err == nil || err.Error() != expected {
-		t.Errorf("got %v\nwant %v", err, expected)
-	}
-
-	// TODO Normal scenario
-}
-
 func TestVerifySubscriptionV2(t *testing.T) {
 	t.Parallel()
 	// Exception scenario
@@ -237,36 +221,6 @@ func TestCancelSubscription(t *testing.T) {
 	client, _ := New(jsonKey)
 	expectedStr := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
 	actual := client.CancelSubscription(ctx, "package", "productID", "purchaseToken")
-
-	if actual == nil || actual.Error() != expectedStr {
-		t.Errorf("got %v\nwant %v", actual, expectedStr)
-	}
-
-	// TODO Normal scenario
-}
-
-func TestRefundSubscription(t *testing.T) {
-	t.Parallel()
-
-	ctx := context.Background()
-	client, _ := New(jsonKey)
-	expectedStr := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
-	actual := client.RefundSubscription(ctx, "package", "productID", "purchaseToken")
-
-	if actual == nil || actual.Error() != expectedStr {
-		t.Errorf("got %v\nwant %v", actual, expectedStr)
-	}
-
-	// TODO Normal scenario
-}
-
-func TestRevokeSubscription(t *testing.T) {
-	t.Parallel()
-
-	ctx := context.Background()
-	client, _ := New(jsonKey)
-	expectedStr := "googleapi: Error 404: No application was found for the given package name., applicationNotFound"
-	actual := client.RevokeSubscription(ctx, "package", "productID", "purchaseToken")
 
 	if actual == nil || actual.Error() != expectedStr {
 		t.Errorf("got %v\nwant %v", actual, expectedStr)

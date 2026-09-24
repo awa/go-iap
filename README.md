@@ -65,7 +65,7 @@ func main() {
 
 	client := playstore.New(jsonKey)
 	ctx := context.Background()
-	resp, err := client.VerifySubscription(ctx, "package", "subscriptionID", "purchaseToken")
+	resp, err := client.VerifySubscriptionV2(ctx, "package", "purchaseToken")
 }
 ```
 
