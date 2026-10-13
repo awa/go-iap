@@ -13,6 +13,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -40,6 +41,8 @@ const (
 	PathSetAppAccountToken                  = "/inApps/v1/transactions/{originalTransactionId}/appAccountToken"
 	PathGetAppTransactionInfo               = "/inApps/v1/transactions/appTransactions/{transactionId}"
 	PathFinishTransaction                   = "/inApps/v1/transactions/{transactionId}/finish"
+	PathGetCustomerGroups                   = "/groups/v1/currentGroups/{anyTransactionId}"
+	PathGetGroupMembers                     = "/groups/v1/group/{groupId}"
 )
 
 type StoreConfig struct {
@@ -65,6 +68,7 @@ type (
 		ConsumptionSender
 		AppAccountSetter
 		TransactionVerifier
+		GroupGetter
 		Do(ctx context.Context, method string, url string, body io.Reader) (int, []byte, error)
 	}
 
@@ -111,6 +115,11 @@ type (
 
 	TransactionVerifier interface {
 		Verify(ctx context.Context, transactionId string) (rsp *TransactionInfoResponse, err error)
+	}
+
+	GroupGetter interface {
+		GetCustomerGroups(ctx context.Context, anyTransactionId string) (rsp *GetCustomerGroupsResponse, err error)
+		GetGroupMembers(ctx context.Context, groupId string, paginationToken string, limit int) (rsp *GetGroupMembersResponse, err error)
 	}
 )
 
@@ -524,6 +533,64 @@ func (a *StoreClient) FinishTransaction(ctx context.Context, transactionId strin
 	URL = strings.Replace(URL, "{transactionId}", transactionId, -1)
 
 	statusCode, _, err = a.Do(ctx, http.MethodPost, URL, nil)
+	return
+}
+
+// GetCustomerGroups https://developer.apple.com/documentation/appstoreserverapi/get-customer-groups
+// anyTransactionId is any originalTransactionId, transactionId or appTransactionId of the customer.
+func (a *StoreClient) GetCustomerGroups(ctx context.Context, anyTransactionId string) (rsp *GetCustomerGroupsResponse, err error) {
+	URL := a.host + PathGetCustomerGroups
+	URL = strings.Replace(URL, "{anyTransactionId}", anyTransactionId, -1)
+
+	statusCode, body, err := a.Do(ctx, http.MethodGet, URL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if statusCode != http.StatusOK {
+		return nil, newHTTPStatusError(statusCode, URL)
+	}
+
+	err = json.Unmarshal(body, &rsp)
+	if err != nil {
+		return nil, err
+	}
+
+	return
+}
+
+// GetGroupMembers https://developer.apple.com/documentation/appstoreserverapi/get-group-members
+// Pass an empty paginationToken for the first page, then the PaginationToken of the previous response while HasMore is true.
+// A limit of 0 or less leaves the page size to the App Store; Apple accepts at most 100.
+func (a *StoreClient) GetGroupMembers(ctx context.Context, groupId string, paginationToken string, limit int) (rsp *GetGroupMembersResponse, err error) {
+	URL := a.host + PathGetGroupMembers
+	URL = strings.Replace(URL, "{groupId}", groupId, -1)
+
+	query := url.Values{}
+	if paginationToken != "" {
+		query.Set("paginationToken", paginationToken)
+	}
+	if limit > 0 {
+		query.Set("limit", strconv.Itoa(limit))
+	}
+	if len(query) > 0 {
+		URL += "?" + query.Encode()
+	}
+
+	statusCode, body, err := a.Do(ctx, http.MethodGet, URL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if statusCode != http.StatusOK {
+		return nil, newHTTPStatusError(statusCode, URL)
+	}
+
+	err = json.Unmarshal(body, &rsp)
+	if err != nil {
+		return nil, err
+	}
+
 	return
 }
 

@@ -523,3 +523,49 @@ type JWSAppTransactionDecodedPayload struct {
 	ReceiptCreationDate        int64       `json:"receiptCreationDate"`
 	ReceiptType                Environment `json:"receiptType"`
 }
+
+// GetCustomerGroupsResponse https://developer.apple.com/documentation/appstoreserverapi/getcustomergroupsresponse
+type GetCustomerGroupsResponse struct {
+	Groups []GroupEntry `json:"groups"`
+}
+
+// GroupEntry https://developer.apple.com/documentation/appstoreserverapi/groupentry
+type GroupEntry struct {
+	GroupId   string      `json:"groupId"`
+	GroupType GroupType   `json:"groupType"`
+	Roles     []RoleEntry `json:"roles,omitempty"` // present only for a GroupTypeOrganization group
+}
+
+// RoleEntry https://developer.apple.com/documentation/appstoreserverapi/roleentry
+type RoleEntry struct {
+	ProductId string `json:"productId"`
+	Role      Role   `json:"role"`
+}
+
+// GroupType https://developer.apple.com/documentation/appstoreserverapi/grouptype
+type GroupType string
+
+const (
+	GroupTypeOrganization GroupType = "ORGANIZATION"
+	GroupTypeConsumer     GroupType = "CONSUMER"
+)
+
+// Role https://developer.apple.com/documentation/appstoreserverapi/role
+type Role string
+
+const (
+	RoleNone  Role = "NONE"
+	RoleAdmin Role = "ADMIN"
+)
+
+// GetGroupMembersResponse https://developer.apple.com/documentation/appstoreserverapi/getgroupmembersresponse
+type GetGroupMembersResponse struct {
+	Members         []GroupMemberEntry `json:"members"`
+	PaginationToken string             `json:"paginationToken,omitempty"`
+	HasMore         bool               `json:"hasMore"`
+}
+
+// GroupMemberEntry https://developer.apple.com/documentation/appstoreserverapi/groupmemberentry
+type GroupMemberEntry struct {
+	AppTransactionId string `json:"appTransactionId"`
+}

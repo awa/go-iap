@@ -173,4 +173,8 @@ var (
 	InvalidAppAccountTokenUUIDError              = newError(4000183, "Invalid request. The app account token field must be a valid UUID")
 	FamilyTransactionNotSupportedError           = newError(4000185, "Invalid request. Family Sharing transactions aren't supported by this endpoint")
 	TransactionIdIsNotOriginalTransactionIdError = newError(4000187, "Invalid request. The transaction ID provided is not an original transaction ID")
+	// Group errors
+	InvalidLimitError   = newError(4000004, "Invalid request limit.")
+	InvalidGroupIdError = newError(4000225, "Invalid request. The group ID is invalid.")
+	GroupNotFoundError  = newError(4040022, "Group not found.")
 )

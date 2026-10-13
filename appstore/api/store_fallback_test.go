@@ -73,6 +73,14 @@ func (s *stubClient) GetAppTransactionInfo(context.Context, string) (*AppTransac
 	return &AppTransactionInfoResponse{}, nil
 }
 
+func (s *stubClient) GetCustomerGroups(context.Context, string) (*GetCustomerGroupsResponse, error) {
+	s.record()
+	if s.err != nil {
+		return nil, s.err
+	}
+	return &GetCustomerGroupsResponse{}, nil
+}
+
 // lookup hides the differing signatures so every method runs the same table.
 type lookup struct {
 	name string
@@ -103,6 +111,10 @@ func lookups() []lookup {
 		}},
 		{"Verify", func(ctx context.Context, c *StoreClientWithSandboxFallback) error {
 			_, err := c.Verify(ctx, "1")
+			return err
+		}},
+		{"GetCustomerGroups", func(ctx context.Context, c *StoreClientWithSandboxFallback) error {
+			_, err := c.GetCustomerGroups(ctx, "1")
 			return err
 		}},
 	}
@@ -217,7 +229,11 @@ func TestSandboxFallbackDelegatesOtherMethods(t *testing.T) {
 	if _, err := c.LookupOrderID(context.Background(), "order"); err != nil {
 		t.Fatalf("LookupOrderID: %v", err)
 	}
-	if want := []string{"production"}; !reflect.DeepEqual(calls, want) {
+	// A group ID is not a transaction, so production never reports it missing as one.
+	if _, err := c.GetGroupMembers(context.Background(), "group", "", 0); err != nil {
+		t.Fatalf("GetGroupMembers: %v", err)
+	}
+	if want := []string{"production", "production"}; !reflect.DeepEqual(calls, want) {
 		t.Errorf("calls = %v, want %v", calls, want)
 	}
 }
@@ -230,6 +246,11 @@ type delegatingStub struct {
 func (s *delegatingStub) LookupOrderID(context.Context, string) (*OrderLookupResponse, error) {
 	*s.calls = append(*s.calls, "production")
 	return &OrderLookupResponse{}, nil
+}
+
+func (s *delegatingStub) GetGroupMembers(context.Context, string, string, int) (*GetGroupMembersResponse, error) {
+	*s.calls = append(*s.calls, "production")
+	return &GetGroupMembersResponse{}, nil
 }
 
 // The wrapped error must say why Sandbox was asked.
