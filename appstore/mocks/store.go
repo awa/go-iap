@@ -150,6 +150,36 @@ func (mr *MockStoreAPIClientMockRecorder) GetAppTransactionInfo(ctx, transaction
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAppTransactionInfo", reflect.TypeOf((*MockStoreAPIClient)(nil).GetAppTransactionInfo), ctx, transactionId)
 }
 
+// GetCustomerGroups mocks base method.
+func (m *MockStoreAPIClient) GetCustomerGroups(ctx context.Context, anyTransactionId string) (*api.GetCustomerGroupsResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCustomerGroups", ctx, anyTransactionId)
+	ret0, _ := ret[0].(*api.GetCustomerGroupsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCustomerGroups indicates an expected call of GetCustomerGroups.
+func (mr *MockStoreAPIClientMockRecorder) GetCustomerGroups(ctx, anyTransactionId any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCustomerGroups", reflect.TypeOf((*MockStoreAPIClient)(nil).GetCustomerGroups), ctx, anyTransactionId)
+}
+
+// GetGroupMembers mocks base method.
+func (m *MockStoreAPIClient) GetGroupMembers(ctx context.Context, groupId, paginationToken string, limit int) (*api.GetGroupMembersResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGroupMembers", ctx, groupId, paginationToken, limit)
+	ret0, _ := ret[0].(*api.GetGroupMembersResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetGroupMembers indicates an expected call of GetGroupMembers.
+func (mr *MockStoreAPIClientMockRecorder) GetGroupMembers(ctx, groupId, paginationToken, limit any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGroupMembers", reflect.TypeOf((*MockStoreAPIClient)(nil).GetGroupMembers), ctx, groupId, paginationToken, limit)
+}
+
 // GetNotificationHistory mocks base method.
 func (m *MockStoreAPIClient) GetNotificationHistory(ctx context.Context, body api.NotificationHistoryRequest, paginationToken string) (*api.NotificationHistoryResponses, error) {
 	m.ctrl.T.Helper()

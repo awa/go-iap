@@ -104,6 +104,18 @@ func (c *StoreClientWithSandboxFallback) GetAppTransactionInfo(ctx context.Conte
 	return rsp, fmt.Errorf("production: %v; sandbox: %w", productionErr, err)
 }
 
+func (c *StoreClientWithSandboxFallback) GetCustomerGroups(ctx context.Context, anyTransactionId string) (*GetCustomerGroupsResponse, error) {
+	rsp, productionErr := c.productionCli.GetCustomerGroups(ctx, anyTransactionId)
+	if !c.hasFallback(productionErr) {
+		return rsp, productionErr
+	}
+	rsp, err := c.sandboxCli.GetCustomerGroups(ctx, anyTransactionId)
+	if err == nil {
+		return rsp, nil
+	}
+	return rsp, fmt.Errorf("production: %v; sandbox: %w", productionErr, err)
+}
+
 // The rest go to production only. Writes are not repeated elsewhere, and the
 // remaining reads fail in ways Sandbox cannot answer.
 
@@ -165,6 +177,10 @@ func (c *StoreClientWithSandboxFallback) SendConsumptionInfoV2(ctx context.Conte
 
 func (c *StoreClientWithSandboxFallback) SetAppAccountToken(ctx context.Context, originalTransactionId string, body UpdateAppAccountTokenRequest) (int, error) {
 	return c.productionCli.SetAppAccountToken(ctx, originalTransactionId, body)
+}
+
+func (c *StoreClientWithSandboxFallback) GetGroupMembers(ctx context.Context, groupId string, paginationToken string, limit int) (*GetGroupMembersResponse, error) {
+	return c.productionCli.GetGroupMembers(ctx, groupId, paginationToken, limit)
 }
 
 func (c *StoreClientWithSandboxFallback) Do(ctx context.Context, method string, url string, body io.Reader) (int, []byte, error) {
