@@ -5,8 +5,6 @@ package api
 import (
 	"bytes"
 	"context"
-	"crypto/ecdsa"
-	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -17,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/awa/go-iap/appstore"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -126,7 +125,6 @@ type (
 type StoreClient struct {
 	Token   *Token
 	httpCli *http.Client
-	cert    *Cert
 	host    string
 }
 
@@ -137,7 +135,6 @@ func NewStoreClient(config *StoreConfig) *StoreClient {
 
 	client := &StoreClient{
 		Token: token,
-		cert:  &Cert{},
 		httpCli: &http.Client{
 			Timeout: 30 * time.Second,
 		},
@@ -153,7 +150,6 @@ func NewStoreClientWithHTTPClient(config *StoreConfig, httpClient *http.Client) 
 
 	client := &StoreClient{
 		Token:   token,
-		cert:    &Cert{},
 		httpCli: httpClient,
 		host:    getHost(config.Sandbox, config.HostDebug),
 	}
@@ -634,39 +630,11 @@ func (a *StoreClient) ParseJWSEncodeString(jwsEncode string) (interface{}, error
 }
 
 func (a *StoreClient) parseJWS(jwsEncode string, claims jwt.Claims) error {
-	rootCertBytes, err := a.cert.extractCertByIndex(jwsEncode, 2)
+	// Certificate chain verification lives in appstore.Cert so that notifications
+	// and transactions are verified by the same code.
+	pk, err := (&appstore.Cert{}).ExtractPublicKeyFromToken(jwsEncode)
 	if err != nil {
 		return err
-	}
-	rootCert, err := x509.ParseCertificate(rootCertBytes)
-	if err != nil {
-		return fmt.Errorf("appstore failed to parse root certificate")
-	}
-
-	intermediaCertBytes, err := a.cert.extractCertByIndex(jwsEncode, 1)
-	if err != nil {
-		return err
-	}
-	intermediaCert, err := x509.ParseCertificate(intermediaCertBytes)
-	if err != nil {
-		return fmt.Errorf("appstore failed to parse intermediate certificate")
-	}
-
-	leafCertBytes, err := a.cert.extractCertByIndex(jwsEncode, 0)
-	if err != nil {
-		return err
-	}
-	leafCert, err := x509.ParseCertificate(leafCertBytes)
-	if err != nil {
-		return fmt.Errorf("appstore failed to parse leaf certificate")
-	}
-	if err = a.cert.verifyCert(rootCert, intermediaCert, leafCert); err != nil {
-		return err
-	}
-
-	pk, ok := leafCert.PublicKey.(*ecdsa.PublicKey)
-	if !ok {
-		return fmt.Errorf("appstore public key must be of type ecdsa.PublicKey")
 	}
 
 	_, err = jwt.ParseWithClaims(jwsEncode, claims, func(token *jwt.Token) (interface{}, error) {
