@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 )
 
 // rootPEM is generated through `openssl x509 -inform der -in AppleRootCA-G3.cer -out apple_root.pem`
@@ -52,7 +53,8 @@ func (c *Cert) extractCertByIndex(tokenStr string, index int) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len(header.X5c) <= 0 || index >= len(header.X5c) {
+	// App Store JWS always carries exactly three certificates: leaf, intermediate and root.
+	if len(header.X5c) != 3 {
 		return nil, errors.New("failed to extract cert from x5c header, possible unauthorised request detected")
 	}
 	certByte, err := base64.StdEncoding.DecodeString(header.X5c[index])
@@ -85,7 +87,11 @@ func certHasExtension(cert *x509.Certificate, oid string) bool {
 	return false
 }
 
-// VerifyCert verifies the certificate chain.
+// errNotAppStoreCert is returned when a certificate chain verifies against the
+// trusted root but is not an App Store signing chain.
+var errNotAppStoreCert = errors.New("certificate chain is not an App Store signing chain")
+
+// verifyCert verifies the certificate chain against the embedded Apple Root CA G3 at the current time.
 func (c *Cert) verifyCert(rootCert, intermediaCert, leafCert *x509.Certificate) error {
 	roots := x509.NewCertPool()
 	ok := roots.AppendCertsFromPEM([]byte(rootPEM))
@@ -93,19 +99,26 @@ func (c *Cert) verifyCert(rootCert, intermediaCert, leafCert *x509.Certificate) 
 		return errors.New("failed to parse root certificate")
 	}
 
+	return verifyCertChain(rootCert, intermediaCert, leafCert, roots, time.Now())
+}
+
+// verifyCertChain verifies that leafCert chains to roots through intermediaCert at the given time,
+// and that the verified chain is an App Store signing chain.
+func verifyCertChain(rootCert, intermediaCert, leafCert *x509.Certificate, roots *x509.CertPool, now time.Time) error {
 	intermedia := x509.NewCertPool()
 	intermedia.AddCert(intermediaCert)
 
 	opts := x509.VerifyOptions{
 		Roots:         roots,
 		Intermediates: intermedia,
+		CurrentTime:   now,
 	}
 	_, err := rootCert.Verify(opts)
 	if err != nil {
 		return err
 	}
 
-	_, err = leafCert.Verify(opts)
+	chains, err := leafCert.Verify(opts)
 	if err != nil {
 		return err
 	}
@@ -115,17 +128,19 @@ func (c *Cert) verifyCert(rootCert, intermediaCert, leafCert *x509.Certificate) 
 	// Extended Key Usage, which includes certificates issued for other Apple
 	// programs (for example an Apple Pay Payment Processing certificate, which a
 	// developer can obtain for a key they control). Such a certificate could
-	// otherwise be used to sign a forged transaction or notification that this
-	// method accepts. Require Apple's App Store marker OIDs so only genuine App
-	// Store signing certificates are trusted, matching Apple's own libraries.
-	if !certHasExtension(leafCert, appStoreLeafMarkerOID) {
-		return fmt.Errorf("leaf certificate is not an App Store signing certificate (missing OID %s)", appStoreLeafMarkerOID)
-	}
-	if !certHasExtension(intermediaCert, appStoreIntermediateMarkerOID) {
-		return fmt.Errorf("intermediate certificate is not an App Store signing certificate (missing OID %s)", appStoreIntermediateMarkerOID)
+	// otherwise be used to sign a forged transaction or notification. Require
+	// Apple's App Store marker OIDs on the verified chain (leaf, intermediate,
+	// root), matching Apple's own libraries.
+	for _, chain := range chains {
+		if len(chain) == 3 &&
+			certHasExtension(chain[0], appStoreLeafMarkerOID) &&
+			certHasExtension(chain[1], appStoreIntermediateMarkerOID) {
+			return nil
+		}
 	}
 
-	return nil
+	return fmt.Errorf("%w: requires a leaf with OID %s issued by an intermediate with OID %s",
+		errNotAppStoreCert, appStoreLeafMarkerOID, appStoreIntermediateMarkerOID)
 }
 
 func (c *Cert) ExtractPublicKeyFromToken(token string) (*ecdsa.PublicKey, error) {
