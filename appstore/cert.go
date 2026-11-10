@@ -63,6 +63,28 @@ func (c *Cert) extractCertByIndex(tokenStr string, index int) ([]byte, error) {
 	return certByte, nil
 }
 
+// Apple App Store signing certificates carry these custom marker OIDs. Apple's
+// own App Store Server Library pins them during verification. Requiring them
+// ensures the signing certificate is an App Store certificate, not merely some
+// other certificate that happens to chain to Apple Root CA G3.
+const (
+	// appStoreLeafMarkerOID is present on the App Store receipt/JWS signing leaf.
+	appStoreLeafMarkerOID = "1.2.840.113635.100.6.11.1"
+	// appStoreIntermediateMarkerOID is present on the Apple WWDR intermediate
+	// that issues App Store signing leaves.
+	appStoreIntermediateMarkerOID = "1.2.840.113635.100.6.2.1"
+)
+
+// certHasExtension reports whether cert carries an extension with the given OID.
+func certHasExtension(cert *x509.Certificate, oid string) bool {
+	for _, ext := range cert.Extensions {
+		if ext.Id.String() == oid {
+			return true
+		}
+	}
+	return false
+}
+
 // VerifyCert verifies the certificate chain.
 func (c *Cert) verifyCert(rootCert, intermediaCert, leafCert *x509.Certificate) error {
 	roots := x509.NewCertPool()
@@ -86,6 +108,21 @@ func (c *Cert) verifyCert(rootCert, intermediaCert, leafCert *x509.Certificate) 
 	_, err = leafCert.Verify(opts)
 	if err != nil {
 		return err
+	}
+
+	// Chaining to Apple Root CA G3 is necessary but not sufficient: Go's
+	// x509.Verify accepts any leaf that chains to the root and carries no
+	// Extended Key Usage, which includes certificates issued for other Apple
+	// programs (for example an Apple Pay Payment Processing certificate, which a
+	// developer can obtain for a key they control). Such a certificate could
+	// otherwise be used to sign a forged transaction or notification that this
+	// method accepts. Require Apple's App Store marker OIDs so only genuine App
+	// Store signing certificates are trusted, matching Apple's own libraries.
+	if !certHasExtension(leafCert, appStoreLeafMarkerOID) {
+		return fmt.Errorf("leaf certificate is not an App Store signing certificate (missing OID %s)", appStoreLeafMarkerOID)
+	}
+	if !certHasExtension(intermediaCert, appStoreIntermediateMarkerOID) {
+		return fmt.Errorf("intermediate certificate is not an App Store signing certificate (missing OID %s)", appStoreIntermediateMarkerOID)
 	}
 
 	return nil
