@@ -42,6 +42,10 @@ const (
 	PathFinishTransaction                   = "/inApps/v1/transactions/{transactionId}/finish"
 	PathGetCustomerGroups                   = "/groups/v1/currentGroups/{anyTransactionId}"
 	PathGetGroupMembers                     = "/groups/v1/group/{groupId}"
+	PathGetSeatInfo                         = "/groups/v1/transactions/{originalTransactionId}/seats"
+	PathClaimSeat                           = "/groups/v1/transactions/{originalTransactionId}/seats"
+	PathUnclaimSeat                         = "/groups/v1/transactions/{originalTransactionId}/seats/{seatClaimId}"
+	PathAssociateSeat                       = "/groups/v1/transactions/{originalTransactionId}/seats/{seatClaimId}/associate"
 )
 
 type StoreConfig struct {
@@ -119,6 +123,15 @@ type (
 	GroupGetter interface {
 		GetCustomerGroups(ctx context.Context, anyTransactionId string) (rsp *GetCustomerGroupsResponse, err error)
 		GetGroupMembers(ctx context.Context, groupId string, paginationToken string, limit int) (rsp *GetGroupMembersResponse, err error)
+	}
+
+	// SeatManager manages seats of subscriptions with developer-hosted invitations.
+	// Apple currently supports these endpoints only in Sandbox.
+	SeatManager interface {
+		GetSeatInfo(ctx context.Context, originalTransactionId string) (*GetSeatInfoResponse, error)
+		ClaimSeat(ctx context.Context, originalTransactionId string, body ClaimSeatRequest) (*ClaimSeatResponse, error)
+		UnclaimSeat(ctx context.Context, originalTransactionId, seatClaimId string) (statusCode int, err error)
+		AssociateSeat(ctx context.Context, originalTransactionId, seatClaimId string, body AssociateSeatRequest) (statusCode int, err error)
 	}
 )
 
