@@ -177,4 +177,11 @@ var (
 	InvalidLimitError   = newError(4000004, "Invalid request limit.")
 	InvalidGroupIdError = newError(4000225, "Invalid request. The group ID is invalid.")
 	GroupNotFoundError  = newError(4040022, "Group not found.")
+	// Seat management errors (App Store Server API 1.23).
+	BundleTransactionIdNotSupportedError = newError(4000241, "Invalid request. Bundle transaction ids aren't supported by this endpoint.")
+	NoAvailableSeatsError                = newError(4000251, "Invalid request. No available seats to claim on this subscription.")
+	TransactionNotDevManagedGroupError   = newError(4000273, "Invalid request. The transaction doesn't represent a developer-managed group subscription.")
+	AppTransactionIdNotFoundError        = newError(4040023, "App transaction id not found.")
+	SeatClaimIdNotFoundError             = newError(4040025, "Seat claim id not found.")
+	SubscriptionNotActiveError           = newError(4030039, "The subscription must be active for the requested operation.")
 )

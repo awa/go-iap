@@ -25,7 +25,10 @@ func NewStoreClientWithSandboxFallback(config *StoreConfig) *StoreClientWithSand
 
 type StoreClientWithSandboxFallback struct {
 	productionCli StoreAPIClient
-	sandboxCli    StoreAPIClient
+	sandboxCli    interface {
+		StoreAPIClient
+		SeatManager
+	}
 }
 
 // hasFallback reports whether Sandbox may answer a production failure: the
@@ -116,8 +119,27 @@ func (c *StoreClientWithSandboxFallback) GetCustomerGroups(ctx context.Context, 
 	return rsp, fmt.Errorf("production: %v; sandbox: %w", productionErr, err)
 }
 
-// The rest go to production only. Writes are not repeated elsewhere, and the
-// remaining reads fail in ways Sandbox cannot answer.
+// Seat management is currently Sandbox-only. Route directly to Sandbox;
+// no request is repeated in another environment, including mutations.
+
+func (c *StoreClientWithSandboxFallback) GetSeatInfo(ctx context.Context, originalTransactionId string) (*GetSeatInfoResponse, error) {
+	return c.sandboxCli.GetSeatInfo(ctx, originalTransactionId)
+}
+
+func (c *StoreClientWithSandboxFallback) ClaimSeat(ctx context.Context, originalTransactionId string, body ClaimSeatRequest) (*ClaimSeatResponse, error) {
+	return c.sandboxCli.ClaimSeat(ctx, originalTransactionId, body)
+}
+
+func (c *StoreClientWithSandboxFallback) UnclaimSeat(ctx context.Context, originalTransactionId, seatClaimId string) (int, error) {
+	return c.sandboxCli.UnclaimSeat(ctx, originalTransactionId, seatClaimId)
+}
+
+func (c *StoreClientWithSandboxFallback) AssociateSeat(ctx context.Context, originalTransactionId, seatClaimId string, body AssociateSeatRequest) (int, error) {
+	return c.sandboxCli.AssociateSeat(ctx, originalTransactionId, seatClaimId, body)
+}
+
+// The remaining methods go to production only. Writes are not repeated elsewhere,
+// and the remaining reads fail in ways Sandbox cannot answer.
 
 func (c *StoreClientWithSandboxFallback) GetSubscriptionRenewalDataStatus(ctx context.Context, productId, requestIdentifier string) (int, *MassExtendRenewalDateStatusResponse, error) {
 	return c.productionCli.GetSubscriptionRenewalDataStatus(ctx, productId, requestIdentifier)

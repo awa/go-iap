@@ -132,12 +132,15 @@ type AdvancedCommerceOffer struct {
 }
 
 type AdvancedCommerceRenewalItems struct {
-	SKU               string                            `json:"SKU"`
-	Description       string                            `json:"description"`
-	DisplayName       string                            `json:"displayName"`
-	Offer             AdvancedCommerceOffer             `json:"offer"`
-	Price             int64                             `json:"price"`
-	PriceIncreaseInfo AdvancedCommercePriceIncreaseInfo `json:"priceIncreaseInfo"`
+	SKU                   string                            `json:"SKU"`
+	Description           string                            `json:"description"`
+	DisplayName           string                            `json:"displayName"`
+	Offer                 AdvancedCommerceOffer             `json:"offer"`
+	Price                 int64                             `json:"price"`
+	PriceIncreaseInfo     AdvancedCommercePriceIncreaseInfo `json:"priceIncreaseInfo"`
+	BundleItem            *AdvancedCommerceBundleItem       `json:"bundleItem,omitempty"`
+	Partners              []AdvancedCommercePartner         `json:"partners,omitempty"`
+	SeatRenewalPriceTiers []AdvancedCommerceSeatPriceTier   `json:"seatRenewalPriceTiers,omitempty"`
 }
 
 // AdvancedCommerceRenewalInfo https://developer.apple.com/documentation/appstoreserverapi/advancedcommercerenewalinfo
@@ -187,6 +190,8 @@ type JWSRenewalInfoDecodedPayload struct {
 	AdvancedCommerceInfo        AdvancedCommerceRenewalInfo `json:"advancedCommerceInfo,omitempty"`
 	CommitmentInfo              RenewalCommitmentInfo       `json:"commitmentInfo,omitempty"`
 	RenewalBillingPlanType      BillingPlanType             `json:"renewalBillingPlanType,omitempty"`
+	MultiSeatInfo               *RenewalMultiSeatInfo       `json:"multiSeatInfo,omitempty"`
+	RenewalQuantity             int32                       `json:"renewalQuantity,omitzero"`
 }
 
 // GetAudience implements jwt.Claims.
@@ -283,20 +288,24 @@ const (
 )
 
 type AdvancedCommerceRefund struct {
-	RefundAmount int64                        `json:"refundAmount"`
-	RefundDate   int64                        `json:"refundDate"`
-	RefundReason AdvancedCommerceRefundReason `json:"refundReason"`
-	RefundType   AdvancedCommerceRefundType   `json:"refundType"`
+	RefundAmount        int64                        `json:"refundAmount"`
+	RefundDate          int64                        `json:"refundDate"`
+	RefundReason        AdvancedCommerceRefundReason `json:"refundReason"`
+	RefundType          AdvancedCommerceRefundType   `json:"refundType"`
+	RevokedSeatQuantity int32                        `json:"revokedSeatQuantity,omitzero"`
 }
 
 type AdvancedCommerceTransactionItem struct {
-	SKU            string                   `json:"SKU,omitempty"`
-	Description    string                   `json:"description,omitempty"`
-	DisplayName    string                   `json:"displayName,omitempty"`
-	Offer          AdvancedCommerceOffer    `json:"offer,omitempty"`
-	Price          int64                    `json:"price,omitempty"`
-	Refunds        []AdvancedCommerceRefund `json:"refunds,omitempty"`
-	RevocationDate int64                    `json:"revocationDate,omitempty"`
+	SKU            string                          `json:"SKU,omitempty"`
+	Description    string                          `json:"description,omitempty"`
+	DisplayName    string                          `json:"displayName,omitempty"`
+	Offer          AdvancedCommerceOffer           `json:"offer,omitempty"`
+	Price          int64                           `json:"price,omitempty"`
+	Refunds        []AdvancedCommerceRefund        `json:"refunds,omitempty"`
+	RevocationDate int64                           `json:"revocationDate,omitempty"`
+	BundleItem     *AdvancedCommerceBundleItem     `json:"bundleItem,omitempty"`
+	Partners       []AdvancedCommercePartner       `json:"partners,omitempty"`
+	SeatPriceTiers []AdvancedCommerceSeatPriceTier `json:"seatPriceTiers,omitempty"`
 }
 
 type AdvancedCommercePeriod string
@@ -375,6 +384,8 @@ type JWSTransaction struct {
 	AdvancedCommerceInfo        AdvancedCommerceTransactionInfo `json:"advancedCommerceInfo,omitempty"`
 	BillingPlanType             BillingPlanType                 `json:"billingPlanType,omitempty"`
 	CommitmentInfo              TransactionCommitmentInfo       `json:"commitmentInfo,omitempty"`
+	MultiSeatInfo               *TransactionMultiSeatInfo       `json:"multiSeatInfo,omitempty"`
+	AdditionalTransactionReason AdditionalTransactionReason     `json:"additionalTransactionReason,omitempty"`
 }
 
 // GetAudience implements jwt.Claims.

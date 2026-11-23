@@ -23,6 +23,7 @@ var _ StoreAPIClient = (*StoreClientWithSandboxFallback)(nil)
 // stubClient answers one lookup and panics on anything else.
 type stubClient struct {
 	StoreAPIClient // nil on purpose: any method not stubbed below panics
+	SeatManager
 
 	name  string
 	err   error
